@@ -1,6 +1,6 @@
 # MSE CAPTURE APP
 
-## Tooltack
+## Toolstack
 
 - Ionic https://ionicframework.com/
 - Firebase https://firebase.google.com/
