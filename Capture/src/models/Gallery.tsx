@@ -1,6 +1,7 @@
 export interface Gallery {
-    id: React.Key | null | undefined;
+    id: string;
     title: string;
     description: string;
-    ownerId?: string;
+    preview_image: string;
+    owner_id: string;
 }

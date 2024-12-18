@@ -25,12 +25,14 @@ export const signOut = async () => {
 
 // Get logged-in User
 export const getLoggedInUser = async () => {
+
     const {
-        data: { user },
+        data: { session },
         error,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getSession();
 
     if (error) throw error; // Fehler werfen, falls etwas schiefgeht
-    return user; // Benutzer-Objekt zurückgeben oder null, wenn niemand eingeloggt ist
+    console.log("grrrrrrrrrr: " + session?.user.id);
+    return session?.user.id; // Benutzer-Objekt zurückgeben oder null, wenn niemand eingeloggt ist
 };
 

@@ -1,6 +1,7 @@
 import {IonContent, IonHeader, IonPage, IonTitle, IonToolbar} from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import {Register} from "./Register";
+import { Login } from './Login';
 
 const Tab1: React.FC = () => {
 
@@ -23,7 +24,7 @@ const Tab1: React.FC = () => {
 
                 <Register/>
 
-
+                <Login/>
             </IonContent>
         </IonPage>
     );

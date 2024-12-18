@@ -1,14 +1,15 @@
 import {useState} from "react";
-import {signUp} from "../services/authService";
+import {signIn} from "../services/authService";
 
-export const Register = () =>{
+export const Login = () =>{
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleRegister = async () => {
+    const handleLogin = async () => {
         try {
-            await signUp(email, password);
+            await signIn(email, password);
+            console.log("Login successful");
         } catch (err) {
             console.error(err);
         }
@@ -25,7 +26,7 @@ export const Register = () =>{
             />
 
             <br/>
-            <button onClick={handleRegister}>SignUp</button>
+            <button onClick={handleLogin}>SignIn</button>
 
         </div>
     );
