@@ -15,6 +15,44 @@ export const getGalleries = async () => {
     }
 }
 
+
+// GET Users Galleries by UserID
+export const getUsersGalleries = async (userId: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('galleries')
+            .select('*')
+            .eq('owner_id', userId); // Hier wird nach der userId gefiltert
+
+        if (error) {
+            throw error;
+        }
+
+        return data;
+    } catch (err) {
+        console.log("Error fetching user's galleries:", err);
+        return []; // Rückgabe eines leeren Arrays im Fehlerfall
+    }
+};
+
+// GET a Galleries by Id
+export const getGalleryById = async (galleryId: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('galleries')
+            .select('*')
+            .eq('id', galleryId)
+            .single(); // Eine einzelne Galerie abrufen
+        if (error) {
+            throw error;
+        }
+        return data;
+    } catch (err) {
+        console.error("Fehler beim Abrufen der Galerie:", err);
+        return null;
+    }
+};
+
 //POST Gallery
 export const createGallery = async (gallery: Gallery, preview_image: File | null) => {
     console.log('Creating gallery:', gallery);

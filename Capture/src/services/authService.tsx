@@ -23,16 +23,34 @@ export const signOut = async () => {
     if (error) throw error;
 };
 
+
+// Prüfen, ob ein Benutzer eingeloggt ist
+export const isLoggedIn = async () => {
+    const {
+        data: { session },
+        error,
+    } = await supabase.auth.getSession();
+
+    if (error) throw error;
+
+    return !!session; // Gibt `true` zurück, wenn eine Sitzung existiert
+};
+
+
+
 // Get logged-in User
 export const getLoggedInUser = async () => {
-
     const {
         data: { session },
         error,
     } = await supabase.auth.getSession();
 
     if (error) throw error; // Fehler werfen, falls etwas schiefgeht
-    console.log("grrrrrrrrrr: " + session?.user.id);
-    return session?.user.id; // Benutzer-Objekt zurückgeben oder null, wenn niemand eingeloggt ist
-};
 
+    if (!session || !session.user) {
+        throw new Error("Kein Benutzer eingeloggt");
+    }
+
+    console.log("Benutzer-ID:", session.user.id);
+    return session.user.id; // Vollständiges Benutzerobjekt zurückgeben
+};

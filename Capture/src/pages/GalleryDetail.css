@@ -1,0 +1,46 @@
+
+.gallery-container{
+    max-width: 500px;
+}
+
+.galerie-header{
+    position: relative;
+    max-width: 500px;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.galerie-header:after{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), #151515);
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.galerie-previeImg{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.galerie-img-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Damit die Bilder in mehrere Reihen umgebrochen werden können */
+    gap: 10px; /* Abstand zwischen den Bildern */
+    margin: 60px 0;
+}
+
+.galerie-img-wrapper img {
+    width: calc(33.33% - 10px); /* Jedes Bild nimmt 1/3 der Breite des Containers ein, abzüglich des Abstands */
+    height: auto; /* Höhe wird automatisch angepasst, basierend auf dem Bildverhältnis */
+    aspect-ratio: 1; /* Das Bild soll quadratisch sein (Seitenverhältnis 1:1) */
+    object-fit: cover; /* Bild wird passend zum Container skaliert und bleibt quadratisch */
+}
