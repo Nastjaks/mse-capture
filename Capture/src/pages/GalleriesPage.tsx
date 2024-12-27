@@ -1,20 +1,20 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { useEffect, useState } from 'react';
-import { getGalleries, deleteGallery } from '../services/galleryService';
+import {IonContent, IonHeader, IonPage, IonTitle, IonToolbar} from '@ionic/react';
+import {useEffect, useState} from 'react';
+import {getGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
-import { getLoggedInUser } from '../services/authService';
+import {getLoggedInUserId} from '../services/authService';
 import GalleryListComponent from "../components/GalleryListComponent";
 
 
 const GalleriesPage: React.FC = () => {
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Typisierung des States
 
-    
+
     useEffect(() => {
         const loadGalleries = async () => {
             const data = await getGalleries();
             if (data) {
-                console.log(getLoggedInUser());
+                console.log(getLoggedInUserId());
                 setGalleries(data); // Galerie-Daten setzen
             }
         };

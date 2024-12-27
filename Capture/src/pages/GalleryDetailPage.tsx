@@ -1,47 +1,91 @@
 import {IonButton, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar} from '@ionic/react';
 import {useParams} from 'react-router-dom'; // Zum Abrufen der Galerie-ID aus der URL
 import {useEffect, useState} from 'react';
-import {deleteGallery, getGalleryById} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import {useHistory} from "react-router";
-import {add, trash} from "ionicons/icons"; // Funktion, um die Galerie-Daten anhand der ID abzurufen
-import './GalleryDetail.css';
-
-interface GalleryDetailProps {
-    galleryId: string;
-}
+import {add, trash} from "ionicons/icons";
+import '../theme/GalleryDetail.css';
+import {useToast} from "../contexts/ToastContext";
 
 const GalleryDetailPage: React.FC = () => {
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
+    const [galleryImages, setGalleryImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
+
     const history = useHistory(); // History für die Navigation nach dem Löschen
+    const {showToast} = useToast();
 
     // Galerie-Daten basierend auf der ID laden
     useEffect(() => {
-        const loadGallery = async () => {
-            const galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
-            if (galleryData) {
-                setGallery(galleryData);
-            }
-        };
+        loadGalleryInfos();
+        loadGalleryImages();
 
-        loadGallery(); // Galerie-Daten laden
     }, [galleryId]); // Abhängig von galleryId, damit es bei Änderung neu geladen wird
+
+    // Galerie-Daten laden
+    const loadGalleryInfos = async () => {
+        const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
+        if (result_galleryData) {
+            setGallery(result_galleryData);
+        }
+    };
+
+    // Galerie-Bilder laden
+    const loadGalleryImages = async () => {
+        const images = await getGalleryImages(galleryId);
+        if (images) {
+            setGalleryImages(images.map(img => img.image_url)); // Bild-URLs extrahieren
+        }
+    };
 
     // Funktion zum Löschen der Galerie
     const handleDeleteGallery = async () => {
         try {
-            await deleteGallery(galleryId); // Galerie löschen
-            // Nach dem Löschen zur Galerieübersicht weiterleiten
-            history.push('/galleries');
+            const result = await deleteGallery(galleryId); // Galerie löschen
+            if(result.success){
+                showToast(result.message);
+                history.push('/galleries');
+            } else {
+                showToast(result.message);
+            }
         } catch (err) {
             console.error('Fehler beim Löschen der Galerie:', err);
         }
     };
 
-    const handleAddImage = async () => {
-        console.log("try to add a Image")
-    }
+    const handleAddImages = async () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+
+        input.onchange = async (event: any) => {
+            const files = event.target.files;
+
+            if (files && gallery?.owner_id && galleryId) {
+                const fileArray = Array.from(files); // Dateien in ein Array konvertieren
+                try {
+                    // Lade alle Bilder hoch
+                    const imageUrls = await Promise.all(
+                        fileArray.map(file => addImagesToGallery(gallery.owner_id, gallery.id, file))
+                    );
+
+                    loadGalleryImages();
+
+                } catch (error) {
+                    console.error('Error uploading the images', error);
+                    showToast('Error uploading the images');
+                }
+            } else {
+                console.error('Missing gallery or owner ID');
+                showToast('Unexpected error.');
+            }
+        };
+        input.click();
+    };
+
+
 
     return (
         <IonPage>
@@ -57,7 +101,7 @@ const GalleryDetailPage: React.FC = () => {
                     </IonToolbar>
                 </IonHeader>
 
-                <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImage}>
+                <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
                     <IonFabButton>
                         <IonIcon icon={add}></IonIcon>
                     </IonFabButton>
@@ -75,29 +119,22 @@ const GalleryDetailPage: React.FC = () => {
                                 )}
                             </div>
 
-
                             <p>{gallery.description}</p>
 
-
-                            <h1>Teinehmer</h1>
-                            <div> Keine Funktion</div>
-
-
-                            <div>
-                                <div>Gallerie</div>
-                                <div>Aufgaben</div>
-                            </div>
-
                             <div className="galerie-img-wrapper">
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
-                                <img src="https://placehold.co/600x400"/>
+                                {galleryImages.length > 0 ? (
+                                    galleryImages.map((imageUrl, index) => (
+                                        <img key={index} src={imageUrl} alt={`Bild ${index}`}/>
+                                    ))
+                                ) : (
+                                    <p>No pictures in this gallery.</p>
+                                )}
                             </div>
-                            <div onClick={handleDeleteGallery}><IonIcon color="danger" icon={trash}></IonIcon> Galerie Löschen</div>
+
+                            <IonButton size="small" onClick={handleDeleteGallery}>
+                                <IonIcon slot="start" icon={trash}></IonIcon>
+                                Galerie Löschen
+                            </IonButton>
 
                         </div>
                     ) : (

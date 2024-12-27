@@ -1,25 +1,27 @@
-import { Gallery } from '../models/Gallery';
+import {Gallery} from '../models/Gallery';
 import {supabase} from "../config/supabaseConfig";
-import { getLoggedInUser } from '../services/authService';
 
 
-//GET Gallery
+// ---------- GET All Gallery ----------
 export const getGalleries = async () => {
     try {
-        const { data, error} = await supabase
+        const {data, error} = await supabase
             .from('galleries')
             .select('*');
+
+        if (error) {
+            throw error;
+        }
         return data;
     } catch (err) {
         console.log(err)
     }
 }
 
-
-// GET Users Galleries by UserID
-export const getUsersGalleries = async (userId: string) => {
+// ---------- GET all Users Galleries by UserID ----------
+export const getUsersGalleries = async (userId) => {
     try {
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from('galleries')
             .select('*')
             .eq('owner_id', userId); // Hier wird nach der userId gefiltert
@@ -27,7 +29,6 @@ export const getUsersGalleries = async (userId: string) => {
         if (error) {
             throw error;
         }
-
         return data;
     } catch (err) {
         console.log("Error fetching user's galleries:", err);
@@ -35,10 +36,10 @@ export const getUsersGalleries = async (userId: string) => {
     }
 };
 
-// GET a Galleries by Id
+// ---------- GET a Gallerie by Id ----------
 export const getGalleryById = async (galleryId: string) => {
     try {
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from('galleries')
             .select('*')
             .eq('id', galleryId)
@@ -53,114 +54,185 @@ export const getGalleryById = async (galleryId: string) => {
     }
 };
 
-//POST Gallery
-export const createGallery = async (gallery: Gallery, preview_image: File | null) => {
-    console.log('Creating gallery:', gallery);
-    console.log('title:', gallery.title);
+// ---------- GET Gallery Images by Gallery ID ----------
+export const getGalleryImages = async (galleryId: string) => {
     try {
-        const previewImageUrl = await uploadPreviewImage(preview_image);
-        if(!previewImageUrl){
-            throw new Error('Fehler beim Hochladen des Bildes');
+        const {data, error} = await supabase
+            .from('gallery_images')
+            .select('*')
+            .eq('gallery_id', galleryId);  // Filtere nach der gallery_id
+
+        if (error) {
+            console.error('Fehler beim Abrufen der Bilder:', error.message);
+            throw error;
         }
-        const { data, error } = await supabase
+
+        return data;  // Gibt die Bilder zurück
+    } catch (err) {
+        console.error('Fehler beim Abrufen der Galerie-Bilder:', err);
+        return null;
+    }
+};
+
+// ---------- CREATING A NEW GALLERY
+export const createGallery = async (gallery: Gallery, preview_image: File | null) => {
+
+    try {
+        //Gallery erstellen
+        const {data, error} = await supabase
             .from('galleries')
             .insert([
                 {
                     title: gallery.title,
                     description: gallery.description,
-                    preview_image: previewImageUrl,
                     owner_id: gallery.owner_id,
                 },
-            ]);
+            ]).select();
 
         if (error) {
-            throw error; // Fehler werfen, falls Supabase einen Fehler zurückgibt
+            console.error('Error inserting gallery:', error.message);
+            return {success: false, message: 'Error inserting gallery.', data: null};
         }
 
-        console.log('Gallery created:', data); // Erfolgreich erstellte Galerie ausgeben
-        return data; // Die erstellte Galerie zurückgeben
+        if (data && data.length > 0) {
+            const galleryId = data[0].id;
+            if (preview_image != null) {
+                //Vorschaubild hochladen in Storage
+                const previewImageUrl = await insertPreviewImage(gallery.owner_id, galleryId, preview_image);
+                if (previewImageUrl) {
+                    //Vorschaubild url in Gallery ablegen
+                    const updateResult = await updateGalleryPreviewImage(previewImageUrl, galleryId);
+                    if (!updateResult) {
+                        console.error("Failed to update gallery with preview image.");
+                    }
+                }
+            }
+            return {success: true, message: 'Successful created Album', data: data[0].id};
+        } else {
+            return {success: false, message: 'Unexpected error.', data: null};
+        }
     } catch (err) {
-        console.error('Fehler beim Erstellen der Galerie:', err);
-        return null; // Im Fehlerfall null zurückgeben
+        console.error('Unexpected error:', err);
+        return {success: false, message: 'Unexpected error.', data: null};
     }
 };
 
-export const uploadPreviewImage = async (image: File | null) => {
-    try {
-        const userid = await getLoggedInUser(); 
-        let imageUrl = null;
 
-        if (image) {
-            console.log('Uploading image:', image);
-            console.log('userid image:', );
-            const { data: uploadData, error: uploadError } = await supabase.storage
+// Läd das prieview bild hoch
+const insertPreviewImage = async (ownerID: string , gallerieID: string , preview_image: File) => {
+    const folderPath = `public/${ownerID}/${gallerieID}/${preview_image?.name}`;
+
+    try {
+        // Läd das Preview Image in den Storage
+            const {data: uploadData, error} = await supabase.storage
                 .from('capture-images') // Name des Buckets
-                .upload(`public/${userid}/${image.name}`, image, {
+                .upload(folderPath, preview_image, {
                     cacheControl: '3600',
                     upsert: false, // Überschreibt die Datei, falls sie existiert
                 });
-                
-            if (uploadError) {
-                console.error("Upload-Fehler:", uploadError);
-                throw new Error(`Fehler beim Hochladen des Bildes: ${uploadError.message}`);
+            if (error) {
+                console.error("Upload error:", error);
+                throw new Error(`Failed to upload the preview image: ${error}`);
             }
-
-            console.log("Upload erfolgreich:", uploadData);
-
             // Hole die öffentliche URL des hochgeladenen Bildes
-            const { data } = supabase.storage
+            const {data: publicUrlData} = supabase.storage
                 .from('capture-images')
-                .getPublicUrl(`public/${userid}/${image.name}`);
+                .getPublicUrl(folderPath); // Verwende den exakten Upload-Pfad
+        return publicUrlData?.publicUrl || null;
+    } catch (err) {
+        console.error('Error uploading preview image:', err);
+        return null; // Im Fehlerfall null zurückgeben
+    }
+}
 
-            imageUrl = data.publicUrl; // Zugriff auf die URL
+// Packt die BildUrl zur Gallery
+const updateGalleryPreviewImage = async (previewImageUrl: string , galleryID: string ):Promise<boolean> => {
+    const {error} = await supabase
+        .from('galleries')
+        .update({preview_image: previewImageUrl}) // Vorschau-Bild-URL speichern
+        .eq('id', galleryID); // Filter: Update nur die aktuelle Galerie
+    if (error) {
+        console.error('Error updating gallery with preview image URL:', error);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+// ---------- Add a Image to a Gallerie
+export const addImagesToGallery = async (ownerId: string, galleryId: string, image: File) => {
+    if (!ownerId || !galleryId) {
+        console.error("Owner ID oder Gallery ID fehlt");
+        return null;
+    }
+
+    const folderPath = `public/${ownerId}/${galleryId}/${image.name}`;
+
+    try {
+        // Bild in den Storage hochladen
+        const {data: uploadData, error: uploadError} = await supabase.storage
+            .from('capture-images') // Name des Buckets
+            .upload(folderPath, image, {
+                cacheControl: '3600',
+                upsert: false, // Verhindert das Überschreiben von Dateien mit demselben Namen
+            });
+
+        if (uploadError) {
+            console.error("Upload-error:", uploadError);
+            return { success: false, message: uploadError};
         }
+
+        // Öffentliche URL des Bildes abrufen
+        const {data: publicUrlData} = supabase.storage
+            .from('capture-images')
+            .getPublicUrl(folderPath);
+
+        const imageUrl = publicUrlData?.publicUrl;
+        if (!imageUrl) {
+            console.error('Fehler beim Abrufen der Bild-URL.');
+            throw new Error('Konnte die öffentliche URL des Bildes nicht abrufen.');
+        }
+
+        // Bild in der Datenbank speichern
+        const {error: dbError} = await supabase
+            .from('gallery_images')
+            .insert([
+                {
+                    gallery_id: galleryId,
+                    image_url: imageUrl,
+                },
+            ]);
+
+        if (dbError) {
+            console.error('Fehler beim Speichern des Bildes in der Datenbank:', dbError.message);
+            throw new Error(`Fehler beim Speichern des Bildes: ${dbError.message}`);
+        }
+
         return imageUrl;
     } catch (err) {
-        console.error('Fehler beim Hochladen des Bildes:', err);
-        return null; // Im Fehlerfall null zurückgeben
+        console.error('Fehler beim Hinzufügen eines Bildes:', err);
+        return null;
     }
 };
 
-//DELETE Gallery
+//------------------------------------------------------------------------------------------------------
+
+// ---------- DELETE Gallery //TODO DELETE THE IAMGES
 export const deleteGallery = async (id: string) => {
     try {
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from('galleries')
             .delete()
             .eq('id', id);
-
         if (error) {
             throw error;
         }
-
-        console.log('Gallery deleted:', data);
-        return data;
+        return { success: true, message: "Gallery has been deleted"};
     } catch (err) {
         console.error('Error deleting gallery:', err);
-        return null;
+        return { success: false, message: err};
     }
 }
 
-//UPDATE Gallery
-export const updateGallery = async (gallery: Gallery) => {
-    try {
-        const { data, error } = await supabase
-            .from('galleries')
-            .update({
-                title: gallery.title,
-                description: gallery.description,
-            })
-            .eq('id', gallery.id);
-
-        if (error) {
-            throw error;
-        }
-
-        console.log('Gallery updated:', data);
-        return data;
-    } catch (err) {
-        console.error('Error updating gallery:', err);
-        return null;
-    }
-}
 

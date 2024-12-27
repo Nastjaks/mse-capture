@@ -1,27 +1,34 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useEffect, useState } from "react";
-import { getLoggedInUser } from "../services/authService";
-import {getGalleries, deleteGallery, getUsersGalleries} from "../services/galleryService";
+import {getLoggedInUserId} from "../services/authService";
+import { getUsersGalleries} from "../services/galleryService";
 import GalleryListComponent from "../components/GalleryListComponent";
 import { Gallery } from "../models/Gallery";
+import {useHistory} from "react-router-dom";
+import {useToast} from "../contexts/ToastContext";
 
 const ProfilPage: React.FC = () => {
-    const [user, setUser] = useState<string>(""); // Benutzer-ID speichern
+    const [user, setUser] = useState<string | undefined>(""); // Benutzer-ID speichern
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Galerien des Benutzers
+
+    const history = useHistory();
+    const {showToast} = useToast();
 
     useEffect(() => {
         const fetchUserAndGalleries = async () => {
-            const loggedInUser = await getLoggedInUser();
-            if (loggedInUser) {
-                setUser(loggedInUser); // Benutzer-ID setzen
-                const userGalleries = await getUsersGalleries(loggedInUser);
+            const result_user = await getLoggedInUserId();
+
+            if (result_user.success) {
+                setUser(result_user.userId);
+                const userGalleries = await getUsersGalleries(result_user.userId); // Benutzer-ID übergeben
                 setGalleries(userGalleries); // Galerien setzen
+            } else {
+                showToast(result_user.message);
+                history.push(`/signin`);
             }
         };
-
         fetchUserAndGalleries();
     }, []);
-
 
     return (
         <IonPage>

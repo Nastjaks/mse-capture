@@ -4,6 +4,7 @@
 }
 
 .galerie-header{
+    height: 215px;
     position: relative;
     max-width: 500px;
     overflow: hidden;
@@ -43,4 +44,15 @@
     height: auto; /* Höhe wird automatisch angepasst, basierend auf dem Bildverhältnis */
     aspect-ratio: 1; /* Das Bild soll quadratisch sein (Seitenverhältnis 1:1) */
     object-fit: cover; /* Bild wird passend zum Container skaliert und bleibt quadratisch */
+}
+
+/* ----- CREATE GALLERY ----- */
+
+.image-preview{
+    height: 215px;
+}
+.image-preview img{
+     height: 100%;
+     width: 100%;
+     object-fit: cover;
 }

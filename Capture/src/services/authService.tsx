@@ -1,56 +1,65 @@
-import { supabase } from '../config/supabaseConfig';
+import {supabase} from '../config/supabaseConfig';
 
-//Regestrieren
-export const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    return data;
-};
+interface AuthResponse {
+    success: boolean;
+    message: string;
+    userId?: string;
+}
 
-//Einloggen
-export const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-    });
-    if (error) throw error;
-    return data;
-};
-
-//Ausloggen
-export const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-};
-
-
-// Prüfen, ob ein Benutzer eingeloggt ist
-export const isLoggedIn = async () => {
-    const {
-        data: { session },
-        error,
-    } = await supabase.auth.getSession();
-
-    if (error) throw error;
-
-    return !!session; // Gibt `true` zurück, wenn eine Sitzung existiert
-};
-
-
-
-// Get logged-in User
-export const getLoggedInUser = async () => {
-    const {
-        data: { session },
-        error,
-    } = await supabase.auth.getSession();
-
-    if (error) throw error; // Fehler werfen, falls etwas schiefgeht
-
-    if (!session || !session.user) {
-        throw new Error("Kein Benutzer eingeloggt");
+// ----- Regestrieren -----
+export const signUp = async (email: string, password: string): Promise<AuthResponse> => {
+    try {
+        const {error} = await supabase.auth.signUp({email, password});
+        if (error) {
+            return { success: false, message: error.message};
+        }
+        return { success: true, message: 'Registration successful.'};
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'Unexpected error.'};
     }
-
-    console.log("Benutzer-ID:", session.user.id);
-    return session.user.id; // Vollständiges Benutzerobjekt zurückgeben
 };
+
+// ----- Einloggen -----
+export const signIn = async (email: string, password: string): Promise<AuthResponse> => {
+    try {
+        const {error} = await supabase.auth.signInWithPassword({email, password});
+        if (error) {
+            return { success: false, message: error.message};
+        }
+        return { success: true, message: 'Login successful.'};
+    } catch (err){
+        console.error(err);
+        return { success: false, message: 'Unexpected error.'};
+    }
+};
+
+// ----- Ausloggen -----
+export const signOut = async (): Promise<AuthResponse> => {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            return { success: false, message: error.message};
+        }
+        return { success: true, message: 'Successfully logged out.'};
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'Unexpected error.'};
+    }
+};
+
+// ----- Get ID of logged-in User -----
+export const getLoggedInUserId = async (): Promise<AuthResponse> => {
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error){
+            console.error(error);
+            return { success: false, message: 'Authorization error. Please log in.', userId: ""};
+        }
+        return { success: true, message: '', userId: user?.id};
+    } catch (err){
+        console.error(err);
+        return { success: false, message: 'Unexpected error.', userId: ""};
+    }
+};
+
