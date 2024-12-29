@@ -7,7 +7,6 @@ import {Gallery} from "../models/Gallery";
 import {useToast} from "../contexts/ToastContext";
 
 const CreateGalleryPage: React.FC = () => {
-
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [preview_image, setPreviewImage] = useState<File | null>(null);
@@ -76,17 +75,14 @@ const CreateGalleryPage: React.FC = () => {
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>CAPTURE</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large">Create Gallery</IonTitle>
-                    </IonToolbar>
-                </IonHeader>
+
+            <IonContent fullscreen={true} className="ion-padding">
 
                 <h1>Album erstellen</h1>
 
@@ -130,6 +126,7 @@ const CreateGalleryPage: React.FC = () => {
 
                 </div>
             </IonContent>
+
         </IonPage>
     );
 };

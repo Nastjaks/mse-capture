@@ -1,4 +1,4 @@
-import {IonContent, IonHeader, IonPage, IonTitle, IonToolbar} from '@ionic/react';
+import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar} from '@ionic/react';
 import {useEffect, useState} from 'react';
 import {getGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
@@ -9,37 +9,47 @@ import GalleryListComponent from "../components/GalleryListComponent";
 const GalleriesPage: React.FC = () => {
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Typisierung des States
 
+    const loadGalleries = async () => {
+        const data = await getGalleries();
+        if (data) {
+            console.log(getLoggedInUserId());
+            setGalleries(data); // Galerie-Daten setzen
+        }
+    };
 
     useEffect(() => {
-        const loadGalleries = async () => {
-            const data = await getGalleries();
-            if (data) {
-                console.log(getLoggedInUserId());
-                setGalleries(data); // Galerie-Daten setzen
-            }
-        };
+        loadGalleries(); // Galerie-Daten beim Laden der Seite laden
+    }, []);
 
-        loadGalleries(); // Galerie-Daten laden
-    }, []); // Der leere Abhängigkeits-Array sorgt dafür, dass es nur einmal geladen wird
+    const handleRefresh = async (event: CustomEvent) => {
+        await loadGalleries(); // Galerie-Daten neu laden
+        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+    };
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>CAPTURE</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large">CAPTURE</IonTitle>
-                    </IonToolbar>
-                </IonHeader>
+
+            <IonContent fullscreen={true} className="ion-padding">
+
+                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                    <IonRefresherContent
+                        pullingText="Pull to refresh"
+                        refreshingText="Refreshing..."
+                        refreshingSpinner="circles"
+                    />
+                </IonRefresher>
 
                 <div>
                     <h1>Alle Galerien</h1>
                     <GalleryListComponent galleries={galleries}/>
                 </div>
+
             </IonContent>
         </IonPage>
     );

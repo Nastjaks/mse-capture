@@ -5,7 +5,6 @@ import {useToast} from "../contexts/ToastContext";
 import {useHistory} from "react-router-dom";
 
 const SignUpPage: React.FC = () => {
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -27,19 +26,16 @@ const SignUpPage: React.FC = () => {
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>CAPTURE</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large"></IonTitle>
-                    </IonToolbar>
-                </IonHeader>
 
+            <IonContent fullscreen={true} className="ion-padding">
                 <h1>Account erstellen</h1>
+
                 <div className="form-container">
 
                     <IonInput
@@ -65,8 +61,8 @@ const SignUpPage: React.FC = () => {
                     <IonButton expand="block" onClick={handleSignUp} shape="round"> SignUp </IonButton>
 
                 </div>
-
             </IonContent>
+
         </IonPage>
     );
 };

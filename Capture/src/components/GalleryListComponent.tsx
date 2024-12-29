@@ -5,10 +5,9 @@ import { Link } from 'react-router-dom';
 
 interface GalleryListProps {
     galleries: Gallery[];
-    onDelete: (id: string) => void;
 }
 
-const GalleryListComponent: React.FC<GalleryListProps> = ({galleries, onDelete}) => {
+const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
     return (
         <div className="gallery-container">
             {galleries.length > 0 ? (

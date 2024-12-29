@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar} from '@ionic/react';
 import {useParams} from 'react-router-dom'; // Zum Abrufen der Galerie-ID aus der URL
 import {useEffect, useState} from 'react';
 import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages} from '../services/galleryService';
@@ -22,6 +22,12 @@ const GalleryDetailPage: React.FC = () => {
         loadGalleryImages();
 
     }, [galleryId]); // Abhängig von galleryId, damit es bei Änderung neu geladen wird
+
+    const handleRefresh = async (event: CustomEvent) => {
+        await loadGalleryInfos();
+        await loadGalleryImages();
+        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+    };
 
     // Galerie-Daten laden
     const loadGalleryInfos = async () => {
@@ -89,17 +95,22 @@ const GalleryDetailPage: React.FC = () => {
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>Galerie Detail</IonTitle>
                 </IonToolbar>
             </IonHeader>
+
             <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large">Galerie Detail</IonTitle>
-                    </IonToolbar>
-                </IonHeader>
+
+                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                    <IonRefresherContent
+                        pullingText="Pull to refresh"
+                        refreshingText="Refreshing..."
+                        refreshingSpinner="circles"
+                    />
+                </IonRefresher>
 
                 <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
                     <IonFabButton>
@@ -142,8 +153,8 @@ const GalleryDetailPage: React.FC = () => {
                     )}
                 </div>
 
-
             </IonContent>
+
         </IonPage>
     );
 };

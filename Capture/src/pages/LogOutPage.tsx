@@ -23,24 +23,21 @@ const LogOutPage: React.FC = () => {
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>CAPTURE</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large"></IonTitle>
-                    </IonToolbar>
-                </IonHeader>
 
+            <IonContent fullscreen={true} className="ion-padding">
                 <h1>Logout</h1>
 
                 <div className="form-container">
                     <IonButton expand="block" onClick={handleLoginOut} shape="round"> LogOut </IonButton>
                 </div>
             </IonContent>
+
         </IonPage>
     );
 };
