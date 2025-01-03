@@ -4,6 +4,7 @@ import {getGalleryById} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import {useParams} from "react-router-dom";
 import {useHistory} from "react-router";
+import {signInAnon} from '../services/authService';
 
 
 const JoinGalleryPage: React.FC = () => {
@@ -11,6 +12,8 @@ const JoinGalleryPage: React.FC = () => {
     const [name, setName] = useState("");
     const history = useHistory();
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
+    const [userId, setUserId] = useState<string>();
+
 
     // Galerie-Daten basierend auf der ID laden
     useEffect(() => {
@@ -27,10 +30,15 @@ const JoinGalleryPage: React.FC = () => {
     }, [galleryId]);
 
     const onButtonClick = async () => {
-        if (gallery) {
-            history.push(`/gallery/${gallery.id}`);
+        const user = await signInAnon();
+        if (user.success) {
+            setUserId(user.userId);
+            if (gallery) {
+                history.push(`/gallery/${gallery.id}`);
+            }
         }
-    }
+        console.log("User:", user);
+    };
 
     return (
         <IonPage>

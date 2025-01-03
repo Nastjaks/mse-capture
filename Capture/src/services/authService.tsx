@@ -63,3 +63,20 @@ export const getLoggedInUserId = async (): Promise<AuthResponse> => {
     }
 };
 
+// ----- Anon Login -----
+export const signInAnon = async (): Promise<AuthResponse> => {
+    try {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) {
+            console.error('Error signing in anonymously:', error);
+            return { success: false, message: 'Error signing in anonymously.', userId: ""};
+        }
+        if (data.user) {
+            return { success: true, message: 'Anon logged in', userId: data.user.id};
+        }
+        return { success: false, message: 'No user data found.', userId: ""};
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'Unexpected error.', userId: ""};
+    }
+};
