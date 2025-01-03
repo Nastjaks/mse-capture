@@ -50,6 +50,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 import LogOutPage from "./pages/LogOutPage";
+import JoinGalleryPage from './pages/JoinGalleryPage';
 
 
 setupIonicReact();
@@ -69,6 +70,7 @@ const App: React.FC = () => (
                         <Route exact path="/signin" component={SignInPage}/>
                         <Route exact path="/signup" component={SignUpPage}/>
                         <Route exact path="/logout" component={LogOutPage}/>
+                        <Route path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
 
                         <Route path="/create-gallery" component={CreateGalleryPage}/>
                         <Route path="/galleries" component={GalleriesPage}/>

@@ -7,21 +7,33 @@ import {useHistory} from "react-router";
 import {add, trash} from "ionicons/icons";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
+import * as QRCode from 'qrcode';
 
 const GalleryDetailPage: React.FC = () => {
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
+    const [qrCodeData, setQrCodeData] = useState<string | null>(null); // QR-Code-Daten
 
     const history = useHistory(); // History für die Navigation nach dem Löschen
     const {showToast} = useToast();
 
     // Galerie-Daten basierend auf der ID laden
     useEffect(() => {
-        loadGalleryInfos();
-        loadGalleryImages();
+        const fetchGalleryAndQRCode = async () => {
+            if (galleryId) {
+                await loadGalleryInfos();
+                await loadGalleryImages();
+                const qrCode = await generateQRCode(galleryId);
+                setQrCodeData(qrCode);
+                
+            }
+        };
+    
+        fetchGalleryAndQRCode();
+    }, [galleryId]);
 
-    }, [galleryId]); // Abhängig von galleryId, damit es bei Änderung neu geladen wird
+
 
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleryInfos();
@@ -58,6 +70,13 @@ const GalleryDetailPage: React.FC = () => {
         } catch (err) {
             console.error('Fehler beim Löschen der Galerie:', err);
         }
+    };
+
+    const generateQRCode = async (galleryId: string, accessToken?: string): Promise<string> => {
+        const localurl = window.location.origin;
+        const baseUrl = `${localurl}/join-gallery/${galleryId}`;
+        const albumUrl = accessToken ? `${baseUrl}?accessToken=${accessToken}` : baseUrl;
+        return QRCode.toDataURL(albumUrl);
     };
 
     const handleAddImages = async () => {
@@ -150,6 +169,18 @@ const GalleryDetailPage: React.FC = () => {
                         </div>
                     ) : (
                         <p>Galerie nicht gefunden</p>
+                    )}
+                    
+                </div>
+                
+                <div className="qr-code-container">
+                    {qrCodeData ? (
+                        <div>
+                            <h3>QR-Code für diese Galerie:</h3>
+                            <img src={qrCodeData} alt="QR Code" className="qr-code-image" />
+                        </div>
+                    ) : (
+                        <p>QR-Code wird generiert...</p>
                     )}
                 </div>
 
