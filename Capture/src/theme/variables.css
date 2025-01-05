@@ -1,31 +1,35 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Inter:wght@100..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+*{font-family: "Host Grotesk", serif;}
+
 :root {
     --ion-color-primary: #8D3948;
-    --ion-color-primary-rgb: 141,57,72;
+    --ion-color-primary-rgb: 141, 57, 72;
     --ion-color-primary-contrast: #ffffff;
-    --ion-color-primary-contrast-rgb: 255,255,255;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
     --ion-color-primary-shade: #7c323f;
     --ion-color-primary-tint: #984d5a;
 
     --ion-color-secondary: #632125;
-    --ion-color-secondary-rgb: 99,33,37;
+    --ion-color-secondary-rgb: 99, 33, 37;
     --ion-color-secondary-contrast: #ffffff;
-    --ion-color-secondary-contrast-rgb: 255,255,255;
+    --ion-color-secondary-contrast-rgb: 255, 255, 255;
     --ion-color-secondary-shade: #571d21;
     --ion-color-secondary-tint: #73373b;
 
-
-    --ion-background-color: #151515;
-    --ion-background-color-rgb: 21,21,21;
+    --ion-background-color: #151515 !important;
+    --ion-background-color-rgb: 21, 21, 21;
 
     --ion-text-color: #fff;
-    --ion-text-color-rgb: 255,255,255;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    --light-BG: #222125;
 }
 
-
-.form-container{
+/* ----- FORMULAR -----*/
+.form-container {
     display: flex;
     flex-direction: column;
     max-width: 500px;
@@ -33,6 +37,72 @@ http://ionicframework.com/docs/theming/ */
     margin: 40px 0;
 }
 
-h1{
+.form-container .item {
+    border-radius: 20px;
+    --background: #1e1e1e;
+}
+.tumb-label{
+    margin-bottom: 0px;
+}
+
+#imagePreview_label{
+    height: 120px;
+    background: #1e1e1e;
+    cursor: pointer;
+    border-radius: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6a6a6a;
+    flex-direction: column;
+    gap: 10px;
+    transition: all .3s ease-in-out;
+}
+
+#imagePreview_label:hover{
+    background: #272727;
+}
+
+#imagePreview_label ion-icon{
+    font-size: 40px;
+}
+/* --------------------*/
+ion-segment-view {
+    height: max-content;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    background: var( --light-BG);
+    margin-bottom: 10px;
+    border-radius: 20px;
+    padding: 0px 15px;
+    justify-content: space-between;
+}
+
+.task-def {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+
+.task-item ion-icon{
+    color: #8D3948 !important;
+}
+.task-item .task-item-check{
+    color: green !important;
+}
+
+.item-trash{
+    cursor: pointer;
+}
+
+h1 {
     text-transform: uppercase;
 }

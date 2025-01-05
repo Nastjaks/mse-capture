@@ -161,13 +161,13 @@ const updateGalleryPreviewImage = async (previewImageUrl: string , galleryID: st
 
 
 // ---------- Add a Image to a Gallerie
-export const addImagesToGallery = async (ownerId: string, galleryId: string, image: File) => {
-    if (!ownerId || !galleryId) {
+export const addImagesToGallery = async (galleryOwnerId: string, galleryId: string, image: File) => {
+    if (!galleryOwnerId || !galleryId) {
         console.error("Owner ID oder Gallery ID fehlt");
         return null;
     }
 
-    const folderPath = `public/${ownerId}/${galleryId}/${image.name}`;
+    const folderPath = `public/${galleryOwnerId}/${galleryId}/${image.name}`;
 
     try {
         // Bild in den Storage hochladen

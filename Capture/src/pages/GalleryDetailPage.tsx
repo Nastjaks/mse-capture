@@ -1,19 +1,29 @@
-import {IonButton, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar} from '@ionic/react';
+import {IonAlert, IonButton, IonCol, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonMenu, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonText, IonTitle, IonToolbar} from '@ionic/react';
 import {useParams} from 'react-router-dom'; // Zum Abrufen der Galerie-ID aus der URL
 import {useEffect, useState} from 'react';
 import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
+import {Task} from "../models/Task";
 import {useHistory} from "react-router";
-import {add, trash} from "ionicons/icons";
+import {add, camera, checkmark, logInOutline, trash} from "ionicons/icons";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
 import * as QRCode from 'qrcode';
+import {menuController} from "@ionic/core/components";
+import {createTask, deleteTask, getTasks} from "../services/taskService";
 
 const GalleryDetailPage: React.FC = () => {
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
     const [qrCodeData, setQrCodeData] = useState<string | null>(null); // QR-Code-Daten
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+
+    //Task Kram
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [taskTitle, setTaskTitle] = useState("");
+    const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+    const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
 
     const history = useHistory(); // History für die Navigation nach dem Löschen
     const {showToast} = useToast();
@@ -24,15 +34,25 @@ const GalleryDetailPage: React.FC = () => {
             if (galleryId) {
                 await loadGalleryInfos();
                 await loadGalleryImages();
+                await loadTasks();
                 const qrCode = await generateQRCode(galleryId);
                 setQrCodeData(qrCode);
-                
             }
         };
-    
+
         fetchGalleryAndQRCode();
     }, [galleryId]);
 
+    // Galerie-Tasks laden
+    const loadTasks = async () => {
+        try {
+            const tasks = await getTasks(galleryId);
+            console.log('Aufgaben:', tasks);
+            setTasks(tasks); // State mit Aufgaben füllen
+        } catch (err) {
+            console.error('Fehler beim Laden der Aufgaben:', err);
+        }
+    };
 
 
     const handleRefresh = async (event: CustomEvent) => {
@@ -57,13 +77,16 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
+
     // Funktion zum Löschen der Galerie
     const handleDeleteGallery = async () => {
         try {
             const result = await deleteGallery(galleryId); // Galerie löschen
-            if(result.success){
+            console.log(galleryId)
+            if (result.success) {
                 showToast(result.message);
-                history.push('/galleries');
+                await menuController.close(); // Menü schließen
+                history.push('/profil');
             } else {
                 showToast(result.message);
             }
@@ -111,82 +134,238 @@ const GalleryDetailPage: React.FC = () => {
     };
 
 
+    const handleAddTask = async () => {
+        if (!taskTitle){
+            showToast('Task required');
+            return;
+        }
+        try {
+            const task = await createTask(taskTitle, galleryId);
+            if (task) {
+                await loadTasks();
+                setTaskTitle("")
+            }
+        } catch (err) {
+            console.error('Fehler beim Erstellen der Aufgabe:', err);
+        }
+    }
+
+    const handleDeleteTask = async (taskId: string) => {
+        try {
+            const result = await deleteTask(taskId); // Task-Service-Funktion aufrufen
+            if (result) {
+                showToast("Task gelöscht"); // Erfolgsnachricht anzeigen
+                await loadTasks(); // Liste aktualisieren
+            }
+        } catch (err) {
+            console.error('Fehler beim Löschen der Aufgabe:', err);
+            showToast('Fehler beim Löschen der Aufgabe.');
+        }
+    };
 
     return (
-        <IonPage>
+        <>
+            {/* Menü-Komponente */}
+            <IonMenu contentId="gallerie-content" menuId="gallerie-menu" side="end">
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Settings</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent className="">
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Galerie Detail</IonTitle>
-                </IonToolbar>
-            </IonHeader>
+                    <IonItem button={true}>
+                        <p>Task Manager</p>
+                    </IonItem>
 
-            <IonContent fullscreen>
+                    <IonItem button={true}>
+                        <p>Share</p>
+                    </IonItem>
 
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-                    <IonRefresherContent
-                        pullingText="Pull to refresh"
-                        refreshingText="Refreshing..."
-                        refreshingSpinner="circles"
-                    />
-                </IonRefresher>
+                    <IonItem button={true} onClick={() => setShowDeleteConfirm(true)}>
+                        <p>Delete</p>
+                    </IonItem>
 
-                <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
-                    <IonFabButton>
-                        <IonIcon icon={add}></IonIcon>
-                    </IonFabButton>
-                </IonFab>
+                </IonContent>
+            </IonMenu>
 
-                <div className="gallery-container">
+
+            <IonPage id="gallerie-content">
+                <IonContent fullscreen>
+
+                    <IonHeader>
+                        <IonToolbar>
+                            {/* Burger-Button für das Menü */}
+                            <IonTitle>Galerie Detail</IonTitle>
+                            <IonMenuButton menu="gallerie-menu" slot="end"/>
+                        </IonToolbar>
+                    </IonHeader>
+
+                    <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                        <IonRefresherContent
+                            pullingText="Pull to refresh"
+                            refreshingText="Refreshing..."
+                            refreshingSpinner="circles"
+                        />
+                    </IonRefresher>
+
+
+                    <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
+                        <IonFabButton>
+                            <IonIcon icon={add}></IonIcon>
+                        </IonFabButton>
+                    </IonFab>
+
                     {gallery ? (
-                        <div>
-                            <div className="galerie-header">
-                                <h1>{gallery.title}</h1>
-                                <h2>Galerie: {gallery.id}</h2>
-                                <h2>Owner: {gallery.owner_id}</h2>
-                                {gallery.preview_image && (
-                                    <img className="galerie-previeImg" src={gallery.preview_image}/>
-                                )}
-                            </div>
-
+                        <div className="galerie-header">
+                            <p>Owner: {gallery.owner_id}</p>
+                            <h1>{gallery.title}</h1>
                             <p>{gallery.description}</p>
+                            {gallery.preview_image && (
+                                <img className="galerie-previeImg" src={gallery.preview_image}/>
+                            )}
+                        </div>
+                    ) : (
+                        <p>Gallery not found</p>
+                    )}
 
-                            <div className="galerie-img-wrapper">
-                                {galleryImages.length > 0 ? (
-                                    galleryImages.map((imageUrl, index) => (
-                                        <img key={index} src={imageUrl} alt={`Bild ${index}`}/>
-                                    ))
-                                ) : (
-                                    <p>No pictures in this gallery.</p>
-                                )}
+
+                    {gallery ? (
+                        <div className="galerie-img-wrapper">
+                            {galleryImages.length > 0 ? (
+                                galleryImages.map((imageUrl, index) => (
+                                    <img  key={index} src={imageUrl} alt={`Bild ${index}`}/>
+
+                                ))
+                            ) : (
+                                <p>No pictures in this gallery.</p>
+                            )}
+                        </div>
+                    ) : (
+                        <p>Gallery not found</p>
+                    )}
+
+
+                    {gallery ? (
+                        <div className="ion-padding">
+
+                            <div>
+                                <p>Create Task</p>
+                                <div className="form-container">
+                                    <IonItem>
+                                        <IonInput
+                                            placeholder="Task..."
+                                            labelPlacement="floating"
+                                            value={taskTitle}
+                                            type="text"
+                                            onIonChange={(e) => setTaskTitle(e.detail.value!)}
+                                        >
+                                            <div slot="label">Task<IonText>*</IonText></div>
+                                        </IonInput>
+                                    </IonItem>
+                                    <IonButton expand="block" onClick={handleAddTask} shape="round">
+                                        Add Task
+                                    </IonButton>
+                                </div>
                             </div>
 
-                            <IonButton size="small" onClick={handleDeleteGallery}>
-                                <IonIcon slot="start" icon={trash}></IonIcon>
-                                Galerie Löschen
-                            </IonButton>
 
+                            {tasks.length > 0 ? (
+                                tasks.map((task) => (
+                                    <div key={task.id} className="task-item">
+                                        <div className="task-def">
+                                            <IonIcon aria-hidden="true" icon={camera}/>
+                                            <p>{task.task}</p>
+                                        </div>
+                                        <div>
+                                            <IonIcon className="task-item-check" aria-hidden="true" icon={checkmark}/>
+                                            <IonIcon
+                                                className="item-trash"
+                                                onClick={() => {
+                                                    setShowDeleteTaskConfirm(true);
+                                                    setCurrentTaskId(task.id);
+                                                }}
+                                                aria-hidden="true"
+                                                icon={trash}
+                                            />
+
+                                        </div>
+
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No tasks for this gallery.</p>
+                            )}
                         </div>
                     ) : (
                         <p>Galerie nicht gefunden</p>
                     )}
-                    
-                </div>
-                
-                <div className="qr-code-container">
-                    {qrCodeData ? (
-                        <div>
-                            <h3>QR-Code für diese Galerie:</h3>
-                            <img src={qrCodeData} alt="QR Code" className="qr-code-image" />
-                        </div>
-                    ) : (
-                        <p>QR-Code wird generiert...</p>
-                    )}
-                </div>
 
-            </IonContent>
 
-        </IonPage>
+                    <div className="ion-padding">
+                        {qrCodeData ? (
+                            <div className="qr-code-container">
+                                <h3>QR-Code für diese Galerie</h3>
+                                <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
+                            </div>
+                        ) : (
+                            <p>QR-Code wird generiert...</p>
+                        )}
+                    </div>
+
+                </IonContent>
+
+            </IonPage>
+
+
+            {/* Delete-Bestätigungsdialog */}
+            <IonAlert
+                isOpen={showDeleteConfirm}
+                onDidDismiss={() => setShowDeleteConfirm(false)}
+                header={'Delete Gallery'}
+                message={'Do you really want to delete this gallery?'}
+                buttons={[
+                    {
+                        text: 'Cancel',
+                        role: 'cancel',
+                        handler: async () => {
+                            await menuController.close(); // Menü schließen
+                        },
+                    },
+                    {
+                        text: 'Delete',
+                        handler: handleDeleteGallery,
+                    },
+                ]}
+            />
+
+
+            {/* Delete-Bestätigungsdialog Tastk */}
+            <IonAlert
+                isOpen={showDeleteTaskConfirm}
+                onDidDismiss={() => setShowDeleteTaskConfirm(false)}
+                header={'Delete Task'}
+                message={'Do you really want to delete this task?'}
+                buttons={[
+                    {
+                        text: 'Cancel',
+                        role: 'cancel',
+                        handler: () => setShowDeleteTaskConfirm(false),
+                    },
+                    {
+                        text: 'Delete',
+                        handler: () => {
+                            if (currentTaskId) {
+                                handleDeleteTask(currentTaskId); // Aktuelle Task-ID übergeben
+                                setShowDeleteTaskConfirm(false);
+                            }
+                        },
+                    },
+                ]}
+            />
+
+
+        </>
     );
 };
 

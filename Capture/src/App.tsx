@@ -49,7 +49,6 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import LogOutPage from "./pages/LogOutPage";
 import JoinGalleryPage from './pages/JoinGalleryPage';
 
 
@@ -64,12 +63,11 @@ const App: React.FC = () => (
             <IonReactRouter>
                 <IonTabs>
                     <IonRouterOutlet>
-                        <Route exact path="/" component={ProfilPage}/>
+                        <Route exact path="/" component={SignInPage}/>
                         <Route path="/profil" component={ProfilPage}/>
 
                         <Route exact path="/signin" component={SignInPage}/>
                         <Route exact path="/signup" component={SignUpPage}/>
-                        <Route exact path="/logout" component={LogOutPage}/>
                         <Route path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
 
                         <Route path="/create-gallery" component={CreateGalleryPage}/>
@@ -79,10 +77,11 @@ const App: React.FC = () => (
 
                     {/* Tab Bar */}
                     <IonTabBar slot="bottom">
+                        {/*
                         <IonTabButton tab="signup" href="/signup">
                             <IonIcon aria-hidden="true" icon={logInOutline}/>
                             <IonLabel>Sign Up</IonLabel>
-                        </IonTabButton>
+                        </IonTabButton>*/}
 
                         <IonTabButton tab="signin" href="/signin">
                             <IonIcon aria-hidden="true" icon={logInOutline}/>

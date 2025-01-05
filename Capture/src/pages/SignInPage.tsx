@@ -1,8 +1,8 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
 import {useState} from "react";
 import {signIn} from "../services/authService";
 import {useToast} from '../contexts/ToastContext';
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 
 const SignInPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -37,28 +37,35 @@ const SignInPage: React.FC = () => {
                 <h1>Einloggen</h1>
 
                 <div className="form-container">
+                    <IonItem>
+                        <IonInput
+                            placeholder="Email..."
+                            labelPlacement="floating"
+                            value={email}
+                            required={true}
+                            type="email"
+                            onIonChange={(e) => setEmail(e.detail.value!)}
+                        >
+                            <div slot="label">Email<IonText>*</IonText></div>
+                        </IonInput>
+                    </IonItem>
 
-                    <IonInput
-                        placeholder="Email..."
-                        label="Email"
-                        labelPlacement="floating"
-                        value={email}
-                        required={true}
-                        type="email"
-                        onIonChange={(e) => setEmail(e.detail.value!)}
-                    />
+                    <IonItem>
+                        <IonInput
+                            placeholder="Password..."
+                            labelPlacement="floating"
+                            value={password}
+                            required={true}
+                            type="password"
+                            onIonChange={(e) => setPassword(e.detail.value!)}
+                        >
+                            <div slot="label">Password<IonText>*</IonText></div>
+                        </IonInput>
+                    </IonItem>
 
-                    <IonInput
-                        placeholder="Password..."
-                        label="password"
-                        labelPlacement="floating"
-                        value={password}
-                        required={true}
-                        type="password"
-                        onIonChange={(e) => setPassword(e.detail.value!)}
-                    />
+                    <IonButton expand="block" onClick={handleLogin} shape="round"> Sign In </IonButton>
 
-                    <IonButton expand="block" onClick={handleLogin} shape="round"> SignIn </IonButton>
+                    <IonText>Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
 
                 </div>
             </IonContent>

@@ -1,10 +1,11 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
 import {useState} from "react";
 import {useHistory} from 'react-router-dom'; // Importieren von useHistory
 import {getLoggedInUserId} from "../services/authService";
 import {createGallery} from "../services/galleryService";
 import {Gallery} from "../models/Gallery";
 import {useToast} from "../contexts/ToastContext";
+import {imageOutline} from 'ionicons/icons';
 
 const CreateGalleryPage: React.FC = () => {
     const [title, setTitle] = useState("");
@@ -23,7 +24,7 @@ const CreateGalleryPage: React.FC = () => {
         }
 
         try {
-            const result_user = await getLoggedInUserId();
+            const result_user = await getLoggedInUserId(); //TODO vielleicht unnötig -> tabele anpassen
 
             if (result_user.success) {
                 const owner_id = result_user.userId
@@ -87,25 +88,32 @@ const CreateGalleryPage: React.FC = () => {
                 <h1>Album erstellen</h1>
 
                 <div className="form-container">
-                    <IonInput
-                        placeholder="Titel..."
-                        label="Titel"
-                        labelPlacement="floating"
-                        value={title}
-                        required={true}
-                        type="text"
-                        onIonChange={(e) => setTitle(e.detail.value!)}
-                    />
-                    <IonInput
-                        placeholder="Beschreibung..."
-                        label="Beschreibung"
-                        labelPlacement="floating"
-                        value={description}
-                        type="text"
-                        onIonChange={(e) => setDescription(e.detail.value!)}
-                    />
+                    <IonItem>
+                        <IonInput
+                            placeholder="Title..."
+                            labelPlacement="floating"
+                            value={title}
+                            type="text"
+                            onIonChange={(e) => setTitle(e.detail.value!)}
+                        >
+                            <div slot="label">Title<IonText>*</IonText></div>
+                        </IonInput>
+                    </IonItem>
 
-                    <p className="label">Vorschaubild</p>
+                    <IonItem>
+                        <IonInput
+                            placeholder="Description..."
+                            labelPlacement="floating"
+                            value={description}
+                            type="text"
+                            onIonChange={(e) => setDescription(e.detail.value!)}
+                        >
+                            <div slot="label">Description</div>
+                        </IonInput>
+                    </IonItem>
+
+
+                    <p className="label tumb-label">Thumbnail</p>
 
                     {/* Bildvorschau */}
                     {imagePreviewUrl && (
@@ -117,8 +125,14 @@ const CreateGalleryPage: React.FC = () => {
                     <input
                         type="file"
                         accept="image/*"
+                        id="imagePreview_id"
+                        hidden
                         onChange={handleFileChange}
                     />
+                    <label id="imagePreview_label" htmlFor="imagePreview_id">
+                        <span>Choose Image</span>
+                        <IonIcon aria-hidden="true" icon={imageOutline}/>
+                    </label>
 
                     <IonButton expand="block" onClick={handleCreateGallery} shape="round">
                         Create Gallery
