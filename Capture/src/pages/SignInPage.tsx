@@ -20,7 +20,7 @@ const SignInPage: React.FC = () => {
             showToast(result.message);
         } catch (err) {
             console.error(err);
-            showToast(err);
+            showToast(String(err));
         }
     };
 

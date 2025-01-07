@@ -2,30 +2,39 @@ import {IonAlert, IonContent, IonHeader, IonItem, IonMenu, IonMenuButton, IonPag
 import {menuController} from '@ionic/core/components';
 import {useEffect, useState} from "react";
 import {getLoggedInUserId, signOut} from "../services/authService";
-import {getUsersGalleries} from "../services/galleryService";
+import {getSharedGalleries, getUsersGalleries} from "../services/galleryService";
 import GalleryListComponent from "../components/GalleryListComponent";
 import {Gallery} from "../models/Gallery";
 import {useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 
 const ProfilPage: React.FC = () => {
-    const [user, setUser] = useState<string | undefined>(""); // Benutzer-ID speichern
+    const[userName, setUserName] = useState<string | undefined>(""); // Benutzername speichern
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Galerien des Benutzers
+    const [sharedGalleries, setSharedGalleries] = useState<Gallery[]>([]); // Gesharte Galerien des Benutzers
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
 
     const history = useHistory();
     const {showToast} = useToast();
 
-    useEffect(() => {
+    useEffect(() => {   
         const fetchUserAndGalleries = async () => {
-            const result_user = await getLoggedInUserId();
-
-            if (result_user.success) {
-                setUser(result_user.userId);
-                const userGalleries = await getUsersGalleries(result_user.userId); // Benutzer-ID übergeben
-                setGalleries(userGalleries); // Galerien setzen
+            const userResponse = await getLoggedInUserId();
+            if (userResponse.success) {
+                setUserName(userResponse.user?.user_metadata.display_name);
+                    const userGalleries = await getUsersGalleries(userResponse.user?.id as string); 
+                    const userSharedGalleries = await getSharedGalleries(userResponse.user?.id as string); 
+                    setGalleries(userGalleries.map(gallery => ({
+                        ...gallery,
+                        preview_image: gallery.preview_image || ''
+                    }))); // Galerien setzen
+                    setSharedGalleries(userSharedGalleries.map(gallery => ({
+                        ...gallery,
+                        preview_image: gallery.preview_image || ''
+                    }))); // Shared Gallerien setzen
+                    
             } else {
-                showToast(result_user.message);
+                showToast("No user found");
                 history.push(`/signin`);
             }
         };
@@ -47,7 +56,7 @@ const ProfilPage: React.FC = () => {
             showToast(result.message);
         } catch (err) {
             console.error(err);
-            showToast(err);
+            showToast(String(err));
         }
         await menuController.close(); // Menü schließen
         history.push(`/signin`);
@@ -86,9 +95,11 @@ const ProfilPage: React.FC = () => {
                             refreshingSpinner="circles"
                         />
                     </IonRefresher>
-                    <h1>Nutzer: {user}</h1>
+                    <h1>Nutzer: {userName}</h1>
                     <h1>Deine Galerien</h1>
                     <GalleryListComponent galleries={galleries}/>
+                    <h1>Deine Geteilten Galerien</h1>
+                    <GalleryListComponent galleries={sharedGalleries}/>
                 </IonContent>
             </IonPage>
 

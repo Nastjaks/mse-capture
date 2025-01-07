@@ -12,7 +12,7 @@ const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
         <div className="gallery-container">
             {galleries.length > 0 ? (
                 galleries.map((gallery) => (
-                    <div >
+                    <div key={gallery.id}>
                         <Link to={`/gallery/${gallery.id}`} className="gallery-link gallery-itme">
                         <h1 className="gallery-title">{gallery.title}</h1>
                         <p className="gallery-description">{gallery.description}</p>

@@ -3,24 +3,26 @@ import {useState} from "react";
 import {signUp} from "../services/authService";
 import {useToast} from "../contexts/ToastContext";
 import {Link, useHistory} from "react-router-dom";
+import { text } from 'ionicons/icons';
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [displayName, setDisplayName] = useState("");
 
     const history = useHistory();
     const {showToast} = useToast();
 
     const handleSignUp = async () => {
         try {
-            const result = await signUp(email, password);
+            const result = await signUp(email, password, displayName);
             if (result.success) {
                 history.push(`/profil`);
             }
             showToast(result.message);
         } catch (err) {
             console.error(err);
-            showToast(err);
+            showToast(String(err));
         }
     };
 
@@ -60,6 +62,18 @@ const SignUpPage: React.FC = () => {
                             onIonChange={(e) => setPassword(e.detail.value!)}
                         >
                             <div slot="label">Password<IonText>*</IonText></div>
+                        </IonInput>
+                    </IonItem>
+                    <IonItem>
+                        <IonInput
+                            placeholder="Anonymer Loris..."
+                            labelPlacement="floating"
+                            value={displayName}
+                            required={true}
+                            type="text"
+                            onIonChange={(e) => setDisplayName(e.detail.value!)}
+                        >
+                            <div slot="label">Name<IonText>*</IonText></div>
                         </IonInput>
                     </IonItem>
                     <IonButton expand="block" onClick={handleSignUp} shape="round"> Sign Up </IonButton>

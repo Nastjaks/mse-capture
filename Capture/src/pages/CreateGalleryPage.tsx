@@ -27,7 +27,7 @@ const CreateGalleryPage: React.FC = () => {
             const result_user = await getLoggedInUserId(); //TODO vielleicht unnötig -> tabele anpassen
 
             if (result_user.success) {
-                const owner_id = result_user.userId
+                const owner_id = result_user.user?.id;
                 const result_newGallery = await createGallery({title, description, owner_id} as Gallery, preview_image);
 
                 if (result_newGallery.success) {
@@ -42,7 +42,7 @@ const CreateGalleryPage: React.FC = () => {
             }
         } catch (err) {
             console.error(err);
-            showToast(err);
+            showToast(String(err));
         }
     };
 

@@ -1,5 +1,6 @@
 import {Gallery} from '../models/Gallery';
 import {supabase} from "../config/supabaseConfig";
+import { AuthResponse } from '@supabase/supabase-js';
 
 
 // ---------- GET All Gallery ----------
@@ -18,8 +19,8 @@ export const getGalleries = async () => {
     }
 }
 
-// ---------- GET all Users Galleries by UserID ----------
-export const getUsersGalleries = async (userId) => {
+
+export const getUsersGalleries = async (userId: string): Promise<Gallery[]> => {
     try {
         const {data, error} = await supabase
             .from('galleries')
@@ -29,12 +30,46 @@ export const getUsersGalleries = async (userId) => {
         if (error) {
             throw error;
         }
-        return data;
+        return data as Gallery[];
     } catch (err) {
         console.log("Error fetching user's galleries:", err);
         return []; // Rückgabe eines leeren Arrays im Fehlerfall
     }
 };
+
+// ---------- GET all shared Galleries by UserID ----------
+export const getSharedGalleries = async (userId: string): Promise<Gallery[]> => {
+    try {
+        const {data, error} = await supabase
+            .from('gallery_members')
+            .select('gallery_id')
+            .eq('user_id', userId);
+
+        if (error) {
+            throw error;
+        }
+
+        if (data && data.length > 0) {
+            const galleryIds = data.map(gallery => gallery.gallery_id);
+            const { data: galleries, error: galleriesError } = await supabase
+                .from('galleries')
+                .select('*')
+                .in('id', galleryIds);
+
+            if (galleriesError) {
+                throw galleriesError;
+            }
+
+            return galleries as Gallery[];
+        } else {
+            return [];
+        }
+    } catch (err) {
+        console.log("Error fetching shared galleries:", err);
+        return [];
+    }
+};
+
 
 // ---------- GET a Gallerie by Id ----------
 export const getGalleryById = async (galleryId: string) => {
@@ -160,6 +195,7 @@ const updateGalleryPreviewImage = async (previewImageUrl: string , galleryID: st
 }
 
 
+
 // ---------- Add a Image to a Gallerie
 export const addImagesToGallery = async (galleryOwnerId: string, galleryId: string, image: File) => {
     if (!galleryOwnerId || !galleryId) {
@@ -216,23 +252,129 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
     }
 };
 
+//---- Download Image from Storage ---
+export const downloadPublicFile = async (filePath: string) => {
+    const { data } = supabase.storage
+        .from('capture-images')
+        .getPublicUrl(filePath);
+
+    if (data?.publicUrl) {
+        const response = await fetch(data.publicUrl);
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filePath.split('/').pop() || 'download'; // Dateiname
+        link.click();
+    }
+};
+
 //------------------------------------------------------------------------------------------------------
 
-// ---------- DELETE Gallery //TODO DELETE THE IAMGES
-export const deleteGallery = async (id: string) => {
+export const deleteGallery = async (id: string, ownerId: string, previewImageUrl: string) => {
     try {
-        const {data, error} = await supabase
+        // Preview-Bild löschen
+        if (previewImageUrl) {
+            const url = new URL(previewImageUrl);
+            const previewFilePath = url.pathname.replace('/storage/v1/object/public/capture-images/', '');
+
+            const { error: previewDeleteError } = await supabase.storage
+                .from('capture-images')
+                .remove([previewFilePath]);
+
+            if (previewDeleteError) {
+                console.error('Fehler beim Löschen des Preview-Bildes:', previewDeleteError.message);
+                return { success: false, message: 'Fehler beim Löschen des Preview-Bildes.' };
+            }
+        }
+
+        // Alle Bilder der Galerie abrufen (also die normalen bilder nicht das preview bild :))
+        const { data: images, error: imageError } = await supabase
+            .from('gallery_images')
+            .select('image_url') 
+            .eq('gallery_id', id);
+
+        if (imageError) {
+            console.error('Fehler beim Abrufen der Bilder:', imageError.message);
+            return { success: false, message: 'Fehler beim Abrufen der Bilder.' };
+        }
+
+        if (images && images.length > 0) {
+            // Bilder aus dem Storage löschen
+            const filePaths = images.map((img) => {
+                const url = new URL(img.image_url);
+                const path = url.pathname.replace('/storage/v1/object/public/capture-images/', '');
+                return path;
+            });
+            console.log("filePaths", filePaths)
+            const { data: deleteData, error: deleteError } = await supabase.storage
+                .from('capture-images') 
+                .remove(filePaths);
+                console.log("deleteData", deleteData)
+
+            if (deleteError) {
+                console.error('Fehler beim Löschen der Bilder:', deleteError.message);
+                return { success: false, message: 'Fehler beim Löschen der Bilder.' };
+            }
+        }
+
+        // Galerie-folder aus der Datenbank löschen
+        const { error: deleteGalleryFolderError } = await supabase
+                .storage
+                .from('capture-images')
+                .remove([`public/${ownerId}/${id}`]); 
+                console.log("deleteGalleryFolderError", deleteGalleryFolderError)
+    
+        if (deleteGalleryFolderError) {
+                console.error('Fehler beim Löschen der Bilder aus der Datenbank:', deleteGalleryFolderError.message);
+                return { success: false, message: 'Fehler beim Löschen der Bilder aus der Datenbank.' };
+        }
+
+        // Galerie-Bilder aus der Datenbank löschen
+        const { error: deleteImagesError } = await supabase
+            .from('gallery_images')
+            .delete()
+            .eq('gallery_id', id);
+
+        if (deleteImagesError) {
+            console.error('Fehler beim Löschen der Bilder aus der Datenbank:', deleteImagesError.message);
+            return { success: false, message: 'Fehler beim Löschen der Bilder aus der Datenbank.' };
+        }
+
+        // Galerie-Eintrag löschen
+        const { data: galleryData, error: galleryError } = await supabase
             .from('galleries')
             .delete()
             .eq('id', id);
-        if (error) {
-            throw error;
+
+        if (galleryError) {
+            console.error('Fehler beim Löschen der Galerie:', galleryError.message);
+            return { success: false, message: 'Fehler beim Löschen der Galerie.' };
         }
-        return { success: true, message: "Gallery has been deleted"};
+
+        return { success: true, message: 'Galerie und Bilder erfolgreich gelöscht.' };
     } catch (err) {
-        console.error('Error deleting gallery:', err);
-        return { success: false, message: err};
+        console.error('Unerwarteter Fehler beim Löschen der Galerie:', err);
+        return { success: false, message: 'Unerwarteter Fehler beim Löschen der Galerie.' };
     }
-}
+};
 
 
+// ---- ADD GALLERY MEMBER ----
+export const AddUserToGallery = async (galleryId: string, userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_members')
+        .insert({
+          gallery_id: galleryId,
+          user_id: userId,
+        });
+
+      if (error) {
+        console.error('Fehler beim Hinzufügen des Nutzers:', error);
+      } else {
+        console.log('Nutzer hinzugefügt:', data);
+      }
+    } catch (err) {
+      console.error('Unerwarteter Fehler:', err);
+    }
+  };
