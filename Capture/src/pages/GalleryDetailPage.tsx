@@ -379,7 +379,7 @@ const GalleryDetailPage: React.FC = () => {
                     )}
                 </IonContent>
             </IonPage>
-            <IonContent style={{ '--background': '#000' }}>
+            
             <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                 {modalContent === "image" && (
                     <div className="modal-content">
@@ -417,8 +417,6 @@ const GalleryDetailPage: React.FC = () => {
                     </div>
                 )}
             </CustomModal>
-            </IonContent>
-            
 
             {/* Delete-Bestätigungsdialog */}
             <IonAlert
