@@ -202,8 +202,9 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
         console.error("Owner ID oder Gallery ID fehlt");
         return null;
     }
-
-    const folderPath = `public/${galleryOwnerId}/${galleryId}/${image.name}`;
+    
+    const modifiedImage = new File([image], image.name.replace(/\s/g, '_'), { type: image.type });
+    const folderPath = `public/${galleryOwnerId}/${galleryId}/${modifiedImage.name}`;
 
     try {
         // Bild in den Storage hochladen
@@ -223,7 +224,7 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
         const {data: publicUrlData} = supabase.storage
             .from('capture-images')
             .getPublicUrl(folderPath);
-
+            
         const imageUrl = publicUrlData?.publicUrl;
         if (!imageUrl) {
             console.error('Fehler beim Abrufen der Bild-URL.');

@@ -270,7 +270,7 @@ const GalleryDetailPage: React.FC = () => {
                 </IonContent>
             </IonMenu>
 
-            <IonPage id="gallerie-content" {...handlers}>
+            <IonPage id="gallerie-content">
                 <IonContent fullscreen>                
                 {/* Navigation für Desktop */}
                     <IonHeader>
@@ -314,7 +314,7 @@ const GalleryDetailPage: React.FC = () => {
                                     key={index}
                                     src={imageUrl}
                                     alt={`Bild ${index}`}
-                                    onClick={() => openModal("image")}
+                                    onClick={() => {setCurrentImageIndex(index); openModal("image")}}
                                     style={{ cursor: 'pointer' }}
                                 />
                             ))
@@ -379,12 +379,12 @@ const GalleryDetailPage: React.FC = () => {
                     )}
                 </IonContent>
             </IonPage>
-            
-            <CustomModal isOpen={isModalOpen} onClose={closeModal} {...handlers}>
+            <IonContent style={{ '--background': '#000' }}>
+            <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                 {modalContent === "image" && (
                     <div className="modal-content">
                         {/* Bildanzeige */}
-                        <div className="image-container">
+                        <div className="image-container" {...handlers}>
                             <img
                                 src={galleryImages[currentImageIndex]}
                                 alt={`Bild ${currentImageIndex}`}
@@ -397,6 +397,7 @@ const GalleryDetailPage: React.FC = () => {
                             <IonButton onClick={showNextImage}>→</IonButton>
                         </div>
                         <IonButton onClick={() => downloadGalleryImagesFromURL(galleryImages[currentImageIndex])}>Download</IonButton>
+                        <IonButton onClick={closeModal}>X</IonButton>
                     </div>
                 )}
                 {modalContent === "qrCode" && (
@@ -411,13 +412,13 @@ const GalleryDetailPage: React.FC = () => {
                                 ) : (
                                     <p>QR-Code wird generiert...</p>
                                 )}
-                                <IonButton onClick={() => copyToClipboard("http://localhost:8100/join-gallery/100")}>
-                                    Copy Link to share
-                                </IonButton>
+                                <IonButton onClick={() => copyToClipboard("http://localhost:8100/join-gallery/100")}>Copy Link to share</IonButton>
                             </div>
                     </div>
                 )}
             </CustomModal>
+            </IonContent>
+            
 
             {/* Delete-Bestätigungsdialog */}
             <IonAlert

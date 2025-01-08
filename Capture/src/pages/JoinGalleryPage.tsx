@@ -25,6 +25,10 @@ const JoinGalleryPage: React.FC = () => {
                 if (result_galleryData) {
                     setGallery(result_galleryData);
                 }
+                const userResponse = await getLoggedInUserId();
+                if(userResponse.success){
+                    history.push(`/gallery/${galleryId}`);
+                }
             }
         };
     
