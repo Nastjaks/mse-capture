@@ -1,6 +1,6 @@
-import {IonAlert, IonContent, IonHeader, IonItem, IonMenu, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar} from '@ionic/react';
+import {IonAlert, IonContent, IonHeader, IonItem, IonMenu, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {menuController} from '@ionic/core/components';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {getLoggedInUserId, signOut} from "../services/authService";
 import {getSharedGalleries, getUsersGalleries} from "../services/galleryService";
 import GalleryListComponent from "../components/GalleryListComponent";
@@ -8,8 +8,10 @@ import {Gallery} from "../models/Gallery";
 import {useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 
+
 const ProfilPage: React.FC = () => {
-    const[userName, setUserName] = useState<string | undefined>(""); // Benutzername speichern
+
+    const [userName, setUserName] = useState<string | undefined>(""); // Benutzername speichern
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Galerien des Benutzers
     const [sharedGalleries, setSharedGalleries] = useState<Gallery[]>([]); // Gesharte Galerien des Benutzers
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
@@ -17,32 +19,51 @@ const ProfilPage: React.FC = () => {
     const history = useHistory();
     const {showToast} = useToast();
 
-    useEffect(() => {   
-        const fetchUserAndGalleries = async () => {
+    // Benutzerdaten und Galerien laden
+    useIonViewWillEnter(() => {
+        fetchUserAndGalleries();
+    });
+
+    const fetchUserAndGalleries = async () => {
+        try {
             const userResponse = await getLoggedInUserId();
             if (userResponse.success) {
                 setUserName(userResponse.user?.user_metadata.display_name);
-                    const userGalleries = await getUsersGalleries(userResponse.user?.id as string); 
-                    const userSharedGalleries = await getSharedGalleries(userResponse.user?.id as string); 
-                    setGalleries(userGalleries.map(gallery => ({
-                        ...gallery,
-                        preview_image: gallery.preview_image || ''
-                    }))); // Galerien setzen
-                    setSharedGalleries(userSharedGalleries.map(gallery => ({
-                        ...gallery,
-                        preview_image: gallery.preview_image || ''
-                    }))); // Shared Gallerien setzen
-                    
-            } else {
-                showToast("No user found");
-                history.push(`/signin`);
+
+                const userGalleries = await getUsersGalleries(userResponse.user?.id as string);
+                const userSharedGalleries = await getSharedGalleries(userResponse.user?.id as string);
+                setGalleries(userGalleries);
+                setSharedGalleries(userSharedGalleries);
             }
-        };
-        fetchUserAndGalleries();
-    }, []);
+        } catch (error) {
+            console.error(error);
+            showToast('Error fetching galleries.');
+        }
+    };
+    /*
+    const fetchUserAndGalleries = async () => {
+        const userResponse = await getLoggedInUserId();
+        if (userResponse.success) {
+            setUserName(userResponse.user?.user_metadata.display_name);
+            const userGalleries = await getUsersGalleries(userResponse.user?.id as string);
+            const userSharedGalleries = await getSharedGalleries(userResponse.user?.id as string);
+            setGalleries(userGalleries.map(gallery => ({
+                ...gallery,
+                preview_image: gallery.preview_image || ''
+            }))); // Galerien setzen
+            setSharedGalleries(userSharedGalleries.map(gallery => ({
+                ...gallery,
+                preview_image: gallery.preview_image || ''
+            }))); // Shared Gallerien setzen
+
+        } else {
+            showToast("No user found");
+        }
+    };*/
+
 
     const handleRefresh = async (event: CustomEvent) => {
-        console.log("RELOAD PROFILE");
+        await fetchUserAndGalleries();
         event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
     };
 
@@ -78,6 +99,7 @@ const ProfilPage: React.FC = () => {
                 </IonContent>
             </IonMenu>
 
+            {/* Content */}
             <IonPage id="profile-content">
                 <IonHeader>
                     <IonToolbar>

@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { IonToast } from '@ionic/react';
 
 interface ToastContextType {
-    showToast: (message: string, duration?: number) => void;
+    showToast: (message: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);

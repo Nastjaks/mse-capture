@@ -51,18 +51,16 @@ import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
 import JoinGalleryPage from './pages/JoinGalleryPage';
 
-
 setupIonicReact();
-
 
 //TODO Protected Routes
 
 const App: React.FC = () => (
     <IonApp>
         <ToastProvider>
-            <IonReactRouter>
+            <IonReactRouter >
                 <IonTabs>
-                    <IonRouterOutlet>
+                    <IonRouterOutlet animated={false}>
                         <Route exact path="/" component={SignInPage}/>
                         <Route path="/profil" component={ProfilPage}/>
 
@@ -77,11 +75,6 @@ const App: React.FC = () => (
 
                     {/* Tab Bar */}
                     <IonTabBar slot="bottom">
-                        {/*
-                        <IonTabButton tab="signup" href="/signup">
-                            <IonIcon aria-hidden="true" icon={logInOutline}/>
-                            <IonLabel>Sign Up</IonLabel>
-                        </IonTabButton>*/}
 
                         <IonTabButton tab="signin" href="/signin">
                             <IonIcon aria-hidden="true" icon={logInOutline}/>

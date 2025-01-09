@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillLeave} from '@ionic/react';
 import {useState} from "react";
 import {signIn} from "../services/authService";
 import {useToast} from '../contexts/ToastContext';
@@ -11,18 +11,32 @@ const SignInPage: React.FC = () => {
     const history = useHistory();
     const {showToast} = useToast();
 
+    //TODO wenn der nutzer schon eingelogt ist, soll es auf die Profiel seite umgeleitet werden
+    //Todo Validate input fields
+
     const handleLogin = async () => {
+
         try {
-            const result = await signIn(email, password);
-            if (result.success) {
+            const {success, message} = await signIn(email, password);
+            if (success) {
                 history.push(`/profil`);
             }
-            showToast(result.message);
+            showToast(message);
         } catch (err) {
             console.error(err);
             showToast(String(err));
         }
     };
+
+    useIonViewWillLeave(() => {
+        restFields();
+    });
+
+
+    const restFields = () => {
+        setEmail("");
+        setPassword("");
+    }
 
     return (
         <IonPage>

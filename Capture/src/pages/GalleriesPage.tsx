@@ -1,10 +1,9 @@
-import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar} from '@ionic/react';
-import {useEffect, useState} from 'react';
+import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, useIonViewDidEnter, useIonViewDidLeave, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
+import {useState} from 'react';
 import {getGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import {getLoggedInUserId} from '../services/authService';
 import GalleryListComponent from "../components/GalleryListComponent";
-
 
 const GalleriesPage: React.FC = () => {
     const [galleries, setGalleries] = useState<Gallery[]>([]); // Typisierung des States
@@ -17,9 +16,9 @@ const GalleriesPage: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        loadGalleries(); // Galerie-Daten beim Laden der Seite laden
-    }, []);
+    useIonViewWillEnter(() => {
+        loadGalleries();
+    });
 
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleries(); // Galerie-Daten neu laden

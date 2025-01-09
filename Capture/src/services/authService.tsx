@@ -10,11 +10,11 @@ interface AuthResponse {
 // ----- Regestrieren -----
 export const signUp = async (email: string, password: string, displayName: string): Promise<AuthResponse> => {
     try {
-        const {error} = await supabase.auth.signUp({email, password, options: {data: {display_name: displayName}}});
+        const {data: {user}, error} = await supabase.auth.signUp({email, password, options: {data: {display_name: displayName}}});
         if (error) {
             return { success: false, message: error.message};
         }
-        return { success: true, message: 'Registration successful.'};
+        return { success: true, message: 'Registration successful.', user: user};
     } catch (err) {
         console.error(err);
         return { success: false, message: 'Unexpected error.'};
@@ -24,11 +24,11 @@ export const signUp = async (email: string, password: string, displayName: strin
 // ----- Einloggen -----
 export const signIn = async (email: string, password: string): Promise<AuthResponse> => {
     try {
-        const {data, error} = await supabase.auth.signInWithPassword({email, password});
+        const {data:{user}, error} = await supabase.auth.signInWithPassword({email, password});
         if (error) {
             return { success: false, message: error.message};
         }
-        return { success: true, message: 'Login successful.', user: data.user};
+        return { success: true, message: 'Login successful.', user: user};
     } catch (err){
         console.error(err);
         return { success: false, message: 'Unexpected error.'};

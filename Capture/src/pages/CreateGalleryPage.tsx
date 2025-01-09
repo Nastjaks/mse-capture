@@ -1,11 +1,11 @@
 import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
 import {useState} from "react";
-import {useHistory} from 'react-router-dom'; // Importieren von useHistory
+import {useHistory} from 'react-router-dom';
 import {getLoggedInUserId} from "../services/authService";
 import {createGallery} from "../services/galleryService";
 import {Gallery} from "../models/Gallery";
 import {useToast} from "../contexts/ToastContext";
-import {imageOutline} from 'ionicons/icons';
+import {imageOutline, logInOutline, trash} from 'ionicons/icons';
 
 const CreateGalleryPage: React.FC = () => {
     const [title, setTitle] = useState("");
@@ -24,7 +24,7 @@ const CreateGalleryPage: React.FC = () => {
         }
 
         try {
-            const result_user = await getLoggedInUserId(); //TODO vielleicht unnötig -> tabele anpassen
+            const result_user = await getLoggedInUserId();
 
             if (result_user.success) {
                 const owner_id = result_user.user?.id;
@@ -112,15 +112,23 @@ const CreateGalleryPage: React.FC = () => {
                         </IonInput>
                     </IonItem>
 
+                    <span className="imgPickerLabel">
+                        <p className="label tumb-label">Thumbnail</p>
 
-                    <p className="label tumb-label">Thumbnail</p>
+                        {/* Bild entfernen */}
+                        {imagePreviewUrl && (
+                            <IonIcon
+                                className="removeImage"
+                                aria-hidden="true"
+                                icon={trash}
+                                onClick={() => {
+                                    setPreviewImage(null);
+                                    setImagePreviewUrl(null); // Vorschau-URL ebenfalls zurücksetzen
+                                }}
+                            />
+                        )}
 
-                    {/* Bildvorschau */}
-                    {imagePreviewUrl && (
-                        <div className="image-preview">
-                            <img src={imagePreviewUrl} alt="Preview"/>
-                        </div>
-                    )}
+                    </span>
 
                     <input
                         type="file"
@@ -129,9 +137,19 @@ const CreateGalleryPage: React.FC = () => {
                         hidden
                         onChange={handleFileChange}
                     />
-                    <label id="imagePreview_label" htmlFor="imagePreview_id">
-                        <span>Choose Image</span>
-                        <IonIcon aria-hidden="true" icon={imageOutline}/>
+
+                    <label
+                        id="imagePreview_label"
+                        htmlFor="imagePreview_id"
+                        className={imagePreviewUrl ? "hasImg" : ""}
+                        style={{
+                            backgroundImage: imagePreviewUrl ? `url(${imagePreviewUrl})` : undefined,
+                        }}
+                    >
+                            <span className="imagePicker">
+                                <span>Choose Image</span>
+                                <IonIcon aria-hidden="true" icon={imageOutline}/>
+                            </span>
                     </label>
 
                     <IonButton expand="block" onClick={handleCreateGallery} shape="round">
