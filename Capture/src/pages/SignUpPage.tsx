@@ -21,7 +21,7 @@ const SignUpPage: React.FC = () => {
         const finalUserName = userName || getRandomUserName(); //setzt einen Random namen
 
         try {
-            const {success,message} = await signUp(email, password, finalUserName);
+            const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
                 history.push(`/profil`);
             }
@@ -47,60 +47,60 @@ const SignUpPage: React.FC = () => {
     return (
         <IonPage>
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>CAPTURE</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent fullscreen={true} className="ion-padding">
-                <h1>Sing in</h1>
+                <div className="page-bottom">
+                    <div className="header-wrapper">
+                        <div className="header-top">
+                        </div>
+                    </div>
 
-                <div className="form-container">
+                    <h1 className="pageTitle">Sing up</h1>
 
-                    <IonItem>
-                        <IonInput
-                            placeholder="Anonymer Loris..."
-                            labelPlacement="floating"
-                            value={userName}
-                            required={true}
-                            type="text"
-                            onIonChange={(e) => setUserName(e.detail.value!)}
-                        >
-                            <div slot="label">Name<IonText></IonText></div>
-                        </IonInput>
-                    </IonItem>
 
-                    <IonItem>
-                        <IonInput
-                            placeholder="Email..."
-                            labelPlacement="floating"
-                            value={email}
-                            required={true}
-                            type="email"
-                            onIonChange={(e) => setEmail(e.detail.value!)}
-                        >
-                            <div slot="label">Email<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
+                    <div className="form-container">
+                        <IonItem>
+                            <IonInput
+                                placeholder="Anonymer Loris..."
+                                labelPlacement="floating"
+                                label="Name"
+                                value={userName}
+                                required={true}
+                                type="text"
+                                onIonChange={(e) => setUserName(e.detail.value!)}
+                            >
+                            </IonInput>
+                        </IonItem>
 
-                    <IonItem>
-                        <IonInput
-                            placeholder="Password..."
-                            labelPlacement="floating"
-                            value={password}
-                            required={true}
-                            type="password"
-                            onIonChange={(e) => setPassword(e.detail.value!)}
-                        >
-                            <div slot="label">Password<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
+                        <IonItem>
+                            <IonInput
+                                placeholder="Email..."
+                                labelPlacement="floating"
+                                label="Email*"
+                                value={email}
+                                required={true}
+                                type="email"
+                                onIonChange={(e) => setEmail(e.detail.value!)}
+                            >
+                            </IonInput>
+                        </IonItem>
 
-                    <IonButton expand="block" onClick={handleSignUp} shape="round"> Sign Up </IonButton>
+                        <IonItem>
+                            <IonInput
+                                placeholder="Password..."
+                                labelPlacement="floating"
+                                label="Password*"
+                                value={password}
+                                required={true}
+                                type="password"
+                                onIonChange={(e) => setPassword(e.detail.value!)}
+                            >
+                            </IonInput>
+                        </IonItem>
 
-                    <IonText>Have an account? <Link to={`/signin`}>Sign In</Link></IonText>
+                        <IonButton expand="block" onClick={handleSignUp} shape="round"> Sign Up </IonButton>
 
+                        <IonText>Have an account? <Link to={`/signin`}>Sign In</Link></IonText>
+                    </div>
                 </div>
             </IonContent>
 

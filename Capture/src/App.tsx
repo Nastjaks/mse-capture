@@ -12,12 +12,16 @@ import {
 
 import {IonReactRouter} from '@ionic/react-router';
 import {logInOutline, imagesOutline, personOutline, addOutline} from 'ionicons/icons';
+
+/* PAGES */
 import SignInPage from './pages/SignInPage';
 import GalleriesPage from './pages/GalleriesPage';
 import CreateGalleryPage from './pages/CreateGalleryPage';
 import ProfilPage from "./pages/ProfilPage";
 import SignUpPage from "./pages/SignUpPage";
 import GalleryDetailPage from "./pages/GalleryDetailPage";
+import JoinGalleryPage from './pages/JoinGalleryPage';
+
 import {ToastProvider} from './contexts/ToastContext';
 
 /* Core CSS required for Ionic components to work properly */
@@ -49,7 +53,9 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import JoinGalleryPage from './pages/JoinGalleryPage';
+
+
+
 
 setupIonicReact();
 

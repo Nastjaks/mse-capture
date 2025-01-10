@@ -2,11 +2,14 @@
 .gallery-container{
     max-width: 500px;
 }
+.page-bottom-wrapper{
+
+}
 
 .galerie-header{
-    height: 215px;
+    min-height: 215px;
     position: relative;
-    max-width: 500px;
+    /*max-width: 500px;*/
     overflow: hidden;
     padding: 10px;
 }

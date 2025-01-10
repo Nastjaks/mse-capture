@@ -7,6 +7,7 @@
 .gallery-itme{
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     max-width: 500px;
     padding: 15px;
     border-radius: 20px;
@@ -39,4 +40,13 @@
     z-index: -1;
 }
 
+.gallery-title{
+    margin: 5px 0;
+    font-size: 23px;
+}
+
+.gallery-description{
+    margin: 5px 0;
+    font-size: 14px;
+}
 

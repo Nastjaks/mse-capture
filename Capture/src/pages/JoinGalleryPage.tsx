@@ -26,12 +26,12 @@ const JoinGalleryPage: React.FC = () => {
                     setGallery(result_galleryData);
                 }
                 const userResponse = await getLoggedInUserId();
-                if(userResponse.success){
+                if (userResponse.success) {
                     history.push(`/gallery/${galleryId}`);
                 }
             }
         };
-    
+
         fetchGallery();
     }, [galleryId]);
 
@@ -59,78 +59,81 @@ const JoinGalleryPage: React.FC = () => {
 
     return (
         <IonPage>
+
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>CAPTURE</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen>
-                <IonHeader collapse="condense">
-                    <IonToolbar>
-                        <IonTitle size="large"></IonTitle>
-                    </IonToolbar>
-                </IonHeader>
 
-                <div className="form-container">
+            <IonContent fullscreen className="ion-padding">
                 {gallery ? (
-                        <div>
-                            <div className="galerie-header">
-                                <h1>{gallery.title}</h1>
-                                <h2>Galerie: {gallery.id}</h2>
-                                <h2>Owner: {gallery.owner_id}</h2>
-                                {gallery.preview_image && (
-                                    <img className="galerie-previeImg" src={gallery.preview_image}/>
-                                )}
-                            </div>
+                    <div>
 
-                            <p>{gallery.description}</p>
 
-                            <IonInput
-                                placeholder="Ananastasia stinkt..."
-                                label="Name"
-                                labelPlacement="floating"
-                                value={name}
-                                required={true}
-                                type="text"
-                                onIonChange={(e) => setName(e.detail.value!)}
-                            />
+                        {gallery.preview_image && (
+                            <img className="join-galerie-previeImg" src={gallery.preview_image}/>
+                        )}
+
+
+                        <h1>{gallery.title}</h1>
+                        <h2>Galerie: {gallery.id}</h2>
+                        <h2>Owner: {gallery.owner_id}</h2>
+                        <p>{gallery.description}</p>
+
+                        <div className="form-container">
+                            <IonItem>
+                                <IonInput
+                                    placeholder="Anonymer Loris stinkt..."
+                                    label="Name"
+                                    labelPlacement="floating"
+                                    value={name}
+                                    required={true}
+                                    type="text"
+                                    onIonChange={(e) => setName(e.detail.value!)}
+                                />
+                            </IonItem>
 
                             <IonButton expand="block" onClick={onButtonClick} shape="round"> Join Gallery </IonButton>
                         </div>
-                    ) : (
-                        <p>Ananastasia hat keine Gallerie hierfür erstellt...</p>
-                    )}
-                </div>
-                <h1>Einloggen</h1>
 
-                <div className="form-container">
-                    <IonItem>
-                        <IonInput
-                            placeholder="Email..."
-                            labelPlacement="floating"
-                            value={email}
-                            required={true}
-                            type="email"
-                            onIonChange={(e) => setEmail(e.detail.value!)}
-                        >
-                            <div slot="label">Email<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
 
-                    <IonItem>
-                        <IonInput
-                            placeholder="Password..."
-                            labelPlacement="floating"
-                            value={password}
-                            required={true}
-                            type="password"
-                            onIonChange={(e) => setPassword(e.detail.value!)}
-                        >
-                            <div slot="label">Password<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
-                    <IonButton expand="block" onClick={handleLoginWithInviteCode} shape="round"> Sign In </IonButton>
-                </div>
+                        <div className="form-container">
+                            <h1>Einloggen</h1>
+                            <IonItem>
+                                <IonInput
+                                    placeholder="Email..."
+                                    labelPlacement="floating"
+                                    value={email}
+                                    required={true}
+                                    type="email"
+                                    onIonChange={(e) => setEmail(e.detail.value!)}
+                                >
+                                    <div slot="label">Email<IonText>*</IonText></div>
+                                </IonInput>
+                            </IonItem>
+
+                            <IonItem>
+                                <IonInput
+                                    placeholder="Password..."
+                                    labelPlacement="floating"
+                                    value={password}
+                                    required={true}
+                                    type="password"
+                                    onIonChange={(e) => setPassword(e.detail.value!)}
+                                >
+                                    <div slot="label">Password<IonText>*</IonText></div>
+                                </IonInput>
+                            </IonItem>
+                            <IonButton expand="block" onClick={handleLoginWithInviteCode} shape="round"> Sign In </IonButton>
+                        </div>
+
+                    </div>
+
+                ) : (
+                    <p>No Gallery found</p>
+                )}
+
 
             </IonContent>
         </IonPage>

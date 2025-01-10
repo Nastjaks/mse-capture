@@ -41,46 +41,42 @@ const SignInPage: React.FC = () => {
     return (
         <IonPage>
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>CAPTURE</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent fullscreen={true} className="ion-padding">
-                <h1>Einloggen</h1>
+                <div className="page-bottom">
+                    <h1 className="pageTitle">SIGN IN</h1>
 
-                <div className="form-container">
-                    <IonItem>
-                        <IonInput
-                            placeholder="Email..."
-                            labelPlacement="floating"
-                            value={email}
-                            required={true}
-                            type="email"
-                            onIonChange={(e) => setEmail(e.detail.value!)}
-                        >
-                            <div slot="label">Email<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
+                    <div className="form-container">
+                        <IonItem>
+                            <IonInput
+                                placeholder="Email..."
+                                label="Email*"
+                                labelPlacement="floating"
+                                value={email}
+                                required={true}
+                                type="email"
+                                onIonChange={(e) => setEmail(e.detail.value!)}
+                            >
+                            </IonInput>
+                        </IonItem>
 
-                    <IonItem>
-                        <IonInput
-                            placeholder="Password..."
-                            labelPlacement="floating"
-                            value={password}
-                            required={true}
-                            type="password"
-                            onIonChange={(e) => setPassword(e.detail.value!)}
-                        >
-                            <div slot="label">Password<IonText>*</IonText></div>
-                        </IonInput>
-                    </IonItem>
+                        <IonItem>
+                            <IonInput
+                                placeholder="Password..."
+                                labelPlacement="floating"
+                                label="Password*"
+                                value={password}
+                                required={true}
+                                type="password"
+                                onIonChange={(e) => setPassword(e.detail.value!)}
+                            >
+                            </IonInput>
+                        </IonItem>
 
-                    <IonButton expand="block" onClick={handleLogin} shape="round"> Sign In </IonButton>
+                        <IonButton expand="block" onClick={handleLogin} shape="round"> Sign In </IonButton>
 
-                    <IonText>Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
+                        <IonText>Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
 
+                    </div>
                 </div>
             </IonContent>
 

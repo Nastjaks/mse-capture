@@ -1,18 +1,18 @@
-import {IonAlert, IonButton, IonCol, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonMenu, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonText, IonTitle, IonToolbar} from '@ionic/react';
+import {IonAlert, IonButton, IonCol, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonMenu, IonMenuButton, IonModal, IonPage, IonPopover, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonText, IonTitle, IonToolbar} from '@ionic/react';
 import {useParams} from 'react-router-dom'; // Zum Abrufen der Galerie-ID aus der URL
 import {useEffect, useState} from 'react';
+import {useHistory} from "react-router";
+import {add, arrowBackSharp, camera, checkmark, downloadOutline, trash} from "ionicons/icons";
+import {menuController} from "@ionic/core/components";
 import {addImagesToGallery, deleteGallery, downloadPublicFile, getGalleryById, getGalleryImages} from '../services/galleryService';
+import {createTask, deleteTask, getTasks} from "../services/taskService";
 import {Gallery} from "../models/Gallery";
 import {Task} from "../models/Task";
-import {useHistory} from "react-router";
-import {add, camera, checkmark, trash} from "ionicons/icons";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
-import * as QRCode from 'qrcode';
-import {menuController} from "@ionic/core/components";
-import {createTask, deleteTask, getTasks} from "../services/taskService";
-import { useSwipeable } from "react-swipeable";
+import {useSwipeable} from "react-swipeable";
 import CustomModal from '../components/CustomModals';
+import QRCodeComponent from "../components/QRCodeComponent";
 
 
 const GalleryDetailPage: React.FC = () => {
@@ -20,9 +20,9 @@ const GalleryDetailPage: React.FC = () => {
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
 
-    const [qrCodeData, setQrCodeData] = useState<string | null>(null); // QR-Code-Daten
+    //const [qrCodeData, setQrCodeData] = useState<string | null>(null); // QR-Code-Daten
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Zustand für das Bestätigungsdialog
-    
+
     //Task Kram
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
@@ -31,7 +31,7 @@ const GalleryDetailPage: React.FC = () => {
 
     // Modal Kram
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [modalContent, setModalContent] = useState<"image" | "qrCode" | null>(null);
+    const [modalContent, setModalContent] = useState<"image" | null>(null);
     const isModalOpen = modalContent !== null;
 
     const history = useHistory(); // History für die Navigation nach dem Löschen
@@ -47,7 +47,7 @@ const GalleryDetailPage: React.FC = () => {
                     showPreviousImage();
                 }
             };
-    
+
             window.addEventListener("keydown", handleKeyDown);
             return () => {
                 window.removeEventListener("keydown", handleKeyDown);
@@ -55,19 +55,18 @@ const GalleryDetailPage: React.FC = () => {
         }
     }, [isModalOpen]);
 
+    
     // Galerie-Daten basierend auf der ID laden
     useEffect(() => {
-        const fetchGalleryAndQRCode = async () => {
+        const fetchGalleryContent = async () => {
             if (galleryId) {
                 await loadGalleryInfos();
                 await loadGalleryImages();
                 await loadTasks();
-                const qrCode = await generateQRCode(galleryId);
-                setQrCodeData(qrCode);
             }
         };
 
-        fetchGalleryAndQRCode();
+        fetchGalleryContent();
     }, [galleryId]);
 
     // Galerie-Tasks laden
@@ -83,7 +82,7 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    // Refresh
+    // Refresh Content
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleryInfos();
         await loadGalleryImages();
@@ -128,15 +127,11 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    // Funktion zum Generieren eines QR-Codes
-    const generateQRCode = async (galleryId: string, accessToken?: string): Promise<string> => {
-        const localurl = window.location.origin;
-        const baseUrl = `${localurl}/${galleryId}`;
-        const albumUrl = accessToken ? `${baseUrl}?accessToken=${accessToken}` : baseUrl;
-        return QRCode.toDataURL(albumUrl);
-    };
+    const handleDeleteImage = (ImageID: String) => {
+        showToast("NO DELETE FUNCTION: " + ImageID);
+    }
 
-    const openModal = (type: "image" | "qrCode") => setModalContent(type);
+    const openModal = (type: "image" ) => setModalContent(type);
     const closeModal = () => setModalContent(null);
 
     const showNextImage = () => {
@@ -144,7 +139,7 @@ const GalleryDetailPage: React.FC = () => {
             prevIndex < galleryImages.length - 1 ? prevIndex + 1 : 0
         );
     };
-    
+
     const showPreviousImage = () => {
         setCurrentImageIndex((prevIndex) =>
             prevIndex > 0 ? prevIndex - 1 : galleryImages.length - 1
@@ -158,30 +153,13 @@ const GalleryDetailPage: React.FC = () => {
         trackMouse: true, // Auch Mausbewegungen tracken
     });
 
-    // Funktion zum Herunterladen einer Datei
-    const downloadFile = (url: string, fileName: string) => {
-        const link = document.createElement('a');
-        link.href = url; 
-        link.download = fileName; 
-        link.click(); 
-    };
-    
     // Funktion zum Herunterladen von Bildern aus der Galerie
     const downloadGalleryImagesFromURL = async (url: string) => {
         console.log('URL:', url);
-        const cutUrl = url.split('/public/').slice(2).join('/'); 
+        const cutUrl = url.split('/public/').slice(2).join('/');
         const result = `public/${cutUrl}`;
         console.log('Download URL:', result);
         downloadPublicFile(result);
-    };
-
-    const copyToClipboard = async (link: string) => {
-        try {
-            await navigator.clipboard.writeText(link);
-            showToast("Copied to clipboard.");
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-        }
     };
 
     const handleAddImages = async () => {
@@ -216,7 +194,7 @@ const GalleryDetailPage: React.FC = () => {
     };
 
     const handleAddTask = async () => {
-        if (!taskTitle){
+        if (!taskTitle) {
             showToast('Task required');
             return;
         }
@@ -254,25 +232,15 @@ const GalleryDetailPage: React.FC = () => {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent className="">
-
-                    <IonItem button={true}>
-                        <p>Task Manager</p>
-                    </IonItem>
-
-                    <IonItem button onClick={() => openModal("qrCode")}>
-                        <p>Share</p>
-                    </IonItem>
-
-                    <IonItem button={true} onClick={() => setShowDeleteConfirm(true)}>
-                        <p>Delete</p>
-                    </IonItem>
-
+                    <IonItem button={true}> Task Manager </IonItem>
+                    <IonItem button id="open-share">Share</IonItem>
+                    <IonItem button onClick={() => setShowDeleteConfirm(true)}> Delete </IonItem>
                 </IonContent>
             </IonMenu>
 
             <IonPage id="gallerie-content">
-                <IonContent fullscreen>                
-                {/* Navigation für Desktop */}
+                <IonContent fullscreen>
+                    {/* Navigation für Desktop */}
                     <IonHeader>
                         <IonToolbar>
                             {/* Burger-Button für das Menü */}
@@ -308,20 +276,23 @@ const GalleryDetailPage: React.FC = () => {
                     )}
                     {gallery ? (
                         <div className="galerie-img-wrapper">
-                        {galleryImages.length > 0 ? (
-                            galleryImages.map((imageUrl, index) => (
-                                <img
-                                    key={index}
-                                    src={imageUrl}
-                                    alt={`Bild ${index}`}
-                                    onClick={() => {setCurrentImageIndex(index); openModal("image")}}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            ))
-                        ) : (
-                            <p>No pictures in this gallery.</p>
-                        )}
-                    </div>
+                            {galleryImages.length > 0 ? (
+                                galleryImages.map((imageUrl, index) => (
+                                    <img
+                                        key={index}
+                                        src={imageUrl}
+                                        alt={`Bild ${index}`}
+                                        onClick={() => {
+                                            setCurrentImageIndex(index);
+                                            openModal("image")
+                                        }}
+                                        style={{cursor: 'pointer'}}
+                                    />
+                                ))
+                            ) : (
+                                <p>No pictures in this gallery.</p>
+                            )}
+                        </div>
                     ) : (
                         <p>Gallery not found</p>
                     )}
@@ -379,41 +350,40 @@ const GalleryDetailPage: React.FC = () => {
                     )}
                 </IonContent>
             </IonPage>
-            
+
             <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                 {modalContent === "image" && (
-                    <div className="modal-content">
+                    <div className="modal-content galerie-lightbox">
+
+                        {/* Optionen */}
+                        <div className="lightbox-header">
+                            <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
+                            <span>
+                                <IonItem><IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(galleryImages[currentImageIndex])}/> Download</IonItem>
+                                <IonItem><IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage("23")}/>Delete</IonItem>
+                            </span>
+                        </div>
+
                         {/* Bildanzeige */}
                         <div className="image-container" {...handlers}>
                             <img
                                 src={galleryImages[currentImageIndex]}
                                 alt={`Bild ${currentImageIndex}`}
-                                style={{ width: "100%", maxHeight: "80vh", objectFit: "cover" }}
+                                style={{width: "100%", maxHeight: "80vh", objectFit: "cover"}}
                             />
                         </div>
-                        {/* Navigation */}
+
+                        {/* Infos */}
+                        <div className="lightbox-footer">
+                            <p>von XYZ</p>
+                        </div>
+
+                        {/* Navigation
                         <div className="navigation-arrows">
                             <IonButton onClick={showPreviousImage}>←</IonButton>
                             <IonButton onClick={showNextImage}>→</IonButton>
-                        </div>
-                        <IonButton onClick={() => downloadGalleryImagesFromURL(galleryImages[currentImageIndex])}>Download</IonButton>
-                        <IonButton onClick={closeModal}>X</IonButton>
-                    </div>
-                )}
-                {modalContent === "qrCode" && (
-                    <div className="custom-content">
-                        <div className="ion-padding">
-                                {qrCodeData ? (
-                                    <div className="qr-code-container">
-                                        <h3>QR-Code für diese Galerie</h3>
-                                        <img src={qrCodeData} alt="QR Code" className="qr-code-image" />
-                                        <IonButton onClick={() => downloadFile(qrCodeData, "qrcode.png")}>Download QR Code</IonButton>
-                                    </div>
-                                ) : (
-                                    <p>QR-Code wird generiert...</p>
-                                )}
-                                <IonButton onClick={() => copyToClipboard("http://localhost:8100/join-gallery/100")}>Copy Link to share</IonButton>
-                            </div>
+                        </div> */}
+
                     </div>
                 )}
             </CustomModal>
@@ -464,6 +434,22 @@ const GalleryDetailPage: React.FC = () => {
                 ]}
             />
 
+
+            {/* Share Gallery */}
+            <IonModal
+                trigger="open-share"
+                initialBreakpoint={0.6}
+                breakpoints={[0.6, 0.75]}
+                backdropDismiss={true}
+                handleBehavior="cycle"
+                onWillPresent={async () => await menuController.close()}
+            >
+                <IonContent className="ion-padding">
+                    <div className="ion-margin-top">
+                        <QRCodeComponent galleryId={galleryId} />
+                    </div>
+                </IonContent>
+            </IonModal>
 
         </>
     );

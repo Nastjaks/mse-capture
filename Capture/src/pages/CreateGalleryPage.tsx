@@ -85,18 +85,18 @@ const CreateGalleryPage: React.FC = () => {
 
             <IonContent fullscreen={true} className="ion-padding">
 
-                <h1>Album erstellen</h1>
+                <h1 className="pageTitle">Create Gallery</h1>
 
                 <div className="form-container">
                     <IonItem>
                         <IonInput
                             placeholder="Title..."
                             labelPlacement="floating"
+                            label="Title*"
                             value={title}
                             type="text"
                             onIonChange={(e) => setTitle(e.detail.value!)}
                         >
-                            <div slot="label">Title<IonText>*</IonText></div>
                         </IonInput>
                     </IonItem>
 
@@ -104,11 +104,11 @@ const CreateGalleryPage: React.FC = () => {
                         <IonInput
                             placeholder="Description..."
                             labelPlacement="floating"
+                            label="Description"
                             value={description}
                             type="text"
                             onIonChange={(e) => setDescription(e.detail.value!)}
                         >
-                            <div slot="label">Description</div>
                         </IonInput>
                     </IonItem>
 
@@ -123,7 +123,7 @@ const CreateGalleryPage: React.FC = () => {
                                 icon={trash}
                                 onClick={() => {
                                     setPreviewImage(null);
-                                    setImagePreviewUrl(null); // Vorschau-URL ebenfalls zurücksetzen
+                                    setImagePreviewUrl(null);
                                 }}
                             />
                         )}
