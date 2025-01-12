@@ -1,8 +1,31 @@
-import {IonAlert, IonButton, IonCol, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonMenu, IonMenuButton, IonModal, IonPage, IonPopover, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonText, IonTitle, IonToolbar} from '@ionic/react';
-import {useParams} from 'react-router-dom'; // Zum Abrufen der Galerie-ID aus der URL
-import {useEffect, useState} from 'react';
+import {
+    IonAlert,
+    IonButton,
+    IonContent,
+    IonFab,
+    IonFabButton,
+    IonHeader,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonMenu,
+    IonMenuButton,
+    IonModal,
+    IonPage,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSegmentContent,
+    IonSegmentView,
+    IonTitle,
+    IonToolbar,
+    useIonViewWillEnter,
+} from '@ionic/react';
+import {useParams} from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
 import {useHistory} from "react-router";
-import {add, arrowBackSharp, camera, checkmark, downloadOutline, trash} from "ionicons/icons";
+import {add, arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
 import {addImagesToGallery, deleteGallery, downloadPublicFile, getGalleryById, getGalleryImages} from '../services/galleryService';
 import {createTask, deleteTask, getTasks} from "../services/taskService";
@@ -13,6 +36,7 @@ import {useToast} from "../contexts/ToastContext";
 import {useSwipeable} from "react-swipeable";
 import CustomModal from '../components/CustomModals';
 import QRCodeComponent from "../components/QRCodeComponent";
+import TaskComponent from "../components/TaskComponent";
 
 
 const GalleryDetailPage: React.FC = () => {
@@ -20,14 +44,16 @@ const GalleryDetailPage: React.FC = () => {
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
 
+    const [newGalleryID, setNewGalleryID] = useState<string>("");
+
     //const [qrCodeData, setQrCodeData] = useState<string | null>(null); // QR-Code-Daten
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Zustand für das Bestätigungsdialog
 
     //Task Kram
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [taskTitle, setTaskTitle] = useState("");
-    const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState(false); // Zustand für das Bestätigungsdialog
-    const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+    //const [tasks, setTasks] = useState<Task[]>([]);
+    //const [taskTitle, setTaskTitle] = useState("");
+    //const [showDeleteTaskConfirm, setShowDeleteTaskConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+    //const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
 
     // Modal Kram
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -37,8 +63,24 @@ const GalleryDetailPage: React.FC = () => {
     const history = useHistory(); // History für die Navigation nach dem Löschen
     const {showToast} = useToast();
 
+    // Modal Test
+    const modal = useRef<HTMLIonModalElement>(null);
+
+
+    //Resetet die Felder wenn die View verlassen wird
+    useIonViewWillEnter(() => {
+        //window.location.reload();
+        if (galleryId) {
+             loadGalleryInfos();
+             loadGalleryImages();
+             //loadTasks();
+        }
+        console.log("ssssssssssssssssssssssssssssssssssssssss");
+    });
+
     // Event-Listener für die Navigation mit den Pfeiltasten
     useEffect(() => {
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         if (isModalOpen) {
             const handleKeyDown = (event: KeyboardEvent) => {
                 if (event.key === "ArrowRight") {
@@ -55,14 +97,14 @@ const GalleryDetailPage: React.FC = () => {
         }
     }, [isModalOpen]);
 
-    
+
     // Galerie-Daten basierend auf der ID laden
     useEffect(() => {
         const fetchGalleryContent = async () => {
             if (galleryId) {
                 await loadGalleryInfos();
                 await loadGalleryImages();
-                await loadTasks();
+                //await loadTasks();
             }
         };
 
@@ -70,6 +112,7 @@ const GalleryDetailPage: React.FC = () => {
     }, [galleryId]);
 
     // Galerie-Tasks laden
+    /*
     const loadTasks = async () => {
         try {
             const tasks = await getTasks(galleryId);
@@ -80,7 +123,7 @@ const GalleryDetailPage: React.FC = () => {
         } catch (err) {
             console.error('Fehler beim Laden der Aufgaben:', err);
         }
-    };
+    };*/
 
     // Refresh Content
     const handleRefresh = async (event: CustomEvent) => {
@@ -88,6 +131,9 @@ const GalleryDetailPage: React.FC = () => {
         await loadGalleryImages();
         event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
     };
+
+
+
 
     // Galerie-Daten laden
     const loadGalleryInfos = async () => {
@@ -113,7 +159,7 @@ const GalleryDetailPage: React.FC = () => {
                 showToast('Unexpected error.');
                 return;
             }
-            const result = await deleteGallery(galleryId, gallery?.owner_id, gallery?.preview_image); // Galerie löschen
+            const result = await deleteGallery(galleryId, gallery.owner_id, gallery.preview_image); // Galerie löschen
             console.log(galleryId)
             if (result.success) {
                 showToast(result.message);
@@ -131,7 +177,7 @@ const GalleryDetailPage: React.FC = () => {
         showToast("NO DELETE FUNCTION: " + ImageID);
     }
 
-    const openModal = (type: "image" ) => setModalContent(type);
+    const openModal = (type: "image") => setModalContent(type);
     const closeModal = () => setModalContent(null);
 
     const showNextImage = () => {
@@ -162,6 +208,7 @@ const GalleryDetailPage: React.FC = () => {
         downloadPublicFile(result);
     };
 
+    //TODO IMAGE KRAM AUSLAGERN IN EINE IMAGE KOMPONENTE - GET; ADD; LIGHTBOX; Weil brauchen wir auch für die tasks
     const handleAddImages = async () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -192,7 +239,7 @@ const GalleryDetailPage: React.FC = () => {
         };
         input.click();
     };
-
+/*
     const handleAddTask = async () => {
         if (!taskTitle) {
             showToast('Task required');
@@ -220,26 +267,40 @@ const GalleryDetailPage: React.FC = () => {
             console.error('Fehler beim Löschen der Aufgabe:', err);
             showToast('Fehler beim Löschen der Aufgabe.');
         }
+    };*/
+
+
+
+    const handleMenuWillOpen = () => {
+        /*
+        const url = window.location.pathname;
+        const galleryId = url.split('/')[2];
+        console.log("Gallery ID:", galleryId);
+
+        console.log("---------------------------------------", galleryId)
+        setNewGalleryID(galleryId);*/
     };
 
     return (
         <>
             {/* Menü-Komponente */}
-            <IonMenu contentId="gallerie-content" menuId="gallerie-menu" side="end">
+            <IonMenu contentId="gallerie-content" menuId="gallerie-menu" side="end" onIonWillOpen={handleMenuWillOpen}>
                 <IonHeader>
                     <IonToolbar>
                         <IonTitle>Settings</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent className="">
-                    <IonItem button={true}> Task Manager </IonItem>
+                    <IonItem button id="open-task-manager"> Task Manager </IonItem>
+                    <IonItem button id={`open-modal-${newGalleryID}`}> NEW Task Manager </IonItem>
                     <IonItem button id="open-share">Share</IonItem>
                     <IonItem button onClick={() => setShowDeleteConfirm(true)}> Delete </IonItem>
+                    <p>{newGalleryID}</p>
                 </IonContent>
             </IonMenu>
 
-            <IonPage id="gallerie-content">
-                <IonContent fullscreen>
+            <IonPage >
+                <IonContent fullscreen id="gallerie-content">
                     {/* Navigation für Desktop */}
                     <IonHeader>
                         <IonToolbar>
@@ -249,6 +310,7 @@ const GalleryDetailPage: React.FC = () => {
                         </IonToolbar>
                     </IonHeader>
 
+
                     <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                         <IonRefresherContent
                             pullingText="Pull to refresh"
@@ -256,12 +318,32 @@ const GalleryDetailPage: React.FC = () => {
                             refreshingSpinner="circles"
                         />
                     </IonRefresher>
+
+
                     <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
                         <IonFabButton>
                             <IonIcon icon={add}></IonIcon>
                         </IonFabButton>
                     </IonFab>
 
+
+                    <IonButton id={`open-modalll-${galleryId}`} expand="block">
+                        Open Sheet Modal
+                    </IonButton>
+
+                    <IonModal
+                        ref={modal}
+                        trigger={`open-modalll-${galleryId}`}  // Dynamischer Trigger
+                        keepContentsMounted={false}
+                        initialBreakpoint={0.8}
+                        breakpoints={[0, 0.8]}
+                    >
+                        <div className="block">{galleryId}</div>
+                    </IonModal>
+
+
+
+                    {/* Gallerie Header */}
                     {gallery ? (
                         <div className="galerie-header">
                             <p>Owner: {gallery.owner_id}</p>
@@ -274,6 +356,24 @@ const GalleryDetailPage: React.FC = () => {
                     ) : (
                         <p>Gallery not found</p>
                     )}
+
+
+                    <IonSegment value="gallery-images-segment">
+                        <IonSegmentButton value="gallery-images-segment" contentId="gallery-images-segment">
+                            <IonLabel>Images</IonLabel>
+                        </IonSegmentButton>
+                        <IonSegmentButton value="gallery-tasks-segment" contentId="gallery-tasks-segment">
+                            <IonLabel>Tasks</IonLabel>
+                        </IonSegmentButton>
+                    </IonSegment>
+
+                    <IonSegmentView>
+                        <IonSegmentContent id="gallery-images-segment">Bilder {galleryId}</IonSegmentContent>
+                        <IonSegmentContent id="gallery-tasks-segment">Aufgaben {galleryId}</IonSegmentContent>
+                    </IonSegmentView>
+
+
+                    {/* Gallerie Bilder*/}
                     {gallery ? (
                         <div className="galerie-img-wrapper">
                             {galleryImages.length > 0 ? (
@@ -296,49 +396,24 @@ const GalleryDetailPage: React.FC = () => {
                     ) : (
                         <p>Gallery not found</p>
                     )}
+
+                    {gallery && <TaskComponent galleryId={galleryId} />}
+
+                    {/* Gallerie Tasks
                     {gallery ? (
                         <div className="ion-padding">
-
-                            <div>
-                                <p>Create Task</p>
-                                <div className="form-container">
-                                    <IonItem>
-                                        <IonInput
-                                            placeholder="Task..."
-                                            labelPlacement="floating"
-                                            value={taskTitle}
-                                            type="text"
-                                            onIonChange={(e) => setTaskTitle(e.detail.value!)}
-                                        >
-                                            <div slot="label">Task<IonText>*</IonText></div>
-                                        </IonInput>
-                                    </IonItem>
-                                    <IonButton expand="block" onClick={handleAddTask} shape="round">
-                                        Add Task
-                                    </IonButton>
-                                </div>
-                            </div>
                             {tasks.length > 0 ? (
                                 tasks.map((task) => (
-                                    <div key={task.id} className="task-item">
-                                        <div className="task-def">
-                                            <IonIcon aria-hidden="true" icon={camera}/>
-                                            <p>{task.task}</p>
-                                        </div>
-                                        <div>
-                                            <IonIcon className="task-item-check" aria-hidden="true" icon={checkmark}/>
-                                            <IonIcon
-                                                className="item-trash"
-                                                onClick={() => {
-                                                    setShowDeleteTaskConfirm(true);
-                                                    setCurrentTaskId(task.id);
-                                                }}
-                                                aria-hidden="true"
-                                                icon={trash}
-                                            />
-
-                                        </div>
-
+                                    <div key={task.id}>
+                                        <Link to={`/gallery/${galleryId}/${task.id}`} className="task-item">
+                                            <div className="task-def">
+                                                <IonIcon aria-hidden="true" icon={camera}/>
+                                                <p>{task.task}</p>
+                                            </div>
+                                            <div>
+                                                <IonIcon className="task-item-check" aria-hidden="true" icon={checkmark}/>
+                                            </div>
+                                        </Link>
                                     </div>
                                 ))
                             ) : (
@@ -347,9 +422,8 @@ const GalleryDetailPage: React.FC = () => {
                         </div>
                     ) : (
                         <p>Galerie nicht gefunden</p>
-                    )}
-                </IonContent>
-            </IonPage>
+                    )}*/}
+
 
             <CustomModal isOpen={isModalOpen} onClose={closeModal}>
                 {modalContent === "image" && (
@@ -359,8 +433,8 @@ const GalleryDetailPage: React.FC = () => {
                         <div className="lightbox-header">
                             <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
                             <span>
-                                <IonItem><IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(galleryImages[currentImageIndex])}/> Download</IonItem>
-                                <IonItem><IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage("23")}/>Delete</IonItem>
+                                <IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(galleryImages[currentImageIndex])}/>
+                                <IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage("23")}/>
                             </span>
                         </div>
 
@@ -375,7 +449,8 @@ const GalleryDetailPage: React.FC = () => {
 
                         {/* Infos */}
                         <div className="lightbox-footer">
-                            <p>von XYZ</p>
+                            <p>By XYZ</p>
+                            <p>Task XYZ</p>
                         </div>
 
                         {/* Navigation
@@ -410,7 +485,7 @@ const GalleryDetailPage: React.FC = () => {
             />
 
 
-            {/* Delete-Bestätigungsdialog Tastk */}
+            {/* Delete-Bestätigungsdialog Tastk
             <IonAlert
                 isOpen={showDeleteTaskConfirm}
                 onDidDismiss={() => setShowDeleteTaskConfirm(false)}
@@ -432,24 +507,90 @@ const GalleryDetailPage: React.FC = () => {
                         },
                     },
                 ]}
-            />
+            />*/}
 
-
-            {/* Share Gallery */}
+            {/* Task Manager
             <IonModal
-                trigger="open-share"
-                initialBreakpoint={0.6}
-                breakpoints={[0.6, 0.75]}
-                backdropDismiss={true}
-                handleBehavior="cycle"
+                className="task-manager-modal"
+                trigger="open-task-manager"
+                initialBreakpoint={.8}
+                keepContentsMounted={false}
+                show-backdrop={true}
+                keyboard-close={false}
+                handleBehavior="none"
                 onWillPresent={async () => await menuController.close()}
             >
+
+                <p>Task Manager</p>
+                <p>{galleryId}</p>
                 <IonContent className="ion-padding">
-                    <div className="ion-margin-top">
-                        <QRCodeComponent galleryId={galleryId} />
-                    </div>
+                    {tasks.length > 0 ? (
+                        tasks.map((task) => (
+                            <div key={task.id} className="task-item">
+                                <div className="task-def">
+                                    <IonIcon aria-hidden="true" icon={camera}/>
+                                    <p>{task.task}</p>
+                                </div>
+                                <div>
+                                    <IonIcon
+                                        className="item-trash"
+                                        onClick={() => {
+                                            setShowDeleteTaskConfirm(true);
+                                            setCurrentTaskId(task.id);
+                                        }}
+                                        aria-hidden="true"
+                                        icon={trash}
+                                    />
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No tasks for this gallery.</p>
+                    )}
                 </IonContent>
-            </IonModal>
+
+                <div className="ion-padding">
+                    <div className="form-container">
+                        <IonItem>
+                            <IonInput
+                                placeholder="Task..."
+                                labelPlacement="floating"
+                                value={taskTitle}
+                                type="text"
+                                onIonChange={(e) => setTaskTitle(e.detail.value!)}
+                            >
+                                <div slot="label">
+                                    Task<IonText>*</IonText>
+                                </div>
+                            </IonInput>
+                        </IonItem>
+                        <IonButton expand="block" onClick={handleAddTask} shape="round">
+                            Add Task
+                        </IonButton>
+                    </div>
+                </div>
+
+            </IonModal>*/}
+
+                    {/* Share Gallery */}
+                    <IonModal
+                        trigger="open-share"
+                        initialBreakpoint={0.6}
+                        backdropDismiss={true}
+                        keepContentsMounted={false}
+                        show-backdrop={true}
+                        handleBehavior="cycle"
+                        onWillPresent={async () => await menuController.close()}
+                    >
+                        <IonContent className="ion-padding">
+                            <div className="ion-margin-top">
+                                <QRCodeComponent galleryId={galleryId}/>
+                            </div>
+                        </IonContent>
+                    </IonModal>
+
+                </IonContent>
+            </IonPage>
 
         </>
     );

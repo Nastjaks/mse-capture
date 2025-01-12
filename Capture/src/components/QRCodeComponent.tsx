@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
-import {IonIcon} from "@ionic/react";
+import {IonButton, IonIcon} from "@ionic/react";
 import * as QRCode from "qrcode";
 import {useToast} from "../contexts/ToastContext";
-import {copySharp, downloadSharp} from "ionicons/icons";
+import {copySharp, downloadSharp, shareOutline} from "ionicons/icons";
 
 interface QRCodeComponentProps {
     galleryId: string;
@@ -47,20 +47,24 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId}) => {
             {qrCodeData ? (
                 <>
                     <div className="qr-image-top">
+                        <h1>Invite your friends</h1>
+                        <IonButton  shape="round" onClick={() => copyToClipboard(window.location.origin + "/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
+                    </div>
+
+
+                    <div className="qr-image-content">
                         <div>
-                            <p>Share this Gallery</p>
-                            <p>ID: {galleryId} </p>
+                            <p>The QR code <br/>for  this gallery</p>
+                            <p>Scan to join</p>
+                            {galleryId}
+                            <IonButton  shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={shareOutline}/>Download</IonButton>
                         </div>
-
-                        <div className="qr-options">
-                            <IonIcon aria-hidden="true" icon={downloadSharp} onClick={() => downloadFile(qrCodeData!, "qrcode.png")}/>
-                            <IonIcon aria-hidden="true" icon={copySharp} onClick={() => copyToClipboard(window.location.origin + "/" + galleryId)}/>
+                        <div className="qr-image-wrapper">
+                            <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
                         </div>
                     </div>
 
-                    <div className="qr-image-wrapper">
-                        <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
-                    </div>
+
                 </>
             ) : (
                 <p>QR-Code wird generiert...</p>

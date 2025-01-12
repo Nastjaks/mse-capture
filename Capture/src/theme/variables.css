@@ -342,6 +342,8 @@ ion-segment-view {
     border-radius: 20px;
     padding: 0px 15px;
     justify-content: space-between;
+    text-decoration: none;
+    color: #fff;
 }
 
 .task-def {
@@ -441,7 +443,7 @@ img.join-galerie-previeImg {
     align-items: center;
 }
 
-/*-------------------------------------------------*/
+/*-------------------- QR CODE --------------------*/
 .qr-code-image {
     width: 200px;
     border-radius: 20px;
@@ -451,7 +453,35 @@ img.join-galerie-previeImg {
 .qr-image-wrapper {
     display: flex;
     justify-content: center;
-    margin: 20px;
+    min-width: 40%;
+    max-width: 50%;
+}
+
+.qr-image-top{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #3b3b3b;
+    margin-bottom: 30px;
+}
+
+.qr-image-content{
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.qr-image-content p{
+    margin-top:0;
+}
+
+ion-modal.share-modal {
+    --height: 800px;
+}
+
+ion-modal.task-manager-modal {
+    --height: 100%;
 }
 
 /*-------------------------------------------------*/

@@ -21,6 +21,7 @@ import ProfilPage from "./pages/ProfilPage";
 import SignUpPage from "./pages/SignUpPage";
 import GalleryDetailPage from "./pages/GalleryDetailPage";
 import JoinGalleryPage from './pages/JoinGalleryPage';
+import TaskPage from './pages/TaskPage';
 
 import {ToastProvider} from './contexts/ToastContext';
 
@@ -68,15 +69,17 @@ const App: React.FC = () => (
                 <IonTabs>
                     <IonRouterOutlet animated={false}>
                         <Route exact path="/" component={SignInPage}/>
-                        <Route path="/profil" component={ProfilPage}/>
+                        <Route exact path="/profil" component={ProfilPage}/>
 
                         <Route exact path="/signin" component={SignInPage}/>
                         <Route exact path="/signup" component={SignUpPage}/>
-                        <Route path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
 
-                        <Route path="/create-gallery" component={CreateGalleryPage}/>
-                        <Route path="/galleries" component={GalleriesPage}/>
-                        <Route path="/gallery/:galleryId" component={GalleryDetailPage}/>
+                        <Route exact path="/galleries" component={GalleriesPage}/>
+                        <Route exact path="/create-gallery" component={CreateGalleryPage}/>
+                        <Route exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
+                        <Route exact path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
+                        <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage} />
+
                     </IonRouterOutlet>
 
                     {/* Tab Bar */}

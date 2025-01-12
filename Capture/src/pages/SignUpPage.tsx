@@ -3,7 +3,7 @@ import {useState} from "react";
 import {signUp} from "../services/authService";
 import {useToast} from "../contexts/ToastContext";
 import {Link, useHistory} from "react-router-dom";
-import {getRandomUserName} from "../models/randomUsername";
+import {getRandomUserName} from "../utilitys/randomUsername";
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");

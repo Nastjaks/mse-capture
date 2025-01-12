@@ -45,7 +45,7 @@ const GalleriesPage: React.FC = () => {
                 </IonRefresher>
 
                 <div>
-                    <h1>Alle Galerien</h1>
+                    <h1 className="pageTitle">All galleries</h1>
                     <GalleryListComponent galleries={galleries}/>
                 </div>
 

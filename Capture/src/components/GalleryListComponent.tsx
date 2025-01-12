@@ -1,5 +1,5 @@
 import React from 'react';
-import './GalleryList.css';
+import '../theme/GalleryList.css';
 import {Gallery} from '../models/Gallery';
 import { Link } from 'react-router-dom';
 

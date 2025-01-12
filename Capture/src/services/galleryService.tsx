@@ -101,7 +101,6 @@ export const getGalleryImages = async (galleryId: string) => {
             console.error('Fehler beim Abrufen der Bilder:', error.message);
             throw error;
         }
-
         return data;  // Gibt die Bilder zurück
     } catch (err) {
         console.error('Fehler beim Abrufen der Galerie-Bilder:', err);
@@ -195,8 +194,8 @@ const updateGalleryPreviewImage = async (previewImageUrl: string , galleryID: st
 }
 
 
-
 // ---------- Add a Image to a Gallerie
+//TODO - ownerId hinzufügen
 export const addImagesToGallery = async (galleryOwnerId: string, galleryId: string, image: File) => {
     if (!galleryOwnerId || !galleryId) {
         console.error("Owner ID oder Gallery ID fehlt");
