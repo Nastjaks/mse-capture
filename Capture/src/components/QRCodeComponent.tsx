@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {IonButton, IonIcon} from "@ionic/react";
+import {IonButton, IonContent, IonIcon, IonModal} from "@ionic/react";
 import * as QRCode from "qrcode";
 import {useToast} from "../contexts/ToastContext";
-import {copySharp, downloadSharp, shareOutline} from "ionicons/icons";
+import {copySharp, shareOutline} from "ionicons/icons";
+import {menuController} from "@ionic/core/components";
 
 interface QRCodeComponentProps {
     galleryId: string;
+    istShareOpen: boolean;
 }
 
-const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId}) => {
+const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpen}) => {
     const [qrCodeData, setQrCodeData] = useState<string | null>(null);
     const {showToast} = useToast();
 
@@ -26,6 +28,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId}) => {
         generateQRCode();
     }, [galleryId]);
 
+    //Download the QR-Code Image
     const downloadFile = (url: string, fileName: string) => {
         const link = document.createElement("a");
         link.href = url;
@@ -33,6 +36,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId}) => {
         link.click();
     };
 
+    //Copy the Gallerylink to Clipboard
     const copyToClipboard = async (link: string) => {
         try {
             await navigator.clipboard.writeText(link);
@@ -43,33 +47,48 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId}) => {
     };
 
     return (
-        <div className="qr-code-container">
-            {qrCodeData ? (
-                <>
-                    <div className="qr-image-top">
-                        <h1>Invite your friends</h1>
-                        <IonButton  shape="round" onClick={() => copyToClipboard(window.location.origin + "/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
+
+        <IonModal
+            isOpen={istShareOpen}
+            initialBreakpoint={0.6}
+            backdropDismiss={true}
+            keepContentsMounted={false}
+            show-backdrop={true}
+            handleBehavior="cycle"
+            onWillPresent={async () => await menuController.close()}
+        >
+
+            <IonContent className="ion-padding">
+                <div className="ion-margin-top">
+                    <div className="qr-code-container">
+                        {qrCodeData ? (
+                            <>
+                                <div className="qr-image-top">
+                                    <h1>Invite your friends</h1>
+                                    <IonButton shape="round" onClick={() => copyToClipboard(window.location.origin + "/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
+                                </div>
+
+                                <div className="qr-image-content">
+                                    <div>
+                                        <p>The QR code <br/>for this gallery</p>
+                                        <p>Scan to join</p>
+                                        {galleryId}
+                                        <IonButton shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={shareOutline}/>Download</IonButton>
+                                    </div>
+                                    <div className="qr-image-wrapper">
+                                        <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <p>QR-Code wird generiert...</p>
+                        )}
                     </div>
+                </div>
+            </IonContent>
 
+        </IonModal>
 
-                    <div className="qr-image-content">
-                        <div>
-                            <p>The QR code <br/>for  this gallery</p>
-                            <p>Scan to join</p>
-                            {galleryId}
-                            <IonButton  shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={shareOutline}/>Download</IonButton>
-                        </div>
-                        <div className="qr-image-wrapper">
-                            <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
-                        </div>
-                    </div>
-
-
-                </>
-            ) : (
-                <p>QR-Code wird generiert...</p>
-            )}
-        </div>
     );
 };
 

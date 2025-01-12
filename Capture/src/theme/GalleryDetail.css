@@ -49,4 +49,13 @@
     object-fit: cover;
 }
 
+/* -------------------- MENU MODAL --------------------*/
 
+.gallery-menu-modal {
+    --width: 400px;
+    --max-width: 80%;
+    --height: 100%;
+    --right: 0;
+    display: flex;
+    justify-content: flex-end;
+}

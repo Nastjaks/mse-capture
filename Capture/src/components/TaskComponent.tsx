@@ -4,27 +4,26 @@ import {camera, checkmark, trash} from "ionicons/icons";
 import {createTask, deleteTask, getTasks} from "../services/taskService";
 import {Task} from "../models/Task";
 import {useToast} from "../contexts/ToastContext";
-import {menuController} from "@ionic/core/components";
 import {Link} from "react-router-dom";
-
-//{gallery && <TaskComponent galleryId={galleryId} />}
 
 interface TaskComponentProps {
     galleryId: string;
+    isTaskManagerOpen: boolean;
 }
 
-const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
+const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOpen}) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
     const [showDeleteConfirm_Task, setShowDeleteConfirm_Task] = useState(false);
-    const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+    const [taskToDelete, settaskToDelete] = useState<Task | null>(null);
+
     const {showToast} = useToast();
 
     useEffect(() => {
-        loadTasks();
+        fetchTasks();
     }, [galleryId]);
 
-    const loadTasks = async () => {
+    const fetchTasks = async () => {
         try {
             const tasks = await getTasks(galleryId);
             if (tasks) setTasks(tasks);
@@ -42,7 +41,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
         try {
             const task = await createTask(taskTitle, galleryId);
             if (task) {
-                await loadTasks();
+                await fetchTasks();
                 setTaskTitle("");
             }
         } catch (err) {
@@ -55,7 +54,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
             const result = await deleteTask(taskId);
             if (result) {
                 showToast("Task gelöscht");
-                await loadTasks();
+                await fetchTasks();
             }
         } catch (err) {
             console.error("Fehler beim Löschen der Aufgabe:", err);
@@ -88,7 +87,8 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
                 isOpen={showDeleteConfirm_Task}
                 onDidDismiss={() => setShowDeleteConfirm_Task(false)}
                 header={'Delete Task'}
-                message={'Do you really want to delete this task?'}
+                message={`Do you really want to delete this task?
+                        ${taskToDelete?.task}`}
                 buttons={[
                     {
                         text: 'Cancel',
@@ -98,8 +98,8 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
                     {
                         text: 'Delete',
                         handler: () => {
-                            if (currentTaskId) {
-                                handleDeleteTask(currentTaskId); // Aktuelle Task-ID übergeben
+                            if (taskToDelete) {
+                                handleDeleteTask(taskToDelete.id); // Aktuelle Task-ID übergeben
                                 setShowDeleteConfirm_Task(false);
                             }
                         },
@@ -109,12 +109,12 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
 
             {/* Task Manager Modal */}
             <IonModal
+                isOpen={isTaskManagerOpen}
                 className="task-manager-modal"
-                trigger="open-task-manager"
+               //trigger={`open-modal-${galleryId}`}
                 initialBreakpoint={.9}
                 showBackdrop={true}
                 handleBehavior="none"
-                onWillPresent={async () => await menuController.close()}
             >
                 <div className="ion-padding">
                     <p>Task Manager V2</p>
@@ -155,7 +155,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId}) => {
                                         className="item-trash"
                                         onClick={() => {
                                             setShowDeleteConfirm_Task(true);
-                                            setCurrentTaskId(task.id);
+                                            settaskToDelete(task);
                                         }}
                                         aria-hidden="true"
                                         icon={trash}

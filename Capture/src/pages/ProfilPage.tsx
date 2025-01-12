@@ -85,7 +85,7 @@ const ProfilPage: React.FC = () => {
 
     return (
         <>
-            {/* Menü-Komponente */}
+            {/* Menü-Komponente
             <IonMenu contentId="profile-content" menuId="profile-menu" side="end">
                 <IonHeader>
                     <IonToolbar>
@@ -97,7 +97,7 @@ const ProfilPage: React.FC = () => {
                         <p>Logout</p>
                     </IonItem>
                 </IonContent>
-            </IonMenu>
+            </IonMenu> */}
 
             {/* Content */}
             <IonPage id="profile-content">

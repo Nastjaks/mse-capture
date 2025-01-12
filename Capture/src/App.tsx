@@ -1,12 +1,12 @@
 import {Route} from 'react-router-dom';
 import {
-    IonApp,
-    IonIcon,
-    IonLabel,
+    IonApp, IonContent, IonHeader,
+    IonIcon, IonItem,
+    IonLabel, IonMenu,
     IonRouterOutlet,
     IonTabBar,
     IonTabButton,
-    IonTabs,
+    IonTabs, IonTitle, IonToolbar,
     setupIonicReact
 } from '@ionic/react';
 
@@ -54,6 +54,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import React from "react";
 
 
 
@@ -81,6 +82,7 @@ const App: React.FC = () => (
                         <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage} />
 
                     </IonRouterOutlet>
+
 
                     {/* Tab Bar */}
                     <IonTabBar slot="bottom">
