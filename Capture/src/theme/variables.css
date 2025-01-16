@@ -39,7 +39,7 @@ ion-label {
     font-size: 10px;
 }
 
-/*#-----------------------------------------*/
+/*-----------------------------------------*/
 /*
 .header-wrapper{
     position: absolute;
@@ -63,6 +63,16 @@ ion-label {
 }
 
 */
+.no-content{
+    font-size: 40px;
+    max-width: 70%;
+    color: #262626;
+    font-weight: 900 !important;
+}
+
+.no-content p{
+     margin: 0;
+ }
 
 .page-bottom {
     display: flex;
@@ -390,21 +400,36 @@ img.join-galerie-previeImg {
 }
 
 /*-------------------------------------------------*/
-.gallery-header {
+.galleryTopBar {
     display: flex;
     padding: 10px;
     justify-content: end;
     font-size: 22px;
     width: 100%;
-    top: 0;
 }
 
-.gallery-header ion-icon{
+.galleryTopBar ion-icon{
     cursor: pointer;
     transition: all .3s ease-in-out;
 }
 
-.gallery-header ion-icon:hover{
+.galleryTopBar ion-icon:hover{
+    color: var(--ion-color-primary);
+}
+/*-------------------------------------------------*/
+.taskTopBar {
+    padding: 10px;
+    font-size: 22px;
+    width: 100%;
+    display: flex;
+}
+
+.taskTopBar ion-icon{
+    cursor: pointer;
+    transition: all .3s ease-in-out;
+}
+
+.taskTopBar ion-icon:hover{
     color: var(--ion-color-primary);
 }
 /*-------------------------------------------------*/

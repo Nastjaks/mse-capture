@@ -1,8 +1,11 @@
-import React from "react";
+import React, {ReactNode} from "react";
 
 export const NavbarContext = React.createContext<any>(undefined);
 
-export const NavBarProvider: React.FC = ({ children }) => {
+interface NavBarProviderProps {
+    children: ReactNode;
+}
+export const NavBarProvider: React.FC<NavBarProviderProps> = ({ children }) => {
     const [showTabs,setShowTabs]=React.useState(true);
 
     let state = {

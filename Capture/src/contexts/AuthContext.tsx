@@ -1,5 +1,5 @@
 // AuthContext.tsx
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, {createContext, useState, useContext, useEffect, ReactNode} from 'react';
 import { getLoggedInUserId } from "../services/authService";
 
 interface AuthContextType {
@@ -10,9 +10,13 @@ interface AuthContextType {
     checkUser: () => Promise<boolean>;
 }
 
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true); // Initial auf `true`

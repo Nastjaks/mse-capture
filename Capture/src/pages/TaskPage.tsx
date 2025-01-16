@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {useHistory, useParams} from 'react-router-dom';
-import {IonContent, IonFab, IonFabButton, IonIcon, IonModal, IonPage, IonRefresher, IonRefresherContent} from '@ionic/react';
+import {Link, useHistory, useParams} from 'react-router-dom';
+import {IonContent, IonFab, IonFabButton, IonIcon, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText} from '@ionic/react';
 import {getTaksImages, getTaskById, uploadImageToTask} from '../services/taskService';
 import {Task} from '../models/Task'
-import {add, arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
+import {add, arrowBackSharp, camera, checkmark, downloadOutline, ellipsisVerticalSharp, trash} from "ionicons/icons";
 import {downloadPublicFile, getGalleryById} from "../services/galleryService";
 import {Gallery} from "../models/Gallery";
 import {useSwipeable} from "react-swipeable";
@@ -81,7 +81,7 @@ const TaskPage: React.FC = () => {
         input.click();
     };
 
-    const [currentImageIndex, setCurrentImageIndex] = useState<Number>(0);
+    const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
     const [modalContent, setModalContent] = useState<"image" | null>(null);
 
     const openModal = (type: "image") => setModalContent(type);
@@ -138,18 +138,35 @@ const TaskPage: React.FC = () => {
                 </IonFab>
 
 
-                <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
-
                 {/* Gallery Images
                 <ImageComponent referenceObject={task as Task} referenceType={"task"}/>*/}
 
+                {gallery ?(
+                    <div className="galerie-header">
+
+                        {/* Optionen */}
+                        <div className="taskTopBar">
+                            <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
+                        </div>
+
+                        <p>Owner: {gallery?.owner_id}</p>
+                        <h1>{gallery?.title}</h1>
+                        <p>{gallery?.description}</p>
+                        {gallery?.preview_image && (
+                            <img className="galerie-previeImg" src={gallery.preview_image}/>
+                        )}
+                    </div>
+                ) : (
+                    <p>Gallery task...</p>
+                )}
+
+
                 {task ? (
                     <div>
-                        <h1>Gallery: {gallery?.title}</h1>
-                        <p>Gallery ID: {galleryId}</p>
-                        <div>
-                            <h1>Task: {task.task}</h1>
-                            <p>Task ID: {taskId}</p>
+
+                        <div className="ion-padding">
+                            <IonText  color="primary">Task</IonText>
+                            <h2>{task.task}</h2>
                         </div>
 
                         <div className="galerie-img-wrapper">
@@ -167,7 +184,10 @@ const TaskPage: React.FC = () => {
                                     />
                                 ))
                             ) : (
-                                <p>No pictures in this gallery.</p>
+                                <div className="ion-padding no-content">
+                                    <p>No pictures.</p>
+                                </div>
+
                             )}
                         </div>
                     </div>
@@ -177,7 +197,7 @@ const TaskPage: React.FC = () => {
 
 
                 {/* Gallerie IMgae Lightbox*/}
-                <IonModal isOpen={isModalOpen} onClose={closeModal}>
+                <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
                     {modalContent === "image" && (
                         <div className="modal-content galerie-lightbox">
 

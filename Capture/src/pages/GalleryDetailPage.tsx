@@ -138,7 +138,7 @@ const GalleryDetailPage: React.FC = () => {
 
 
                             {/* Optionen */}
-                            <div className="gallery-header">
+                            <div className="galleryTopBar">
                                 <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                             </div>
 
@@ -166,7 +166,7 @@ const GalleryDetailPage: React.FC = () => {
                     <IonSegmentView>
                         <IonSegmentContent id={`gallery-images-segment-${galleryId}`}>
                             {/* Gallery Images*/}
-                            <ImageComponent referenceObject={gallery as Gallery} referenceType={"gallery"}/>
+                            <ImageComponent referenceObject={gallery as Gallery}/>
                         </IonSegmentContent>
                         <IonSegmentContent id={`gallery-task-segment-${galleryId}`}>
                             {/* Gallerie Tasks*/}
