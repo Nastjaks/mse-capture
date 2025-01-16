@@ -6,7 +6,7 @@ import React, {useState} from 'react';
 import {useHistory} from "react-router";
 import {ellipsisVerticalSharp} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {deleteGallery, getGalleryById} from '../services/galleryService';
+import {deleteGallery, getGalleryById, removeUserFromGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
@@ -14,11 +14,14 @@ import QRCodeComponent from "../components/QRCodeComponent";
 import TaskComponent from "../components/TaskComponent";
 import {sideEnterAnimation, sideLeaveAnimation} from "../theme/animations";
 import ImageComponent from "../components/ImageComponent";
+import { getLoggedInUserId } from '../services/authService';
 
 
 const GalleryDetailPage: React.FC = () => {
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
+    const [isShared, setIsShared] = useState(false); // State für die Galerie
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
 
     // Modal Kram
     const [modalContent, setModalContent] = useState<"image" | null>(null);
@@ -32,8 +35,16 @@ const GalleryDetailPage: React.FC = () => {
     useIonViewWillEnter(() => {
         if (galleryId) {
             loadGalleryInfos();
+            isSharedGallery();
         }
     });
+
+    const isSharedGallery = async () => {
+        if (gallery) {
+            const userResponse = await getLoggedInUserId();
+            setIsShared(userResponse.user?.id !== gallery.owner_id);
+        }
+    };
 
     // Galerie-Daten laden
     const loadGalleryInfos = async () => {
@@ -46,6 +57,7 @@ const GalleryDetailPage: React.FC = () => {
     // Refresh Content
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleryInfos();
+        await isSharedGallery();
         event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
     };
 
@@ -68,6 +80,25 @@ const GalleryDetailPage: React.FC = () => {
             }
         } catch (err) {
             console.error('Fehler beim Löschen der Galerie:', err);
+        }
+    };
+
+    // Leave Shared Gallery
+    const leaveSharedGallery = async () => {
+        try {
+            const userResponse =  await getLoggedInUserId();
+            const userId = userResponse.user?.id;
+            if (userId) {
+                await removeUserFromGallery(galleryId, userId);
+                history.push('/galleries')
+                showToast('Left gallery successfully.');
+            } else {
+                console.error('User ID is undefined');
+                showToast('Error leaving gallery.');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Error leaving gallery.');
         }
     };
 
@@ -117,6 +148,10 @@ const GalleryDetailPage: React.FC = () => {
                                 setShowDeleteConfirm(true);
                             }}>Delete</IonItem>
 
+                            {isShared && (<IonItem onClick={() => {
+                                setShowSettings(false);
+                                setShowLeaveConfirm(true);
+                            }}>Leave Gallery</IonItem>)}
                         </IonContent>
                     </IonModal>
 
@@ -192,7 +227,29 @@ const GalleryDetailPage: React.FC = () => {
                         ]}
                     />
 
+                    {/* Logout-Bestätigungsdialog */}
+                    <IonAlert
+                        isOpen={showLeaveConfirm}
+                        onDidDismiss={() => setShowLeaveConfirm(false)}
+                        header={'Leave Gallery'}
+                        message={'Do you really want to leave this gallery?'}
+                        buttons={[
+                            {
+                                text: 'Cancel',
+                                role: 'cancel',
+                                handler: async () => {
+                                    await menuController.close(); // Menü schließen
+                                },
+                            },
+                            {
+                                text: 'Leave',
+                                handler: leaveSharedGallery,
+                            },
+                        ]}
+                    />
+
                 </IonContent>
+
             </IonPage>
 
         </>

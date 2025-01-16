@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewDidEnter, useIonViewWillEnter} from '@ionic/react';
 import {useEffect, useState} from 'react';
 import {AddUserToGallery, getGalleryById} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
@@ -16,9 +16,12 @@ const JoinGalleryPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    useIonViewWillEnter(() => {
+        fetchGallery();
+    });
 
     // Galerie-Daten basierend auf der ID laden
-    useEffect(() => {
+    /*useEffect(() => {
         const fetchGallery = async () => {
             if (galleryId) {
                 const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
@@ -26,14 +29,31 @@ const JoinGalleryPage: React.FC = () => {
                     setGallery(result_galleryData);
                 }
                 const userResponse = await getLoggedInUserId();
-                if (userResponse.success) {
+                if (userResponse.success && userResponse.user) {
+                    console.log("U123123124ser:", userResponse.user);
+                    AddUserToGallery(galleryId, userResponse.user?.id);
                     history.push(`/gallery/${galleryId}`);
                 }
             }
         };
 
         fetchGallery();
-    }, [galleryId]);
+    }, [galleryId]);*/
+
+    const fetchGallery = async () => {
+        if (galleryId) {
+            const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
+            if (result_galleryData) {
+                setGallery(result_galleryData);
+            }
+            const userResponse = await getLoggedInUserId();
+            if (userResponse.success && userResponse.user) {
+                AddUserToGallery(galleryId, userResponse.user?.id);
+                history.push(`/gallery/${galleryId}`);
+            }
+        }
+    };
+
 
     const onButtonClick = async () => {
         const user = await signInAnon();

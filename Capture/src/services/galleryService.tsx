@@ -1,6 +1,7 @@
 import {Gallery} from '../models/Gallery';
 import {supabase} from "../config/supabaseConfig";
 import { AuthResponse } from '@supabase/supabase-js';
+import { image } from 'ionicons/icons';
 
 
 // ---------- GET All Gallery ----------
@@ -252,6 +253,46 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
     }
 };
 
+// ---- DELETE IMAGE ----
+export const deleteImageFromGallery = async (imageId: string, userId: string, url: string) => {
+        try {
+            const imageFilePath = url.replace('https://ecvojbzizwqiemboachu.supabase.co/storage/v1/object/public/capture-images/', '');
+            const { error } = await supabase
+                .from('gallery_images')
+                .delete()
+                .eq('id', imageId)
+                .eq('owner_id', userId);
+            const { error: StorageError } = await supabase.storage
+                .from('capture-images')
+                .remove([imageFilePath]);
+            if (error || StorageError) {
+                console.error('Fehler beim Löschen des Bildes:', error, StorageError);
+            } else {
+                console.log('Bild gelöscht');
+            }
+        } catch (err) {
+            console.error('Unerwarteter Fehler:', err);
+        }
+};
+
+// ---- GET IMAGE ID FROM URL ----
+export const getImageIdFromUrl = async (url: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('gallery_images')
+            .select('id')
+            .eq('image_url', url);
+        if (error) {
+            console.error('Error getting image id' + error);
+        } else {
+            console.log('Bild Id:', data);
+            return data;
+        }
+    } catch (err) {
+        console.error('Unerwarteter Fehler:', err);
+    }
+}
+
 //---- Download Image from Storage ---
 export const downloadPublicFile = async (filePath: string) => {
     const { data } = supabase.storage
@@ -378,3 +419,24 @@ export const AddUserToGallery = async (galleryId: string, userId: string) => {
       console.error('Unerwarteter Fehler:', err);
     }
   };
+
+// ---- DELETE GALLERY MEMBER ----
+export const removeUserFromGallery = async (galleryId: string, userId: string) => {
+    try {
+        console.log("galleryId", galleryId);
+        console.log("userId", userId);
+        const { error } = await supabase
+            .from('gallery_members')
+            .delete()
+            .eq('gallery_id', galleryId)
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Fehler beim Löschen des Nutzers:', error);
+        } else {
+            console.log('Nutzer gelöscht');
+        }
+    } catch (err) {
+        console.error('Unerwarteter Fehler:', err);
+    }
+};
