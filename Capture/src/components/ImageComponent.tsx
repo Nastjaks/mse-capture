@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {addImagesToGallery, downloadPublicFile, getGalleryImages} from "../services/galleryService";
-import {IonFab, IonFabButton, IonIcon, IonModal} from "@ionic/react";
-import {add, arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
+import {addImagesToGallery, deleteImageFromGallery, downloadPublicFile, getGalleryImages, getImageIdFromUrl} from "../services/galleryService";
+import {IonButton, IonFab, IonFabButton, IonIcon, IonModal} from "@ionic/react";
+import {add, arrowBackSharp, downloadOutline, image, trash} from "ionicons/icons";
 import {useSwipeable} from "react-swipeable";
 import {useToast} from "../contexts/ToastContext";
 import {Gallery} from "../models/Gallery";
 import {Task} from "../models/Task";
+import { getLoggedInUserId } from "../services/authService";
 
 interface ImageComponentProps {
     referenceObject: Gallery;
@@ -62,8 +63,24 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
         input.click();
     };
 
-    const handleDeleteImage = (ImageID: String) => {
-        showToast("NO DELETE FUNCTION: " + ImageID);
+    const handleDeleteImage = async (ImageUrl: string) => {
+        const userResponse = await getLoggedInUserId();
+        const userId = userResponse.user?.id as string;
+        console.log('URL:', ImageUrl);
+        const imageId = await getImageIdFromUrl(ImageUrl);     
+        if (!imageId) {
+            console.error('Image ID not found');
+            showToast('Error deleting the image');
+            return;
+        }
+        try {
+            await deleteImageFromGallery(imageId[0].id, userId, ImageUrl);
+            closeModal();
+            await fetchImages();
+        } catch (error) {
+            console.error('Error deleting the image', error);
+            showToast('Error deleting the image');
+        }
     }
 
     // Funktion zum Herunterladen von Bildern aus der Galerie
@@ -125,7 +142,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
                 ) : (<p>No pictures in this gallery.</p>)}
             </div>
 
-
+            <IonButton onClick={handleAddImages}>Add Images</IonButton>
             {/* Gallerie IMgae Lightbox*/}
             <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
                 {modalContent === "image" && (
@@ -136,7 +153,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
                             <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
                             <span>
                                 <IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(images[currentImageIndex])}/>
-                                <IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage("23")}/>
+                                <IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage(images[currentImageIndex])}/>
                             </span>
                         </div>
 
