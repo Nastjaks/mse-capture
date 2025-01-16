@@ -1,17 +1,9 @@
-import {Route} from 'react-router-dom';
-import {
-    IonApp, IonContent, IonHeader,
-    IonIcon, IonItem,
-    IonLabel, IonMenu,
-    IonRouterOutlet,
-    IonTabBar,
-    IonTabButton,
-    IonTabs, IonTitle, IonToolbar,
-    setupIonicReact
-} from '@ionic/react';
-
+import React from "react";
+import {Route, useLocation} from 'react-router-dom';
+import {IonApp, IonIcon, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, setupIonicReact} from '@ionic/react';
 import {IonReactRouter} from '@ionic/react-router';
 import {logInOutline, imagesOutline, personOutline, addOutline} from 'ionicons/icons';
+import { match } from 'path-to-regexp';
 
 /* PAGES */
 import SignInPage from './pages/SignInPage';
@@ -23,7 +15,10 @@ import GalleryDetailPage from "./pages/GalleryDetailPage";
 import JoinGalleryPage from './pages/JoinGalleryPage';
 import TaskPage from './pages/TaskPage';
 
+/* Context */
 import {ToastProvider} from './contexts/ToastContext';
+import {AuthProvider} from "./contexts/AuthContext";
+import ProtectedRoute from "./utilitys/ProtectedRoute";
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -54,62 +49,85 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import React from "react";
-
-
 
 
 setupIonicReact();
 
-//TODO Protected Routes
+const AppContent: React.FC = () => {
+    const location = useLocation();
+
+    // Liste der Routen, auf denen die Tabbar angezeigt werden soll
+    const showTabBarRoutes = [
+        '/profil',
+        '/galleries',
+        '/create-gallery',
+        '/gallery/:galleryId',
+        '/gallery/:galleryId/:taskId'
+    ];
+
+    const showTabBar = showTabBarRoutes.some((route) => {
+        const matchFn = match(route, { decode: decodeURIComponent });
+        return matchFn(location.pathname);
+    });
+
+
+    return (
+        <IonTabs>
+            <IonRouterOutlet animated={false}>
+
+                {/*<Route exact path="/signin" component={SignInPage}/>
+                    <Route exact path="/signup" component={SignUpPage}/>
+                    <Route exact path="/profil" component={ProfilPage} />
+                    <Route exact path="/galleries" component={GalleriesPage}/>
+                    <Route exact path="/create-gallery" component={CreateGalleryPage}/>
+                    <Route exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
+                    <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>*/}
+
+                <ProtectedRoute exact path="/" component={SignInPage} publicOnly/>
+                <ProtectedRoute exact path="/signin" component={SignInPage} publicOnly/>
+                <ProtectedRoute exact path="/signup" component={SignUpPage} publicOnly/>
+
+                <ProtectedRoute exact path="/profil" component={ProfilPage}/>
+                <ProtectedRoute exact path="/create-gallery" component={CreateGalleryPage}/>
+                <ProtectedRoute exact path="/galleries" component={GalleriesPage}/>
+
+                {/*TODO Sonder fall*/}
+                <Route exact path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
+                <ProtectedRoute exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
+                <ProtectedRoute exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>
+            </IonRouterOutlet>
+
+            {showTabBar && (
+                <IonTabBar slot="bottom">
+                    {/*
+                    <IonTabButton tab="signin" href="/signin">
+                        <IonIcon aria-hidden="true" icon={logInOutline}/>
+                    </IonTabButton>
+                    */}
+                    <IonTabButton tab="galleries" href="/galleries">
+                        <IonIcon aria-hidden="true" icon={imagesOutline}/>
+                    </IonTabButton>
+                    <IonTabButton tab="create-gallery" href="/create-gallery">
+                        <IonIcon aria-hidden="true" icon={addOutline}/>
+                    </IonTabButton>
+                    <IonTabButton tab="profil" href="/profil">
+                        <IonIcon aria-hidden="true" icon={personOutline}/>
+                    </IonTabButton>
+                </IonTabBar>
+            )}
+        </IonTabs>
+    );
+};
 
 const App: React.FC = () => (
     <IonApp>
-        <ToastProvider>
-            <IonReactRouter >
-                <IonTabs>
-                    <IonRouterOutlet animated={false}>
-                        <Route exact path="/" component={SignInPage}/>
-                        <Route exact path="/profil" component={ProfilPage}/>
-
-                        <Route exact path="/signin" component={SignInPage}/>
-                        <Route exact path="/signup" component={SignUpPage}/>
-
-                        <Route exact path="/galleries" component={GalleriesPage}/>
-                        <Route exact path="/create-gallery" component={CreateGalleryPage}/>
-                        <Route exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
-                        <Route exact path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
-                        <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage} />
-
-                    </IonRouterOutlet>
-
-
-                    {/* Tab Bar */}
-                    <IonTabBar slot="bottom">
-
-                        <IonTabButton tab="signin" href="/signin">
-                            <IonIcon aria-hidden="true" icon={logInOutline}/>
-                            <IonLabel>Sign In</IonLabel>
-                        </IonTabButton>
-
-                        <IonTabButton tab="galleries" href="/galleries">
-                            <IonIcon aria-hidden="true" icon={imagesOutline}/>
-                            <IonLabel>Galleries</IonLabel>
-                        </IonTabButton>
-
-                        <IonTabButton tab="create-gallery" href="/create-gallery">
-                            <IonIcon aria-hidden="true" icon={addOutline}/>
-                            <IonLabel>Create Gallery</IonLabel>
-                        </IonTabButton>
-
-                        <IonTabButton tab="profil" href="/profil">
-                            <IonIcon aria-hidden="true" icon={personOutline}/>
-                            <IonLabel>Profil</IonLabel>
-                        </IonTabButton>
-                    </IonTabBar>
-                </IonTabs>
-            </IonReactRouter>
-        </ToastProvider>
+        <AuthProvider>
+            <ToastProvider>
+                <IonReactRouter>
+                    <AppContent/>
+                </IonReactRouter>
+            </ToastProvider>
+        </AuthProvider>
     </IonApp>
 );
 

@@ -1,24 +1,26 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillLeave} from '@ionic/react';
+import {IonButton, IonContent, IonInput, IonItem, IonPage, IonText, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
 import {useState} from "react";
 import {signIn} from "../services/authService";
 import {useToast} from '../contexts/ToastContext';
 import {Link, useHistory} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
 
 const SignInPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const history = useHistory();
+    const {isAuthenticated, checkUser} = useAuth();
     const {showToast} = useToast();
+    const history = useHistory();
 
     //TODO wenn der nutzer schon eingelogt ist, soll es auf die Profiel seite umgeleitet werden
     //Todo Validate input fields
 
     const handleLogin = async () => {
-
         try {
             const {success, message} = await signIn(email, password);
             if (success) {
+                await checkUser();
                 history.push(`/profil`);
             }
             showToast(message);
@@ -31,7 +33,6 @@ const SignInPage: React.FC = () => {
     useIonViewWillLeave(() => {
         restFields();
     });
-
 
     const restFields = () => {
         setEmail("");
@@ -74,7 +75,7 @@ const SignInPage: React.FC = () => {
 
                         <IonButton expand="block" onClick={handleLogin} shape="round"> Sign In </IonButton>
 
-                        <IonText>Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
+                        <IonText className="sign-txt">Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
 
                     </div>
                 </div>

@@ -52,8 +52,8 @@
 /* -------------------- MENU MODAL --------------------*/
 
 .gallery-menu-modal {
-    --width: 400px;
-    --max-width: 80%;
+    --width: 300px;
+    --max-width: 70%;
     --height: 100%;
     --right: 0;
     display: flex;

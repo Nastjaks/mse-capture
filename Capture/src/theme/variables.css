@@ -1,5 +1,5 @@
 /* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+http://ionicframework.com/docs/theming/ //#A23347*/
 
 @import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Inter:wght@100..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
 
@@ -238,7 +238,6 @@ ion-fab-button {
 .form-container {
     display: flex;
     flex-direction: column;
-    /*max-width: 500px;*/
     gap: 20px;
     margin: 40px 0;
     align-items: center;
@@ -372,9 +371,14 @@ h1.pageTitle {
 }
 
 /*-------------------------------------------------*/
+ion-header{
+    box-shadow: none !important;
+}
+
 ion-toolbar ion-title {
-    letter-spacing: 3.5px;
-    text-align: center;
+    letter-spacing: 2px;
+    text-align: start;
+    text-transform: uppercase;
 }
 
 /*-------------------------------------------------*/
@@ -386,6 +390,24 @@ img.join-galerie-previeImg {
 }
 
 /*-------------------------------------------------*/
+.gallery-header {
+    display: flex;
+    padding: 10px;
+    justify-content: end;
+    font-size: 22px;
+    width: 100%;
+    top: 0;
+}
+
+.gallery-header ion-icon{
+    cursor: pointer;
+    transition: all .3s ease-in-out;
+}
+
+.gallery-header ion-icon:hover{
+    color: var(--ion-color-primary);
+}
+/*-------------------------------------------------*/
 .lightbox-header {
     display: flex;
     padding: 20px;
@@ -394,7 +416,6 @@ img.join-galerie-previeImg {
     position: absolute;
     width: 100%;
     top: 0;
-    align-items: center;
 }
 
 .lightbox-header span {
@@ -402,7 +423,6 @@ img.join-galerie-previeImg {
     gap: 20px;
 }
 
-/*
 .lightbox-header ion-icon{
     cursor: pointer;
     transition: all .3s ease-in-out;
@@ -410,7 +430,7 @@ img.join-galerie-previeImg {
 
 .lightbox-header ion-icon:hover{
     color: var(--ion-color-primary);
-}*/
+}
 
 .lightbox-header:before {
     content: "";
@@ -457,7 +477,7 @@ img.join-galerie-previeImg {
     max-width: 50%;
 }
 
-.qr-image-top{
+.qr-image-top {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -466,14 +486,15 @@ img.join-galerie-previeImg {
     margin-bottom: 30px;
 }
 
-.qr-image-content{
+.qr-image-content {
     display: flex;
     gap: 20px;
     align-items: flex-start;
     justify-content: space-between;
 }
-.qr-image-content p{
-    margin-top:0;
+
+.qr-image-content p {
+    margin-top: 0;
 }
 
 ion-modal.share-modal {
@@ -482,6 +503,37 @@ ion-modal.share-modal {
 
 ion-modal.task-manager-modal {
     --height: 100%;
+}
+
+/*-------------------------------------------------*/
+.form-container-row {
+    display: flex;
+    justify-content: space-between;
+}
+/*-------------------------------------------------*/
+
+.customSpinner{
+    width: 100%;
+    padding: 20px;
+    margin: 20px;
+}
+/*-------------------------------------------------*/
+ion-tab-bar{
+    height: 45px;
+    box-shadow: 0px -6px 26px rgba(0, 0, 0, 0.3);
+}
+/*-------------------------------------------------*/
+.sign-txt {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.50);
+    text-align: center;
+    margin-top: 0px;
+}
+
+.sign-txt a {
+    opacity: 1;
+    text-decoration: none;
+
 }
 
 /*-------------------------------------------------*/

@@ -30,7 +30,7 @@ const GalleriesPage: React.FC = () => {
 
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>CAPTURE</IonTitle>
+                    <IonTitle>Galleries</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -45,7 +45,6 @@ const GalleriesPage: React.FC = () => {
                 </IonRefresher>
 
                 <div>
-                    <h1 className="pageTitle">All galleries</h1>
                     <GalleryListComponent galleries={galleries}/>
                 </div>
 

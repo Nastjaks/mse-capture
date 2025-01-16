@@ -111,62 +111,61 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
             <IonModal
                 isOpen={isTaskManagerOpen}
                 className="task-manager-modal"
-               //trigger={`open-modal-${galleryId}`}
                 initialBreakpoint={.9}
                 showBackdrop={true}
                 handleBehavior="none"
             >
-                <div className="ion-padding">
-                    <p>Task Manager V2</p>
-                    <p>{galleryId}</p>
-                    <div>
-                        <p>Create Task</p>
-                        <div className="form-container">
-                            <IonItem>
-                                <IonInput
-                                    placeholder="Task..."
-                                    labelPlacement="floating"
-                                    value={taskTitle}
-                                    type="text"
-                                    onIonChange={(e) => setTaskTitle(e.detail.value!)}
-                                >
-                                    <div slot="label">
-                                        Task<IonText>*</IonText>
+
+                <div>
+
+                    <p>Task Manager | {galleryId}</p>
+
+                    <IonContent className="ion-padding">
+                        {tasks.length > 0 ? (
+                            tasks.map((task) => (
+                                <div key={task.id} className="task-item">
+                                    <div className="task-def">
+                                        <IonIcon aria-hidden="true" icon={camera}/>
+                                        <p>{task.task}</p>
                                     </div>
-                                </IonInput>
-                            </IonItem>
-                            <IonButton expand="block" onClick={handleAddTask} shape="round">
-                                Add Task
-                            </IonButton>
-                        </div>
+                                    <div>
+                                        <IonIcon
+                                            className="item-trash"
+                                            onClick={() => {
+                                                setShowDeleteConfirm_Task(true);
+                                                settaskToDelete(task);
+                                            }}
+                                            aria-hidden="true"
+                                            icon={trash}
+                                        />
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No tasks for this gallery.</p>
+                        )}
+                    </IonContent>
+
+                    <div className="form-container-row">
+                        <IonItem>
+                            <IonInput
+                                placeholder="Task..."
+                                labelPlacement="floating"
+                                value={taskTitle}
+                                type="text"
+                                onIonChange={(e) => setTaskTitle(e.detail.value!)}
+                            >
+                                <div slot="label">
+                                    Task<IonText>*</IonText>
+                                </div>
+                            </IonInput>
+                        </IonItem>
+                        <IonButton expand="block" onClick={handleAddTask}>
+                            Add Task
+                        </IonButton>
                     </div>
                 </div>
 
-                <IonContent className="ion-padding">
-                    {tasks.length > 0 ? (
-                        tasks.map((task) => (
-                            <div key={task.id} className="task-item">
-                                <div className="task-def">
-                                    <IonIcon aria-hidden="true" icon={camera}/>
-                                    <p>{task.task}</p>
-                                </div>
-                                <div>
-                                    <IonIcon
-                                        className="item-trash"
-                                        onClick={() => {
-                                            setShowDeleteConfirm_Task(true);
-                                            settaskToDelete(task);
-                                        }}
-                                        aria-hidden="true"
-                                        icon={trash}
-                                    />
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No tasks for this gallery.</p>
-                    )}
-                </IonContent>
             </IonModal>
 
         </div>
