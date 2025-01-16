@@ -49,7 +49,7 @@ export const signOut = async (): Promise<AuthResponse> => {
     }
 };
 
-// ----- Get ID of logged-in User -----
+// ----- Get logged-in User -----
 export const getLoggedInUserId = async (): Promise<AuthResponse> => {
     try {
         const { data: { user }, error } = await supabase.auth.getUser()

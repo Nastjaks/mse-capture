@@ -41,3 +41,4 @@ export const sideLeaveAnimation = (baseEl: HTMLElement): Animation => {
         .duration(200)
         .addAnimation([backdropAnimation, wrapperAnimation]);
 };
+

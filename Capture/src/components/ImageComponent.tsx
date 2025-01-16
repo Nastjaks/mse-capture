@@ -15,7 +15,7 @@ interface ImageComponentProps {
 const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
 
     const [images, setImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
-    const [currentImageIndex, setCurrentImageIndex] = useState<Number>(0);
+    const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
     const [modalContent, setModalContent] = useState<"image" | null>(null);
     const isModalOpen = modalContent !== null;
 
@@ -42,7 +42,6 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
         input.type = 'file';
         input.accept = 'image/*';
         input.multiple = true;
-
         input.onchange = async (event: any) => {
             const files = event.target.files;
 
@@ -145,7 +144,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
 
             <IonButton onClick={handleAddImages}>Add Images</IonButton>
             {/* Gallerie IMgae Lightbox*/}
-            <IonModal isOpen={isModalOpen} onClose={closeModal}>
+            <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
                 {modalContent === "image" && (
                     <div className="modal-content galerie-lightbox">
 

@@ -23,7 +23,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     const [show, setShow] = useState(false);
     const [message, setMessage] = useState('');
 
-    const duration = 4000; // Default duration: 2 seconds
+    const duration = 5000; // Default duration: 5 seconds
 
     const showToast = (message: string) => {
         setMessage(message);

@@ -1,29 +1,31 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillLeave} from '@ionic/react';
-import {useState} from "react";
+import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
+import {useEffect, useState} from "react";
 import {signUp} from "../services/authService";
 import {useToast} from "../contexts/ToastContext";
 import {Link, useHistory} from "react-router-dom";
 import {getRandomUserName} from "../utilitys/randomUsername";
+import {useAuth} from "../contexts/AuthContext";
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
 
-    const history = useHistory();
+    const {isAuthenticated, checkUser} = useAuth();
     const {showToast} = useToast();
+    const history = useHistory();
 
     //TODO wenn der nutzer schon eingelogt ist, soll es auf die Profiel seite umgeleitet werden
+    //TODO solabt er sich enloggt soll er auf die profiel seite weitergeleitet werden
     //Todo Validate input fields
 
     const handleSignUp = async () => {
-
         const finalUserName = userName || getRandomUserName(); //setzt einen Random namen
-
         try {
             const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
-                history.push(`/profil`);
+                await checkUser();
+                history.push(`/profil`); // Weiterleitung
             }
             showToast(message);
         } catch (err) {
@@ -32,11 +34,18 @@ const SignUpPage: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        console.log("SIGN UP:     " + isAuthenticated)
+        if (isAuthenticated) {
+            // Wenn der Benutzer eingeloggt ist, leite ihn zur Profilseite um
+            history.push("/profil");
+        }
+    }, [isAuthenticated, history]);
+
     //Resetet die Felder wenn die View verlassen wird
     useIonViewWillLeave(() => {
         restFields();
     });
-
 
     const restFields = () => {
         setEmail("");
@@ -99,7 +108,7 @@ const SignUpPage: React.FC = () => {
 
                         <IonButton expand="block" onClick={handleSignUp} shape="round"> Sign Up </IonButton>
 
-                        <IonText>Have an account? <Link to={`/signin`}>Sign In</Link></IonText>
+                        <IonText className="sign-txt">Have an account? <Link to={`/signin`}>Sign In</Link></IonText>
                     </div>
                 </div>
             </IonContent>

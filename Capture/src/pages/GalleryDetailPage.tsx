@@ -1,10 +1,10 @@
 import {
-    IonAlert, IonContent, IonIcon, IonItem, IonLabel, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, useIonViewWillEnter
+    IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonMenu, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useState} from 'react';
 import {useHistory} from "react-router";
-import {ellipsisVerticalSharp} from "ionicons/icons";
+import {arrowBackSharp, downloadOutline, ellipsisVerticalSharp, pencil, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
 import {deleteGallery, getGalleryById, removeUserFromGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
@@ -18,17 +18,15 @@ import { getLoggedInUserId } from '../services/authService';
 
 
 const GalleryDetailPage: React.FC = () => {
+
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
     const [isShared, setIsShared] = useState(false); // State für die Galerie
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    // Modal Kram
-    const [modalContent, setModalContent] = useState<"image" | null>(null);
-    const isModalOpen = modalContent !== null;
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Zustand für das Bestätigungsdialog
 
-    const history = useHistory(); // History für die Navigation nach dem Löschen
+    const history = useHistory();
     const {showToast} = useToast();
 
     //Resetet die Felder wenn die View verlassen wird
@@ -118,7 +116,9 @@ const GalleryDetailPage: React.FC = () => {
 
     return (
         <>
+
             <IonPage id="gallerie-content">
+
                 <IonContent fullscreen>
 
                     {/* Custom Navigation*/}
@@ -130,20 +130,25 @@ const GalleryDetailPage: React.FC = () => {
                         className='gallery-menu-modal'
                     >
                         <IonContent>
-                            <p>Gallery Settings</p>
+                            <IonItem>Gallery Settings</IonItem>
 
-                            <IonItem onClick={() => {
+                            <IonItem button onClick={() => {
+                                setShowSettings(false);
+                                showToast("COMING SOON - Edit Function");
+                            }}>Edit</IonItem>
+
+                            <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setTaskManagerModal(true);
                             }}>Task Manager</IonItem>
 
-                            <IonItem onClick={() => {
+                            <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowShareModal(true);
                             }}> Share </IonItem>
 
 
-                            <IonItem onClick={() => {
+                            <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowDeleteConfirm(true);
                             }}>Delete</IonItem>
@@ -167,9 +172,14 @@ const GalleryDetailPage: React.FC = () => {
                     {/* Gallerie Header */}
                     {gallery ? (
                         <div className="galerie-header">
-                            <div>
+
+
+                            {/* Optionen */}
+                            <div className="galleryTopBar">
                                 <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                             </div>
+
+
                             <p>Owner: {gallery.owner_id}</p>
                             <h1>{gallery.title}</h1>
                             <p>{gallery.description}</p>
@@ -193,7 +203,7 @@ const GalleryDetailPage: React.FC = () => {
                     <IonSegmentView>
                         <IonSegmentContent id={`gallery-images-segment-${galleryId}`}>
                             {/* Gallery Images*/}
-                            <ImageComponent referenceObject={gallery as Gallery} referenceType={"gallery"}/>
+                            <ImageComponent referenceObject={gallery as Gallery}/>
                         </IonSegmentContent>
                         <IonSegmentContent id={`gallery-task-segment-${galleryId}`}>
                             {/* Gallerie Tasks*/}
