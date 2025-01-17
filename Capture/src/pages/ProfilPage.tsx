@@ -66,25 +66,22 @@ const ProfilPage: React.FC = () => {
 
     return (
         <>
+            {/* Menü-Komponente*/}
+            <IonMenu contentId="profile-content" menuId="profile-menu" side="end">
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Settings</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <IonItem button={true} onClick={() => setShowLogoutConfirm(true)}>
+                        <p>Logout</p>
+                    </IonItem>
+                </IonContent>
+            </IonMenu>
 
             {/* Content */}
             <IonPage id="profile-content">
-
-
-                {/* Menü-Komponente*/}
-                <IonMenu contentId="profile-content" menuId="profile-menu" side="end">
-                    <IonHeader>
-                        <IonToolbar>
-                            <IonTitle>Settings</IonTitle>
-                        </IonToolbar>
-                    </IonHeader>
-                    <IonContent>
-                        <IonItem button={true} onClick={() => setShowLogoutConfirm(true)}>
-                            <p>Logout</p>
-                        </IonItem>
-                    </IonContent>
-                </IonMenu>
-
                 <IonHeader>
                     <IonToolbar>
                         {/* Burger-Button für das Menü */}

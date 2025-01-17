@@ -1,5 +1,7 @@
 {
   "name": "Capture",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react-vite"
 }
