@@ -8,6 +8,7 @@ interface AuthContextType {
     currentUser: any;
     loading: boolean;
     checkUser: () => Promise<boolean>;
+    updateCurrentUser: () => void;
 }
 
 interface AuthProviderProps {
@@ -45,6 +46,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const updateCurrentUser = async () => {
+        try {
+            const userResponse = await getLoggedInUserId();
+            if (userResponse && userResponse.success) {
+                setCurrentUser(userResponse.user);
+            } else {
+                setCurrentUser(null);
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen des Benutzers:", error);
+            setCurrentUser(null);
+        }
+    }
+
     const login = (userResponse: any) => {
         setIsAuthenticated(true);
         setCurrentUser(userResponse.user);
@@ -58,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, currentUser, loading, checkUser }}>
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, currentUser, loading, checkUser, updateCurrentUser }}>
             {children}
         </AuthContext.Provider>
     );

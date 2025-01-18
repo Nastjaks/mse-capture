@@ -64,6 +64,38 @@ export const getLoggedInUserId = async (): Promise<AuthResponse> => {
     }
 };
 
+// ----- Update User -----
+export const updateUser = async (name: string): Promise<AuthResponse> => {
+    try {
+        // Update the user data. (email, etc... possible too)
+        const { data, error } = await supabase.auth.updateUser({
+          data: {
+            display_name: name,
+          },
+        });
+        if (error) {
+          console.error(error);
+          return {
+            success: false,
+            message: "Error updating user data.",
+            user: null,
+          };
+        }
+        return {
+          success: true,
+          message: "User data updated successfully.",
+          user: data.user,
+        };
+      } catch (err) {
+        console.error(err);
+        return {
+          success: false,
+          message: "Unexpected error.",
+          user: null,
+        };
+      }
+    };
+
 // ----- Anon Login -----
 export const signInAnon = async (): Promise<AuthResponse> => {
     try {

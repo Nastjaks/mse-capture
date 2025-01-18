@@ -1,17 +1,24 @@
-import {IonAlert, IonContent, IonHeader, IonItem, IonPage, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
+import {IonAlert, IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonModal, IonPage, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {menuController} from '@ionic/core/components';
-import {useState} from "react";
-import {signOut} from "../services/authService";
+import {useRef, useState} from "react";
+import {signOut, updateUser} from "../services/authService";
 import {useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 import {useAuth} from "../contexts/AuthContext";
 
 const ProfilPage: React.FC = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+    const [newName, setNewName] = useState("");
 
     const {showToast} = useToast();
-    const {checkUser, currentUser, isAuthenticated} = useAuth();
+    const {checkUser, currentUser, isAuthenticated, updateCurrentUser} = useAuth();
     const history = useHistory();
+
+    const modal = useRef<HTMLIonModalElement>(null);
+
+    function dismiss() {
+        modal.current?.dismiss();
+    }
 
     const handleLogout = async () => {
         try {
@@ -27,6 +34,14 @@ const ProfilPage: React.FC = () => {
             showToast(String(err));
         }
     };
+
+    const handleUpdateUsername = async () => {
+        const { success, message } = await updateUser(newName);
+        if (success) {
+            updateCurrentUser();
+        }
+        showToast(message);
+    }
 
     // Galerie-Daten laden, wenn die page aufgerufen wird
     useIonViewWillEnter(() => {
@@ -55,7 +70,7 @@ const ProfilPage: React.FC = () => {
                 <div className="ion-padding">
                     <h2>Settings</h2>
                     <div className="profile-settings-wrapper">
-                        <IonItem button onClick={() => showToast("COMING SOON: EDIT NAME FUNCTION")}>
+                        <IonItem id='open-edit-name-dialog' button>
                             <p>Edit name</p>
                         </IonItem>
                     </div>
@@ -94,6 +109,24 @@ const ProfilPage: React.FC = () => {
                     },
                 ]}
             />
+
+        <IonModal id="example-modal" ref={modal} trigger="open-edit-name-dialog">
+          <div className="ion-padding form-container">
+            <h1>Set Username</h1>
+            <IonItem>
+                <IonInput
+                    placeholder="New username..."
+                    label="Username"
+                    labelPlacement="floating"
+                    value={newName}
+                    required={true}
+                    type='text'
+                    onIonChange={(e) => setNewName(e.detail.value!)}
+                />
+            </IonItem>
+            <IonButton expand="block" onClick={() => { handleUpdateUsername(); dismiss(); }} shape="round"> Save </IonButton>
+          </div>
+        </IonModal>
 
         </IonPage>
 
