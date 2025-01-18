@@ -251,14 +251,13 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
 };
 
 // ---- DELETE IMAGE ----
-export const deleteImageFromGallery = async (imageId: string, userId: string, url: string) => {
+export const deleteImageFromGallery = async (imageId: string, url: string) => {
         try {
             const imageFilePath = url.replace('https://ecvojbzizwqiemboachu.supabase.co/storage/v1/object/public/capture-images/', '');
             const { error } = await supabase
                 .from('gallery_images')
                 .delete()
                 .eq('id', imageId)
-                .eq('owner_id', userId);
             const { error: StorageError } = await supabase.storage
                 .from('capture-images')
                 .remove([imageFilePath]);
@@ -272,17 +271,17 @@ export const deleteImageFromGallery = async (imageId: string, userId: string, ur
         }
 };
 
-// ---- GET IMAGE ID FROM URL ----
-export const getImageIdFromUrl = async (url: string) => {
+// ---- GET IMAGE FROM URL ----
+export const getImageFromUrl = async (url: string) => {
     try {
         const { data, error } = await supabase
             .from('gallery_images')
-            .select('id')
+            .select('*')
             .eq('image_url', url);
         if (error) {
             console.error('Error getting image id' + error);
         } else {
-            console.log('Bild Id:', data);
+            console.log('image:', data);
             return data;
         }
     } catch (err) {

@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {addImagesToGallery, deleteImageFromGallery, downloadPublicFile, getGalleryImages, getImageIdFromUrl} from "../services/galleryService";
+import {addImagesToGallery, deleteImageFromGallery, downloadPublicFile, getGalleryImages, getImageFromUrl} from "../services/galleryService";
 import {IonButton, IonFab, IonFabButton, IonIcon, IonModal} from "@ionic/react";
 import {add, arrowBackSharp, downloadOutline, image, trash} from "ionicons/icons";
 import {useSwipeable} from "react-swipeable";
 import {useToast} from "../contexts/ToastContext";
 import {Gallery} from "../models/Gallery";
 import {Task} from "../models/Task";
-import { getLoggedInUserId } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
+
 
 interface ImageComponentProps {
     referenceObject: Gallery;
@@ -17,9 +18,11 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
     const [images, setImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
     const [modalContent, setModalContent] = useState<"image" | null>(null);
+    const [isImageOwner, setIsImageOwner] = useState<boolean>(false);
     const isModalOpen = modalContent !== null;
 
     const {showToast} = useToast();
+    const {currentUser} = useAuth();
 
     useEffect(() => {
         if (referenceObject) {
@@ -37,7 +40,6 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
 
     //TODO IMAGE KRAM AUSLAGERN IN EINE IMAGE KOMPONENTE - GET; ADD; LIGHTBOX; Weil brauchen wir auch für die tasks
     const handleAddImages = async () => {
-
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -63,23 +65,31 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
         input.click();
     };
 
+    // Funktion zum Löschen von Bildern aus der Galerie
     const handleDeleteImage = async (ImageUrl: string) => {
-        const userResponse = await getLoggedInUserId();
-        const userId = userResponse.user?.id as string;
-        console.log('URL:', ImageUrl);
-        const imageId = await getImageIdFromUrl(ImageUrl);     
-        if (!imageId) {
-            console.error('Image ID not found');
-            showToast('Error deleting the image');
-            return;
-        }
+        const image = await getImageFromUrl(ImageUrl);    
         try {
-            await deleteImageFromGallery(imageId[0].id, userId, ImageUrl);
-            closeModal();
-            await fetchImages();
+            if(isImageOwner && image) {
+                await deleteImageFromGallery(image[0].id, ImageUrl);
+                closeModal();
+                await fetchImages();
+                showToast('Image deleted.');
+            } else{
+                console.error('You are not allowed to delete this image');
+            }
         } catch (error) {
             console.error('Error deleting the image', error);
             showToast('Error deleting the image');
+        } 
+    }
+
+    const checkUserImageRights = async (ImageUrl: string) => {
+        const image = await getImageFromUrl(ImageUrl);    
+        if(image && ((image[0].owner_id === currentUser.id) || (currentUser.id === referenceObject.owner_id))) {
+            setIsImageOwner(true);
+        }
+        else {
+            setIsImageOwner(false);
         }
     }
 
@@ -134,6 +144,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
                             alt={`Bild ${index}`}
                             onClick={() => {
                                 setCurrentImageIndex(index);
+                                checkUserImageRights(imageUrl);
                                 openModal("image")
                             }}
                             style={{cursor: 'pointer'}}
@@ -144,7 +155,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
 
             <IonButton onClick={handleAddImages}>Add Images</IonButton>
             {/* Gallerie IMgae Lightbox*/}
-            <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
+            <IonModal isOpen={isModalOpen} onDidDismiss={() => { closeModal(); setIsImageOwner(false); }}>
                 {modalContent === "image" && (
                     <div className="modal-content galerie-lightbox">
 
@@ -153,7 +164,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
                             <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
                             <span>
                                 <IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(images[currentImageIndex])}/>
-                                <IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage(images[currentImageIndex])}/>
+                                {(isImageOwner &&<IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage(images[currentImageIndex])}/>)}
                             </span>
                         </div>
 
