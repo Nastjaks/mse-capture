@@ -1,8 +1,5 @@
 import {Gallery} from '../models/Gallery';
 import {supabase} from "../config/supabaseConfig";
-import { AuthResponse } from '@supabase/supabase-js';
-import { image } from 'ionicons/icons';
-
 
 // ---------- GET All Gallery ----------
 export const getGalleries = async () => {
@@ -20,7 +17,7 @@ export const getGalleries = async () => {
     }
 }
 
-
+// ---------- GET all Galleries by UserID ----------
 export const getUsersGalleries = async (userId: string): Promise<Gallery[]> => {
     try {
         const {data, error} = await supabase

@@ -1,8 +1,8 @@
 import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewDidEnter, useIonViewWillEnter} from '@ionic/react';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {AddUserToGallery, getGalleryById} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
-import {Link, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {useHistory} from "react-router";
 import {signIn, signInAnon} from '../services/authService';
 import {getLoggedInUserId} from "../services/authService";
@@ -110,7 +110,7 @@ const JoinGalleryPage: React.FC = () => {
                                     value={name}
                                     required={true}
                                     type="text"
-                                    onIonChange={(e) => setName(e.detail.value!)}
+                                    onIonInput={(e) => setName(e.detail.value!)}
                                 />
                             </IonItem>
 
@@ -127,7 +127,7 @@ const JoinGalleryPage: React.FC = () => {
                                     value={email}
                                     required={true}
                                     type="email"
-                                    onIonChange={(e) => setEmail(e.detail.value!)}
+                                    onIonInput={(e) => setEmail(e.detail.value!)}
                                 >
                                     <div slot="label">Email<IonText>*</IonText></div>
                                 </IonInput>
@@ -140,7 +140,7 @@ const JoinGalleryPage: React.FC = () => {
                                     value={password}
                                     required={true}
                                     type="password"
-                                    onIonChange={(e) => setPassword(e.detail.value!)}
+                                    onIonInput={(e) => setPassword(e.detail.value!)}
                                 >
                                     <div slot="label">Password<IonText>*</IonText></div>
                                 </IonInput>

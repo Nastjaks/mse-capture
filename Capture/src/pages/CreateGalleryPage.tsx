@@ -1,11 +1,11 @@
-import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {useState} from "react";
 import {useHistory} from 'react-router-dom';
-import {getLoggedInUserId} from "../services/authService";
 import {createGallery} from "../services/galleryService";
 import {Gallery} from "../models/Gallery";
 import {useToast} from "../contexts/ToastContext";
-import {imageOutline, logInOutline, trash} from 'ionicons/icons';
+import {imageOutline, trash} from 'ionicons/icons';
+import {useAuth} from "../contexts/AuthContext";
 
 const CreateGalleryPage: React.FC = () => {
     const [title, setTitle] = useState("");
@@ -13,8 +13,9 @@ const CreateGalleryPage: React.FC = () => {
     const [preview_image, setPreviewImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
-    const history = useHistory();
     const {showToast} = useToast();
+    const {checkUser, currentUser, isAuthenticated} = useAuth();
+    const history = useHistory();
 
     const handleCreateGallery = async () => {
         //Titel validieren
@@ -24,22 +25,15 @@ const CreateGalleryPage: React.FC = () => {
         }
 
         try {
-            const result_user = await getLoggedInUserId();
+            const owner_id = currentUser.id;
+            const result_newGallery = await createGallery({title, description, owner_id} as Gallery, preview_image);
 
-            if (result_user.success) {
-                const owner_id = result_user.user?.id;
-                const result_newGallery = await createGallery({title, description, owner_id} as Gallery, preview_image);
-
-                if (result_newGallery.success) {
-                    restFields();
-                    history.push(`/gallery/${result_newGallery.data}`);
-                }
-                showToast(result_newGallery.message);
-            } else {
-                showToast(result_user.message);
+            if (result_newGallery.success) {
                 restFields();
-                history.push(`/signin`);
+                history.push(`/gallery/${result_newGallery.data}`);
             }
+            showToast(result_newGallery.message);
+
         } catch (err) {
             console.error(err);
             showToast(String(err));
@@ -74,6 +68,11 @@ const CreateGalleryPage: React.FC = () => {
         }
     };
 
+    useIonViewWillEnter(() => {
+        console.log("Create Gallery ", isAuthenticated );
+    });
+
+
     return (
         <IonPage>
 
@@ -93,7 +92,7 @@ const CreateGalleryPage: React.FC = () => {
                             label="Title*"
                             value={title}
                             type="text"
-                            onIonChange={(e) => setTitle(e.detail.value!)}
+                            onIonInput={(e) => setTitle(e.detail.value!)}
                         >
                         </IonInput>
                     </IonItem>
@@ -105,7 +104,7 @@ const CreateGalleryPage: React.FC = () => {
                             label="Description"
                             value={description}
                             type="text"
-                            onIonChange={(e) => setDescription(e.detail.value!)}
+                            onIonInput={(e) => setDescription(e.detail.value!)}
                         >
                         </IonInput>
                     </IonItem>

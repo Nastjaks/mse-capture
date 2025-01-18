@@ -1,7 +1,7 @@
 import React from 'react';
-import { Redirect, Route, RouteProps } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { IonSpinner } from '@ionic/react';
+import {Redirect, Route, RouteProps} from 'react-router-dom';
+import {useAuth} from '../contexts/AuthContext';
+import {IonSpinner, useIonViewWillEnter} from '@ionic/react';
 
 interface ProtectedRouteProps extends RouteProps {
     component: React.ComponentType<any>;
@@ -15,7 +15,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                                                            publicOnly = false, // Standardmäßig ist es eine geschützte Route
                                                            ...rest
                                                        }) => {
-    const { isAuthenticated, loading } = useAuth();
+    const {isAuthenticated, loading} = useAuth();
+
+    useIonViewWillEnter(() => {
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + isAuthenticated);
+    });
+
 
     return (
         <Route
@@ -29,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                 if (publicOnly) {
                     // Öffentliche Route: Weiterleitung, wenn Benutzer eingeloggt ist
                     if (isAuthenticated) {
-                        return <Redirect to="/profil" />;
+                        return <Redirect to="/profil"/>;
                     }
                     return <Component {...props} />;
                 }
@@ -38,7 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                 if (isAuthenticated) {
                     return <Component {...props} />;
                 }
-                return <Redirect to={redirectTo} />;
+                return <Redirect to={redirectTo}/>;
             }}
         />
     );

@@ -25,7 +25,9 @@ const SignUpPage: React.FC = () => {
             const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
                 await checkUser();
-                history.push(`/profil`); // Weiterleitung
+
+                    //history.push(`/profil`); // Weiterleitung
+
             }
             showToast(message);
         } catch (err) {
@@ -34,17 +36,13 @@ const SignUpPage: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        console.log("SIGN UP:     " + isAuthenticated)
-        if (isAuthenticated) {
-            // Wenn der Benutzer eingeloggt ist, leite ihn zur Profilseite um
-            history.push("/profil");
-        }
-    }, [isAuthenticated, history]);
-
     //Resetet die Felder wenn die View verlassen wird
     useIonViewWillLeave(() => {
         restFields();
+    });
+
+    useIonViewWillEnter(() => {
+        console.log("Sign UP ", isAuthenticated );
     });
 
     const restFields = () => {
@@ -63,7 +61,7 @@ const SignUpPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <h1 className="pageTitle">Sing up</h1>
+                    <h1 className="pageTitle">Sign up</h1>
 
 
                     <div className="form-container">

@@ -1,12 +1,12 @@
 // AuthContext.tsx
-import React, {createContext, useState, useContext, useEffect, ReactNode} from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { getLoggedInUserId } from "../services/authService";
 
 interface AuthContextType {
     isAuthenticated: boolean;
     setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
     currentUser: any;
-    loading: boolean; // Neuer Zustand für das Laden
+    loading: boolean;
     checkUser: () => Promise<boolean>;
 }
 
@@ -19,36 +19,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
-    const [loading, setLoading] = useState<boolean>(true); // Initial auf `true`
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         checkUser();
     }, []);
 
-    // Benutzer & Status aus dem Service abrufen und setzen
     const checkUser = async (): Promise<boolean> => {
-        setLoading(true); // Ladezustand aktivieren
+        setLoading(true);
         try {
             const userResponse = await getLoggedInUserId();
             if (userResponse && userResponse.success) {
-                setCurrentUser(userResponse.user);
-                setIsAuthenticated(true);
+                login(userResponse);
                 return true;
             } else {
-                setIsAuthenticated(false);
-                setCurrentUser(null);
+                logout();
                 return false;
             }
         } catch (error) {
             console.error("Fehler beim Abrufen des Benutzers:", error);
-            setIsAuthenticated(false);
-            setCurrentUser(null);
+            logout();
             return false;
         } finally {
-            setLoading(false); // Ladezustand deaktivieren
+            setLoading(false);
         }
     };
 
+    const login = (userResponse: any) => {
+        setIsAuthenticated(true);
+        setCurrentUser(userResponse.user);
+        console.log("AUTHCONTEXT: User logged in");
+    };
+
+    const logout = () => {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        console.log("AUTHCONTEXT: User logged out");
+    };
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, currentUser, loading, checkUser }}>

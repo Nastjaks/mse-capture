@@ -9,11 +9,10 @@ const SignInPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const {isAuthenticated, checkUser} = useAuth();
+    const {checkUser, currentUser, isAuthenticated} = useAuth();
     const {showToast} = useToast();
     const history = useHistory();
 
-    //TODO wenn der nutzer schon eingelogt ist, soll es auf die Profiel seite umgeleitet werden
     //Todo Validate input fields
 
     const handleLogin = async () => {
@@ -29,6 +28,11 @@ const SignInPage: React.FC = () => {
             showToast(String(err));
         }
     };
+
+    useIonViewWillEnter(() => {
+        console.log("Sign IN ", isAuthenticated );
+    });
+
 
     useIonViewWillLeave(() => {
         restFields();
@@ -55,7 +59,7 @@ const SignInPage: React.FC = () => {
                                 value={email}
                                 required={true}
                                 type="email"
-                                onIonChange={(e) => setEmail(e.detail.value!)}
+                                onIonInput={(e) => setEmail(e.detail.value!)}
                             >
                             </IonInput>
                         </IonItem>
@@ -68,7 +72,7 @@ const SignInPage: React.FC = () => {
                                 value={password}
                                 required={true}
                                 type="password"
-                                onIonChange={(e) => setPassword(e.detail.value!)}
+                                onIonInput={(e) => setPassword(e.detail.value!)}
                             >
                             </IonInput>
                         </IonItem>

@@ -153,7 +153,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                                 labelPlacement="floating"
                                 value={taskTitle}
                                 type="text"
-                                onIonChange={(e) => setTaskTitle(e.detail.value!)}
+                                onIonInput={(e) => setTaskTitle(e.detail.value!)}
                             >
                                 <div slot="label">
                                     Task<IonText>*</IonText>

@@ -14,6 +14,7 @@ import SignUpPage from "./pages/SignUpPage";
 import GalleryDetailPage from "./pages/GalleryDetailPage";
 import JoinGalleryPage from './pages/JoinGalleryPage';
 import TaskPage from './pages/TaskPage';
+import AllGalleriesPage from "./pages/allGalleriesPage";
 
 /* Context */
 import {ToastProvider} from './contexts/ToastContext';
@@ -62,7 +63,8 @@ const AppContent: React.FC = () => {
         '/galleries',
         '/create-gallery',
         '/gallery/:galleryId',
-        '/gallery/:galleryId/:taskId'
+        '/gallery/:galleryId/:taskId',
+        '/all-galleries'
     ];
 
     const showTabBar = showTabBarRoutes.some((route) => {
@@ -81,7 +83,9 @@ const AppContent: React.FC = () => {
                     <Route exact path="/galleries" component={GalleriesPage}/>
                     <Route exact path="/create-gallery" component={CreateGalleryPage}/>
                     <Route exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
-                    <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>*/}
+                    <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>
+*/}
+                <Route exact path="/all-galleries" component={AllGalleriesPage}/>
 
                 <ProtectedRoute exact path="/" component={SignInPage} publicOnly/>
                 <ProtectedRoute exact path="/signin" component={SignInPage} publicOnly/>
@@ -99,11 +103,6 @@ const AppContent: React.FC = () => {
 
             {showTabBar && (
                 <IonTabBar slot="bottom">
-                    {/*
-                    <IonTabButton tab="signin" href="/signin">
-                        <IonIcon aria-hidden="true" icon={logInOutline}/>
-                    </IonTabButton>
-                    */}
                     <IonTabButton tab="galleries" href="/galleries">
                         <IonIcon aria-hidden="true" icon={imagesOutline}/>
                     </IonTabButton>

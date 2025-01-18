@@ -1,28 +1,33 @@
-import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, useIonViewDidEnter, useIonViewDidLeave, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
+import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {useState} from 'react';
-import {getGalleries} from '../services/galleryService';
+import {getSharedGalleries, getUsersGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
-import {getLoggedInUserId} from '../services/authService';
 import GalleryListComponent from "../components/GalleryListComponent";
+import {useAuth} from "../contexts/AuthContext";
 
 const GalleriesPage: React.FC = () => {
-    const [galleries, setGalleries] = useState<Gallery[]>([]); // Typisierung des States
 
-    const loadGalleries = async () => {
-        const data = await getGalleries();
-        if (data) {
-            console.log(getLoggedInUserId());
-            setGalleries(data); // Galerie-Daten setzen
-        }
+    const [usersGalleries, setUsersGalleries] = useState<Gallery[]>([]);
+    const [sharedGalleries, setSharedGalleries] = useState<Gallery[]>([]);
+    const {currentUser, isAuthenticated} = useAuth();
+
+    // Galerie-Daten abrufen und setzen
+    const fetchGalleries = async () => {
+         const userGalleries = await getUsersGalleries(currentUser.id);
+        setUsersGalleries(userGalleries);
+        const userSharedGalleries = await getSharedGalleries(currentUser.id);
+        setSharedGalleries(userSharedGalleries)
     };
 
+    // Galerie-Daten laden, wenn die page aufgerufen wird
     useIonViewWillEnter(() => {
-        loadGalleries();
+        fetchGalleries();
     });
 
+    // Galerie-Daten neu laden, wenn die page refreshed wird
     const handleRefresh = async (event: CustomEvent) => {
-        await loadGalleries(); // Galerie-Daten neu laden
-        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+        await fetchGalleries();
+        event.detail.complete();
     };
 
     return (
@@ -45,8 +50,15 @@ const GalleriesPage: React.FC = () => {
                 </IonRefresher>
 
                 <div>
-                    <GalleryListComponent galleries={galleries}/>
+                    <h1>YOURS</h1>
+                    <GalleryListComponent galleries={usersGalleries}/>
                 </div>
+
+                <div>
+                    <h1>SHARED</h1>
+                    <GalleryListComponent galleries={sharedGalleries}/>
+                </div>
+
 
             </IonContent>
         </IonPage>
