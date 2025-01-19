@@ -23,7 +23,9 @@ const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
                     </div>
                 ))
             ) : (
-                <p>Keine Galerien gefunden.</p>
+                <div className="no-content">
+                    <p>No Galleries.</p>
+                </div>
             )}
         </div>
     );

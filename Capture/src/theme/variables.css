@@ -70,7 +70,7 @@ ion-label {
 
 */
 .no-content{
-    font-size: 40px;
+    font-size: 30px;
     max-width: 70%;
     color: #262626;
     font-weight: 900 !important;
@@ -78,6 +78,7 @@ ion-label {
 
 .no-content p{
      margin: 0;
+    text-transform: uppercase;
  }
 
 .page-bottom {
@@ -582,6 +583,19 @@ ion-tab-bar{
 }
 /*-------------------------------------------------*/
 
+
+ion-modal.modal-dialog {
+    --width: fit-content;
+    --min-width: 250px;
+    --height: fit-content;
+    --border-radius: 6px;
+    --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+ion-modal.modal-dialog .form-container{
+    margin: 0;
+}
+
+/*
 @media only screen and (min-width: 768px) and (min-height: 768px) {
     :host {
         --width: 90vh;
@@ -589,3 +603,4 @@ ion-tab-bar{
     }
 }
 
+*/

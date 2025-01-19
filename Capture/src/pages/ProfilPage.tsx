@@ -26,7 +26,8 @@ const ProfilPage: React.FC = () => {
             if (success) {
                 await checkUser(); // Benutzerinformationen abrufen/aktualisieren
                 await menuController.close();
-                history.push(`/signin`);
+                window.location.href = `/signin`;
+                //history.push(`/signin`);
             }
             showToast(message);
         } catch (err) {
@@ -36,7 +37,7 @@ const ProfilPage: React.FC = () => {
     };
 
     const handleUpdateUsername = async () => {
-        const { success, message } = await updateUser(newName);
+        const {success, message} = await updateUser(newName);
         if (success) {
             updateCurrentUser();
         }
@@ -47,6 +48,10 @@ const ProfilPage: React.FC = () => {
     useIonViewWillEnter(() => {
         console.log(currentUser, isAuthenticated);
     });
+
+    const restFields = () => {
+        setNewName("");
+    }
 
 
     return (
@@ -110,23 +115,32 @@ const ProfilPage: React.FC = () => {
                 ]}
             />
 
-        <IonModal id="example-modal" ref={modal} trigger="open-edit-name-dialog">
-          <div className="ion-padding form-container">
-            <h1>Set Username</h1>
-            <IonItem>
-                <IonInput
-                    placeholder="New username..."
-                    label="Username"
-                    labelPlacement="floating"
-                    value={newName}
-                    required={true}
-                    type='text'
-                    onIonChange={(e) => setNewName(e.detail.value!)}
-                />
-            </IonItem>
-            <IonButton expand="block" onClick={() => { handleUpdateUsername(); dismiss(); }} shape="round"> Save </IonButton>
-          </div>
-        </IonModal>
+            <IonModal
+                className="modal-dialog"
+                ref={modal}
+                trigger="open-edit-name-dialog"
+                onDidDismiss={restFields}>
+                <div className="ion-padding form-container">
+                    <p>Set new Username</p>
+                    <IonItem>
+                        <IonInput
+                            placeholder="Username"
+                            label="New username"
+                            labelPlacement="floating"
+                            value={newName}
+                            required={true}
+                            type='text'
+                            onIonChange={(e) => setNewName(e.detail.value!)}
+                        />
+                    </IonItem>
+                    <IonButton expand="block"
+                               onClick={() => {
+                                   handleUpdateUsername();
+                                   restFields();
+                                   dismiss();
+                               }} shape="round"> Save </IonButton>
+                </div>
+            </IonModal>
 
         </IonPage>
 

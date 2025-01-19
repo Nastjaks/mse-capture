@@ -1,20 +1,20 @@
 import {
-    IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonMenu, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonViewWillEnter
+    IonAlert, IonContent, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useState} from 'react';
 import {useHistory} from "react-router";
-import {arrowBackSharp, downloadOutline, ellipsisVerticalSharp, pencil, trash} from "ionicons/icons";
+import {add, ellipsisVerticalSharp} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {deleteGallery, getGalleryById, removeUserFromGallery} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, removeUserFromGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
 import QRCodeComponent from "../components/QRCodeComponent";
 import TaskComponent from "../components/TaskComponent";
 import {sideEnterAnimation, sideLeaveAnimation} from "../theme/animations";
-import ImageComponent from "../components/ImageComponent";
-import { getLoggedInUserId } from '../services/authService';
+import {getLoggedInUserId} from '../services/authService';
+import ImageViewComponent from "../components/ImageViewComponent";
 
 
 const GalleryDetailPage: React.FC = () => {
@@ -24,12 +24,15 @@ const GalleryDetailPage: React.FC = () => {
     const [isShared, setIsShared] = useState(false); // State für die Galerie
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
+    const [showSettings, setShowSettings] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [showTaskManagerModal, setTaskManagerModal] = useState(false);
 
     const history = useHistory();
     const {showToast} = useToast();
 
-    //Resetet die Felder wenn die View verlassen wird
     useIonViewWillEnter(() => {
         if (galleryId) {
             loadGalleryInfos();
@@ -44,7 +47,7 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    // Galerie-Daten laden
+    /* -- Läd Galleri Infos -- */
     const loadGalleryInfos = async () => {
         const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
         if (result_galleryData) {
@@ -56,7 +59,7 @@ const GalleryDetailPage: React.FC = () => {
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleryInfos();
         await isSharedGallery();
-        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+        event.detail.complete();
     };
 
     // Funktion zum Löschen der Galerie
@@ -81,10 +84,18 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
+    /* Galerie-Bilder laden
+    const fetchGalleryImages = async () => {
+        const images = await getGalleryImages(galleryId);
+        if (images) {
+            setGalleryImages(images.map(img => img.image_url)); // Bild-URLs extrahieren
+        }
+    };*/
+
     // Leave Shared Gallery
     const leaveSharedGallery = async () => {
         try {
-            const userResponse =  await getLoggedInUserId();
+            const userResponse = await getLoggedInUserId();
             const userId = userResponse.user?.id;
             if (userId) {
                 await removeUserFromGallery(galleryId, userId);
@@ -100,10 +111,6 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    const [showSettings, setShowSettings] = useState(false);
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [showTaskManagerModal, setTaskManagerModal] = useState(false);
-
     const handleOpenSettings = () => {
         setShowSettings(true);
         setShowShareModal(false);
@@ -114,9 +121,35 @@ const GalleryDetailPage: React.FC = () => {
         setShowSettings(false);
     };
 
+
+    const handleAddImagesToGallery = async () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+        input.onchange = async (event: any) => {
+            const files = event.target.files;
+
+            if (files && gallery?.owner_id && gallery.id) {
+                const fileArray = Array.from(files); // Dateien in ein Array konvertieren
+                try {
+                    await Promise.all(fileArray.map(file => addImagesToGallery(gallery.owner_id, gallery.id, file as File)));
+                    //await fetchImages();
+                } catch (error) {
+                    console.error('Error uploading the images', error);
+                    showToast('Error uploading the images');
+                }
+            } else {
+                console.error('Missing gallery or owner ID');
+                showToast('Unexpected error.');
+            }
+        };
+        input.click();
+    };
+
+
     return (
         <>
-
             <IonPage id="gallerie-content">
 
                 <IonContent fullscreen>
@@ -147,7 +180,6 @@ const GalleryDetailPage: React.FC = () => {
                                 setShowShareModal(true);
                             }}> Share </IonItem>
 
-
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowDeleteConfirm(true);
@@ -173,12 +205,10 @@ const GalleryDetailPage: React.FC = () => {
                     {gallery ? (
                         <div className="galerie-header">
 
-
                             {/* Optionen */}
                             <div className="galleryTopBar">
                                 <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                             </div>
-
 
                             <p>Owner: {gallery.owner_id}</p>
                             <h1>{gallery.title}</h1>
@@ -188,6 +218,10 @@ const GalleryDetailPage: React.FC = () => {
                             )}
                         </div>
                     ) : (
+                        <p>Gallery not found</p>
+                    )}
+
+                    {gallery ? (<ImageViewComponent galleryOwnerId={gallery.owner_id} referenceId={galleryId} referenceType={"Gallery"}/>): (
                         <p>Gallery not found</p>
                     )}
 
@@ -202,14 +236,15 @@ const GalleryDetailPage: React.FC = () => {
 
                     <IonSegmentView>
                         <IonSegmentContent id={`gallery-images-segment-${galleryId}`}>
-                            {/* Gallery Images*/}
-                            <ImageComponent referenceObject={gallery as Gallery}/>
+                            {/* Gallery Images
+                            <ImageComponent referenceObject={gallery as Gallery}/>*/}
                         </IonSegmentContent>
                         <IonSegmentContent id={`gallery-task-segment-${galleryId}`}>
                             {/* Gallerie Tasks*/}
                             {gallery && <TaskComponent galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>}
                         </IonSegmentContent>
                     </IonSegmentView>
+
 
                     {/* Share Gallery */}
                     <QRCodeComponent galleryId={galleryId} istShareOpen={showShareModal}/>
@@ -257,6 +292,12 @@ const GalleryDetailPage: React.FC = () => {
                             },
                         ]}
                     />
+
+                    <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImagesToGallery}>
+                        <IonFabButton>
+                            <IonIcon icon={add}></IonIcon>
+                        </IonFabButton>
+                    </IonFab>
 
                 </IonContent>
 

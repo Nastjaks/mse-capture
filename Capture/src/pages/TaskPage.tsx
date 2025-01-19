@@ -1,38 +1,33 @@
-import React, {useEffect, useState} from 'react';
-import {Link, useHistory, useParams} from 'react-router-dom';
-import {IonContent, IonFab, IonFabButton, IonIcon, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText} from '@ionic/react';
-import {getTaksImages, getTaskById, uploadImageToTask} from '../services/taskService';
+import React, {useState} from 'react';
+import {useHistory, useParams} from 'react-router-dom';
+import {IonContent, IonFab, IonFabButton, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter} from '@ionic/react';
+import {getTaskById, uploadImageToTask} from '../services/taskService';
 import {Task} from '../models/Task'
-import {add, arrowBackSharp, camera, checkmark, downloadOutline, ellipsisVerticalSharp, trash} from "ionicons/icons";
-import {downloadPublicFile, getGalleryById} from "../services/galleryService";
 import {Gallery} from "../models/Gallery";
-import {useSwipeable} from "react-swipeable";
-import {useToast} from "../contexts/ToastContext";
+import {add, arrowBackSharp} from "ionicons/icons";
+import {getGalleryById} from "../services/galleryService";
+import ImageViewComponent from "../components/ImageViewComponent";
 
 const TaskPage: React.FC = () => {
     const {galleryId, taskId} = useParams<{ galleryId: string; taskId: string }>();
     const [task, setTask] = useState<Task | null>(null);
     const [gallery, setGallery] = useState<Gallery | null>(null);
-    const [taskImages, setTaskImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
 
-    const {showToast} = useToast();
+    const history = useHistory();
 
-    const history = useHistory(); // Für die Navigation zur Galerie
-
-    useEffect(() => {
+    useIonViewWillEnter(() => {
         fetchGallery();
         fetchTask();
-        fetchTaskImages();
-    }, [taskId, galleryId]);
+    });
 
-    // Refresh Content
+   /* -- Refresh Content -- */
     const handleRefresh = async (event: CustomEvent) => {
         await fetchGallery();
         await fetchTask();
-        await fetchTaskImages();
-        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+        event.detail.complete();
     };
 
+    /* -- Holt die Gallery Infos -- */
     const fetchGallery = async () => {
         if (galleryId) {
             const fetchedGallery = await getGalleryById(galleryId);
@@ -40,6 +35,7 @@ const TaskPage: React.FC = () => {
         }
     };
 
+    /* -- Holt die Task -- */
     const fetchTask = async () => {
         if (taskId) {
             const fetchedTask = await getTaskById(taskId);
@@ -47,30 +43,21 @@ const TaskPage: React.FC = () => {
         }
     };
 
-    const fetchTaskImages = async () => {
-        if (taskId) {
-            const fetchedTaskImages = await getTaksImages(taskId);
-            if (fetchedTaskImages) {
-                setTaskImages(fetchedTaskImages.map(img => img.image_url)); // Bild-URLs extrahieren
-            }
-        }
-    };
-
-    const handleUploadImages = async () => {
+    /* -- Läd die Bilde hoch und verknüpft sie mit der Task -- */
+    const handleUploadImagesToTask = async () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.multiple = false;
+        input.multiple = true;
 
         input.onchange = async (event: any) => {
             const files = event.target.files;
 
             if (files && gallery?.owner_id && galleryId) {
-                const fileArray = Array.from(files); // Dateien in ein Array konvertieren
+                const fileArray = Array.from(files);
                 try {
-                    // Bild hochladen TODO - ist kein Array
                     await Promise.all(fileArray.map(file => uploadImageToTask(gallery.owner_id, gallery.id, file as File, taskId)));
-                    await fetchTaskImages();
+                    //await fetchTaskImages();
                 } catch (error) {
                     console.error('Error uploading the images', error);
                 }
@@ -81,43 +68,6 @@ const TaskPage: React.FC = () => {
         input.click();
     };
 
-    const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-    const [modalContent, setModalContent] = useState<"image" | null>(null);
-
-    const openModal = (type: "image") => setModalContent(type);
-    const closeModal = () => setModalContent(null);
-    const isModalOpen = modalContent !== null;
-
-    const showNextImage = () => {
-        setCurrentImageIndex((prevIndex) =>
-            prevIndex < taskImages.length - 1 ? prevIndex + 1 : 0
-        );
-    };
-
-    const showPreviousImage = () => {
-        setCurrentImageIndex((prevIndex) =>
-            prevIndex > 0 ? prevIndex - 1 : taskImages.length - 1
-        );
-    };
-
-    const handlers = useSwipeable({
-        onSwipedLeft: showNextImage,
-        onSwipedRight: showPreviousImage,
-        trackMouse: true,
-    });
-
-    // Funktion zum Herunterladen von Bildern aus der Galerie
-    const downloadGalleryImagesFromURL = async (url: string) => {
-        console.log('URL:', url);
-        const cutUrl = url.split('/public/').slice(2).join('/');
-        const result = `public/${cutUrl}`;
-        console.log('Download URL:', result);
-        await downloadPublicFile(result);
-    };
-
-    const handleDeleteImage = (ImageID: String) => {
-        showToast("NO DELETE FUNCTION: " + ImageID);
-    }
 
     return (
         <IonPage>
@@ -131,20 +81,15 @@ const TaskPage: React.FC = () => {
                     />
                 </IonRefresher>
 
-                <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleUploadImages}>
+                <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleUploadImagesToTask}>
                     <IonFabButton>
                         <IonIcon icon={add}></IonIcon>
                     </IonFabButton>
                 </IonFab>
 
-
-                {/* Gallery Images
-                <ImageComponent referenceObject={task as Task} referenceType={"task"}/>*/}
-
-                {gallery ?(
+                {gallery ? (
                     <div className="galerie-header">
 
-                        {/* Optionen */}
                         <div className="taskTopBar">
                             <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
                         </div>
@@ -157,83 +102,28 @@ const TaskPage: React.FC = () => {
                         )}
                     </div>
                 ) : (
-                    <p>Gallery task...</p>
+                    <div className="ion-padding no-content">
+                        <p>Error</p>
+                    </div>
                 )}
 
 
                 {task ? (
                     <div>
-
                         <div className="ion-padding">
-                            <IonText  color="primary">Task</IonText>
+                            <IonText color="primary">Task</IonText>
                             <h2>{task.task}</h2>
                         </div>
 
-                        <div className="galerie-img-wrapper">
-                            {taskImages.length > 0 ? (
-                                taskImages.map((imageUrl, index) => (
-                                    <img
-                                        key={index}
-                                        src={imageUrl}
-                                        alt={`Bild ${index}`}
-                                        onClick={() => {
-                                            setCurrentImageIndex(index);
-                                            openModal("image")
-                                        }}
-                                        style={{cursor: 'pointer'}}
-                                    />
-                                ))
-                            ) : (
-                                <div className="ion-padding no-content">
-                                    <p>No pictures.</p>
-                                </div>
+                        <ImageViewComponent referenceType={"Task"} referenceId={task.id} galleryOwnerId={gallery?.owner_id!}/>
 
-                            )}
-                        </div>
                     </div>
                 ) : (
-                    <p>Loading task...</p>
+                    <div className="ion-padding no-content">
+                        <p>Error</p>
+                    </div>
                 )}
 
-
-                {/* Gallerie IMgae Lightbox*/}
-                <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
-                    {modalContent === "image" && (
-                        <div className="modal-content galerie-lightbox">
-
-                            {/* Optionen */}
-                            <div className="lightbox-header">
-                                <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
-                                <span>
-                                    <IonIcon aria-hidden="true" icon={downloadOutline} onClick={() => downloadGalleryImagesFromURL(taskImages[currentImageIndex])}/>
-                                    <IonIcon aria-hidden="true" icon={trash} onClick={() => handleDeleteImage("23")}/>
-                                </span>
-                            </div>
-
-                            {/* Bildanzeige */}
-                            <div className="image-container" {...handlers}>
-                                <img
-                                    src={taskImages[currentImageIndex]}
-                                    alt={`Bild ${currentImageIndex}`}
-                                    style={{width: "100%", maxHeight: "80vh", objectFit: "cover"}}
-                                />
-                            </div>
-
-                            {/* Infos */}
-                            <div className="lightbox-footer">
-                                <p>By XYZ</p>
-                                <p>Task XYZ</p>
-                            </div>
-
-                            {/* Navigation
-                        <div className="navigation-arrows">
-                            <IonButton onClick={showPreviousImage}>←</IonButton>
-                            <IonButton onClick={showNextImage}>→</IonButton>
-                        </div> */}
-
-                        </div>
-                    )}
-                </IonModal>
             </IonContent>
         </IonPage>
     );

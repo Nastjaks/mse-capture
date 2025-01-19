@@ -79,7 +79,10 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                     </div>
                 ))
             ) : (
-                <p>No tasks for this gallery.</p>
+                <div className="ion-padding no-content">
+                    <p>No tasks</p>
+                </div>
+
             )}
 
             {/* Delete-Bestätigungsdialog Tastk */}
@@ -117,9 +120,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
             >
 
                 <div>
-
-                    <p>Task Manager | {galleryId}</p>
-
+                    <p className="ion-padding">Task Manager</p>
                     <IonContent className="ion-padding">
                         {tasks.length > 0 ? (
                             tasks.map((task) => (
@@ -142,12 +143,14 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                                 </div>
                             ))
                         ) : (
-                            <p>No tasks for this gallery.</p>
+                            <div className="no-content">
+                                <p>No tasks</p>
+                            </div>
                         )}
                     </IonContent>
 
                     <div className="form-container-row">
-                        <IonItem>
+                    <IonItem>
                             <IonInput
                                 placeholder="Task..."
                                 labelPlacement="floating"
