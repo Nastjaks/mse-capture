@@ -1,73 +1,156 @@
-import React, {useEffect, useState} from "react";
-import {addImagesToGallery, deleteImageFromGallery, downloadPublicFile, getGalleryImages, getImageFromUrl} from "../services/galleryService";
-import {IonButton, IonFab, IonFabButton, IonIcon, IonModal} from "@ionic/react";
-import {add, arrowBackSharp, downloadOutline, image, trash} from "ionicons/icons";
+import React, {useState} from "react";
+import {Image} from "../models/Image";
+import {IonIcon, IonModal} from "@ionic/react";
+import {arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
 import {useSwipeable} from "react-swipeable";
+import {deleteImageFromGallery, downloadPublicFile, getImageFromUrl} from "../services/galleryService";
+import {useAuth} from "../contexts/AuthContext";
 import {useToast} from "../contexts/ToastContext";
-import {Gallery} from "../models/Gallery";
-import {Task} from "../models/Task";
-import { useAuth } from "../contexts/AuthContext";
-
 
 interface ImageComponentProps {
-    referenceObject: Gallery;
+    images: Image[];
+    galleryOwnerId: string;
+    onImageDelete: () => void;
 }
-
-const ImageComponent: React.FC<ImageComponentProps> = ({referenceObject}) => {
-
-    const [images, setImages] = useState<string[]>([]); // State für die Bild-URLs der Galerie
+/* Ausgabe der Bilder mit Lightbox*/
+const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, onImageDelete}) => {
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+    const {currentUser} = useAuth();
     const {showToast} = useToast();
 
-    // Galerie-Bilder laden
-    const fetchImages = async () => {
-        const images = await getGalleryImages(referenceObject.id);
-        if (images) {
-            setImages(images.map(img => img.image_url)); // Bild-URLs extrahieren
+    // ----- Download eines Bildes
+    const downloadGalleryImagesFromURL = async (url: string) => {
+        console.log('URL:', url);
+        const cutUrl = url.split('/public/').slice(2).join('/');
+        const result = `public/${cutUrl}`;
+        console.log('Download URL:', result);
+        await downloadPublicFile(result);
+    };
+
+    // ----- Bild Löschen
+    const handleDeleteImage = async (imageToDelete: Image) => {
+        const image = await getImageFromUrl(imageToDelete.image_url);
+        try {
+            if ((currentUser.id == galleryOwnerId) || (imageToDelete.owner_id == galleryOwnerId) && image) {
+                await deleteImageFromGallery(imageToDelete.id, imageToDelete.image_url);
+                closeModal();
+
+                onImageDelete();
+
+                showToast('Image deleted.');
+            } else {
+                console.error('You are not allowed to delete this image');
+            }
+        } catch (error) {
+            console.error('Error deleting the image', error);
+            showToast('Error deleting the image');
         }
     };
 
-    //TODO IMAGE KRAM AUSLAGERN IN EINE IMAGE KOMPONENTE - GET; ADD; LIGHTBOX; Weil brauchen wir auch für die tasks
-    const handleAddImages = async () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.multiple = true;
-        input.onchange = async (event: any) => {
-            const files = event.target.files;
-
-            if (files && referenceObject.owner_id && referenceObject.id) {
-                const fileArray = Array.from(files); // Dateien in ein Array konvertieren
-                try {
-                    // Lade alle Bilder hoch
-                    await Promise.all(fileArray.map(file => addImagesToGallery(referenceObject.owner_id, referenceObject.id, file as File)));
-                    await fetchImages();
-                } catch (error) {
-                    console.error('Error uploading the images', error);
-                    showToast('Error uploading the images');
-                }
-            } else {
-                console.error('Missing gallery or owner ID');
-                showToast('Unexpected error.');
-            }
-        };
-        input.click();
+    const showNextImage = () => {
+        if (images.length > 0) {
+            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+        }
     };
 
+    const showPreviousImage = () => {
+        if (images.length > 0) {
+            setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+        }
+    };
+
+    const handlers = useSwipeable({
+        onSwipedLeft: showNextImage,
+        onSwipedRight: showPreviousImage,
+        trackMouse: true,
+    });
 
     return (
         <>
-            <p>Image Component</p>
+            {/* Image Ausgabe */}
+            <div className="galerie-img-wrapper">
+                {images.length > 0 ? (
+                    images.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image.image_url}
+                            alt={`Bild ${index}`}
+                            onClick={() => {
+                                setCurrentImageIndex(index);
+                                openModal();
+                            }}
+                            style={{cursor: 'pointer'}}
+                        />
+                    ))
+                ) : (
+                    <div className="ion-padding no-content">
+                        <p>No pictures.</p>
+                    </div>
+                )}
+            </div>
 
-            {/* Floating Button fpr adding Images
-            <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImages}>
-                <IonFabButton>
-                    <IonIcon icon={add}></IonIcon>
-                </IonFabButton>
-            </IonFab>*/}
+            {/* Image Lightbox */}
+            <IonModal isOpen={isModalOpen} onDidDismiss={() => closeModal()}>
+                <div className="modal-content galerie-lightbox">
 
+                    {/* Optionen */}
+                    <div className="lightbox-header">
+                        <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
+                        <span>
+                            <IonIcon
+                                aria-hidden="true"
+                                icon={downloadOutline}
+                                onClick={() => {
+                                    const currentImage = images[currentImageIndex];
+                                    if (currentImage) {
+                                        downloadGalleryImagesFromURL(currentImage.image_url);
+                                    }
+                                }}
+                            />
+
+                            {(images[currentImageIndex]?.owner_id === currentUser.id || currentUser.id === galleryOwnerId) && (
+                                <IonIcon
+                                    aria-hidden="true"
+                                    icon={trash}
+                                    onClick={() => {
+                                        const currentImage = images[currentImageIndex];
+                                        if (currentImage) {
+                                            handleDeleteImage(currentImage);
+                                        }
+                                    }}
+                                />
+                            )}
+                        </span>
+                    </div>
+
+                    {/* Bildanzeige */}
+                    {images[currentImageIndex] && (
+                        <div className="image-container-wrapper">
+                            <div className="image-container" {...handlers}>
+                                <img
+                                    src={images[currentImageIndex].image_url}
+                                    alt={`Bild ${currentImageIndex}`}
+                                    style={{width: "100%", maxHeight: "80vh", objectFit: "cover"}}
+                                />
+                            </div>
+
+                            {/* Infos */}
+                            <div className="lightbox-footer">
+                                <p>By XYZ</p>
+                                {images[currentImageIndex]?.tasks && (
+                                    <p>Task: {images[currentImageIndex].tasks.task}</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            </IonModal>
         </>
     );
-
 };
 
 export default ImageComponent;

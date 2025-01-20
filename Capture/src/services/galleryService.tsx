@@ -1,7 +1,7 @@
 import {Gallery} from '../models/Gallery';
 import {supabase} from "../config/supabaseConfig";
 
-// ---------- GET All Gallery ----------
+/* -- Get all Galleries -- */
 export const getGalleries = async () => {
     try {
         const {data, error} = await supabase
@@ -17,7 +17,7 @@ export const getGalleries = async () => {
     }
 }
 
-// ---------- GET all Galleries by UserID ----------
+/* -- Get all of a User -- */
 export const getUsersGalleries = async (userId: string): Promise<Gallery[]> => {
     try {
         const {data, error} = await supabase
@@ -35,7 +35,7 @@ export const getUsersGalleries = async (userId: string): Promise<Gallery[]> => {
     }
 };
 
-// ---------- GET all shared Galleries by UserID ----------
+/* -- GET all shared Galleries of a User -- */
 export const getSharedGalleries = async (userId: string): Promise<Gallery[]> => {
     try {
         const {data, error} = await supabase
@@ -68,8 +68,7 @@ export const getSharedGalleries = async (userId: string): Promise<Gallery[]> => 
     }
 };
 
-
-// ---------- GET a Gallerie by Id ----------
+/* -- GET a Gallery by Id  -- */
 export const getGalleryById = async (galleryId: string) => {
     try {
         const {data, error} = await supabase
@@ -87,12 +86,12 @@ export const getGalleryById = async (galleryId: string) => {
     }
 };
 
-// ---------- GET Gallery Images by Gallery ID ----------
+// ---------- GET Gallery Images by Gallery ID ---------- NEW
 export const getGalleryImages = async (galleryId: string) => {
     try {
         const {data, error} = await supabase
             .from('gallery_images')
-            .select('*')
+            .select('*,  tasks (task)', )
             .eq('gallery_id', galleryId);  // Filtere nach der gallery_id
 
         if (error) {
@@ -105,6 +104,7 @@ export const getGalleryImages = async (galleryId: string) => {
         return null;
     }
 };
+
 
 // ---------- CREATING A NEW GALLERY
 export const createGallery = async (gallery: Gallery, preview_image: File | null) => {
@@ -251,7 +251,7 @@ export const addImagesToGallery = async (galleryOwnerId: string, galleryId: stri
 };
 
 // ---- DELETE IMAGE ----
-export const deleteImageFromGallery = async (imageId: string, url: string) => {
+export const deleteImageFromGallery = async (imageId: number, url: string) => {
         try {
             const imageFilePath = url.replace('https://ecvojbzizwqiemboachu.supabase.co/storage/v1/object/public/capture-images/', '');
             const { error } = await supabase

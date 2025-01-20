@@ -2,11 +2,11 @@ import {
     IonAlert, IonContent, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useHistory} from "react-router";
 import {add, ellipsisVerticalSharp} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {addImagesToGallery, deleteGallery, getGalleryById, removeUserFromGallery} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
@@ -14,40 +14,64 @@ import QRCodeComponent from "../components/QRCodeComponent";
 import TaskComponent from "../components/TaskComponent";
 import {sideEnterAnimation, sideLeaveAnimation} from "../theme/animations";
 import {getLoggedInUserId} from '../services/authService';
-import ImageViewComponent from "../components/ImageViewComponent";
-
+import ImageComponent from "../components/ImageComponent";
+import {Image} from "../models/Image";
+import {useAuth} from "../contexts/AuthContext";
 
 const GalleryDetailPage: React.FC = () => {
 
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
-    const [isShared, setIsShared] = useState(false); // State für die Galerie
+    const [galleryImages, setGalleryImages] = useState<Image[]>([]);
+    const [isParticipant, setIsParticipant] = useState(false); // State für die Galerie
+
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [galleryImages, setGalleryImages] = useState<string[]>([]);
-
     const [showSettings, setShowSettings] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showTaskManagerModal, setTaskManagerModal] = useState(false);
 
-    const history = useHistory();
+    const taskComponentRef = useRef<any>(null);
+
     const {showToast} = useToast();
+    const {currentUser} = useAuth();
+    const history = useHistory();
 
     useIonViewWillEnter(() => {
         if (galleryId) {
             loadGalleryInfos();
-            isSharedGallery();
+            isParticipantInGallery();
+            fetchGalleryImages();
+
+            if (taskComponentRef.current) {
+                taskComponentRef.current.fetchTasks(); // Ruft die fetchTasks Funktion in der Kindkomponente auf
+            }
         }
     });
 
-    const isSharedGallery = async () => {
+    /* -- Content Refresh -- */
+    const handleRefresh = async (event: CustomEvent) => {
+        await loadGalleryInfos();
+        await isParticipantInGallery();
+        await fetchGalleryImages();
+
+        // fetchTasks in der Kindkomponente auslösen
+        if (taskComponentRef.current) {
+            await taskComponentRef.current.fetchTasks(); // Ruft die fetchTasks Funktion in der Kindkomponente auf
+        }
+
+        event.detail.complete();
+    };
+
+
+    /* -- Prüft Rolle -- */
+    const isParticipantInGallery = async () => {
         if (gallery) {
-            const userResponse = await getLoggedInUserId();
-            setIsShared(userResponse.user?.id !== gallery.owner_id);
+            setIsParticipant(currentUser.id !== gallery.owner_id);
         }
     };
 
-    /* -- Läd Galleri Infos -- */
+    /* -- Holt die Gallery Infos -- */
     const loadGalleryInfos = async () => {
         const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
         if (result_galleryData) {
@@ -55,14 +79,15 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    // Refresh Content
-    const handleRefresh = async (event: CustomEvent) => {
-        await loadGalleryInfos();
-        await isSharedGallery();
-        event.detail.complete();
+    /* -- Holt die Bilder der Galerie -- */
+    const fetchGalleryImages = async () => {
+        const images = await getGalleryImages(galleryId);
+        if (images) {
+            setGalleryImages(images);
+        }
     };
 
-    // Funktion zum Löschen der Galerie
+    /* -- Galerie Löschen -- */
     const handleDeleteGallery = async () => {
         try {
             if (!gallery || !gallery.owner_id) {
@@ -84,15 +109,8 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    /* Galerie-Bilder laden
-    const fetchGalleryImages = async () => {
-        const images = await getGalleryImages(galleryId);
-        if (images) {
-            setGalleryImages(images.map(img => img.image_url)); // Bild-URLs extrahieren
-        }
-    };*/
 
-    // Leave Shared Gallery
+    /* -- Verlassen der Galerie -- */
     const leaveSharedGallery = async () => {
         try {
             const userResponse = await getLoggedInUserId();
@@ -111,17 +129,7 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    const handleOpenSettings = () => {
-        setShowSettings(true);
-        setShowShareModal(false);
-        setTaskManagerModal(false);
-    };
-
-    const handleCloseSettings = () => {
-        setShowSettings(false);
-    };
-
-
+    /* -- Läd die Bilde hoch zur Galerie -- */
     const handleAddImagesToGallery = async () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -134,7 +142,7 @@ const GalleryDetailPage: React.FC = () => {
                 const fileArray = Array.from(files); // Dateien in ein Array konvertieren
                 try {
                     await Promise.all(fileArray.map(file => addImagesToGallery(gallery.owner_id, gallery.id, file as File)));
-                    //await fetchImages();
+                    await fetchGalleryImages();
                 } catch (error) {
                     console.error('Error uploading the images', error);
                     showToast('Error uploading the images');
@@ -147,6 +155,15 @@ const GalleryDetailPage: React.FC = () => {
         input.click();
     };
 
+    const handleOpenSettings = () => {
+        setShowSettings(true);
+        setShowShareModal(false);
+        setTaskManagerModal(false);
+    };
+
+    const handleCloseSettings = () => {
+        setShowSettings(false);
+    };
 
     return (
         <>
@@ -164,7 +181,6 @@ const GalleryDetailPage: React.FC = () => {
                     >
                         <IonContent>
                             <IonItem>Gallery Settings</IonItem>
-
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 showToast("COMING SOON - Edit Function");
@@ -185,7 +201,7 @@ const GalleryDetailPage: React.FC = () => {
                                 setShowDeleteConfirm(true);
                             }}>Delete</IonItem>
 
-                            {isShared && (<IonItem onClick={() => {
+                            {isParticipant && (<IonItem onClick={() => {
                                 setShowSettings(false);
                                 setShowLeaveConfirm(true);
                             }}>Leave Gallery</IonItem>)}
@@ -221,9 +237,7 @@ const GalleryDetailPage: React.FC = () => {
                         <p>Gallery not found</p>
                     )}
 
-                    {gallery ? (<ImageViewComponent galleryOwnerId={gallery.owner_id} referenceId={galleryId} referenceType={"Gallery"}/>): (
-                        <p>Gallery not found</p>
-                    )}
+
 
                     <IonSegment value="gallery-images-segment">
                         <IonSegmentButton value="gallery-images-segment" contentId={`gallery-images-segment-${galleryId}`}>
@@ -236,12 +250,12 @@ const GalleryDetailPage: React.FC = () => {
 
                     <IonSegmentView>
                         <IonSegmentContent id={`gallery-images-segment-${galleryId}`}>
-                            {/* Gallery Images
-                            <ImageComponent referenceObject={gallery as Gallery}/>*/}
+                            {/* Gallery Images*/}
+                            <ImageComponent images={galleryImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchGalleryImages}/>
                         </IonSegmentContent>
                         <IonSegmentContent id={`gallery-task-segment-${galleryId}`}>
                             {/* Gallerie Tasks*/}
-                            {gallery && <TaskComponent galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>}
+                            {gallery && <TaskComponent  ref={taskComponentRef} galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>}
                         </IonSegmentContent>
                     </IonSegmentView>
 

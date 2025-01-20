@@ -1,6 +1,39 @@
 import {supabase} from "../config/supabaseConfig";
 
-//Get specific task
+
+
+/* -- Create a Task -- */
+export const createTask = async (task: string, galleryId: string) => {
+    const { data: tasks, error } = await supabase
+        .from('tasks')
+        .insert([{ task, gallery_id: galleryId }]);
+
+    if (error) {
+        console.error('Fehler beim Erstellen der Aufgabe:', error);
+        throw error;
+    }
+    return true;
+};
+
+
+/* -- Get all Tasks and images id of uploadet images by user-- */
+export const getTasks = async (galleryId: string, currentUserId: string) => {
+
+    const { data: tasks, error } = await supabase
+        .from('tasks')
+        .select('*, gallery_images (owner_id)')
+        .eq('gallery_id', galleryId)
+        .eq('gallery_images.owner_id', currentUserId)
+    if (error) {
+        console.error('Fehler beim Abrufen der Aufgaben:', error);
+        throw error;
+    }
+    console.log(tasks);
+    return tasks;
+};
+
+
+/* -- Get specific Task -- */
 export const getTaskById = async (taskId: string) => {
     const { data: task, error } = await supabase
         .from('tasks')
@@ -14,7 +47,44 @@ export const getTaskById = async (taskId: string) => {
     return task;
 }
 
-//Upload Image to a Task
+
+/* -- Delete Task -- */
+export const deleteTask = async (taskId: string) => {
+    const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+    if (error) {
+        console.error('Fehler beim Löschen der Aufgabe:', error);
+        throw error;
+    }
+    return true;
+};
+
+
+/* -- Get Images of a Task -- */
+export const getTaksImages = async (taskId: string) => {
+    try {
+        const {data, error} = await supabase
+            .from('gallery_images')
+            .select('*,  tasks (task)', )
+            .eq('task_id', taskId);  // Filtere nach der gallery_id
+
+        if (error) {
+            console.error('Fehler beim Abrufen der Bilder:', error.message);
+            throw error;
+        }
+
+        return data;  // Gibt die Bilder zurück
+    } catch (err) {
+        console.error('Fehler beim Abrufen der Galerie-Bilder:', err);
+        return null;
+    }
+}
+
+
+/* -- Upload a Image to a Task -- */
 export const uploadImageToTask = async (galleryOwnerId: string, galleryId: string, image: File, taskId: string) => {
     if (!galleryOwnerId || !galleryId) {
         console.error("Owner ID oder Gallery ID fehlt");
@@ -42,8 +112,9 @@ export const uploadImageToTask = async (galleryOwnerId: string, galleryId: strin
         const {data: publicUrlData} = supabase.storage
             .from('capture-images')
             .getPublicUrl(folderPath);
-
         const imageUrl = publicUrlData?.publicUrl;
+
+
         if (!imageUrl) {
             console.error('Fehler beim Abrufen der Bild-URL.');
             throw new Error('Konnte die öffentliche URL des Bildes nicht abrufen.');
@@ -73,83 +144,5 @@ export const uploadImageToTask = async (galleryOwnerId: string, galleryId: strin
 };
 
 
-//Get Task Images
-export const getTaksImages = async (taskId: string) => {
-    try {
-        const {data, error} = await supabase
-            .from('gallery_images')
-            .select('*')
-            .eq('task_id', taskId);  // Filtere nach der gallery_id
-
-        if (error) {
-            console.error('Fehler beim Abrufen der Bilder:', error.message);
-            throw error;
-        }
-
-        return data;  // Gibt die Bilder zurück
-    } catch (err) {
-        console.error('Fehler beim Abrufen der Galerie-Bilder:', err);
-        return null;
-    }
-}
 
 
-//Add a existic Image to Taks
-export const addImageToTask = async (imageId: string, taskId: string) => {
-    //TODO
-}
-
-//remove image from a task
-export const removeImageFromTask = async (imageId: string, taskId: string) => {
-    //TODO
-}
-
-
-
-//Get all tasks
-export const getTasks = async (galleryId: string) => {
-    const { data: tasks, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('gallery_id', galleryId)
-    if (error) {
-        console.error('Fehler beim Abrufen der Aufgaben:', error);
-        throw error;
-    }
-    return tasks;
-};
-
-
-//Create a task
-export const createTask = async (task: string, galleryId: string) => {
-    const { data: tasks, error } = await supabase
-        .from('tasks')
-        .insert([{ task, gallery_id: galleryId }]);
-
-    if (error) {
-        console.error('Fehler beim Erstellen der Aufgabe:', error);
-        throw error;
-    }
-    return true;
-};
-
-
-//Delete a task
-export const deleteTask = async (taskId: string) => {
-    const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-    if (error) {
-        console.error('Fehler beim Löschen der Aufgabe:', error);
-        throw error;
-    }
-    return true;
-};
-
-
-
-export const editTask = async () => {
-    //TODO
-}

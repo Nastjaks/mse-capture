@@ -1,37 +1,46 @@
-import React, {useState, useEffect} from "react";
-import {IonAlert, IonButton, IonContent, IonIcon, IonInput, IonItem, IonModal, IonText} from "@ionic/react";
-import {camera, checkmark, trash} from "ionicons/icons";
-import {createTask, deleteTask, getTasks} from "../services/taskService";
-import {Task} from "../models/Task";
-import {useToast} from "../contexts/ToastContext";
-import {Link} from "react-router-dom";
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
+import { IonAlert, IonButton, IonContent, IonIcon, IonInput, IonItem, IonModal, IonText } from "@ionic/react";
+import { camera, checkmark, trash } from "ionicons/icons";
+import { createTask, deleteTask, getTasks } from "../services/taskService";
+import { Task } from "../models/Task";
+import { useToast } from "../contexts/ToastContext";
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 interface TaskComponentProps {
     galleryId: string;
     isTaskManagerOpen: boolean;
 }
 
-const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOpen}) => {
+const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
     const [showDeleteConfirm_Task, setShowDeleteConfirm_Task] = useState(false);
     const [taskToDelete, settaskToDelete] = useState<Task | null>(null);
 
-    const {showToast} = useToast();
+    const { showToast } = useToast();
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         fetchTasks();
-    }, [galleryId]);
+    }, [props.galleryId]);
 
+    /* -- Holt alle Tasks -- */
     const fetchTasks = async () => {
         try {
-            const tasks = await getTasks(galleryId);
+            const tasks = await getTasks(props.galleryId, currentUser.id);
             if (tasks) setTasks(tasks);
         } catch (err) {
             console.error("Fehler beim Laden der Aufgaben:", err);
         }
     };
 
+    // useImperativeHandle, um die fetchTasks Methode verfügbar zu machen
+    useImperativeHandle(ref, () => ({
+        fetchTasks
+    }));
+
+    /* -- Task erstellen -- */
     const handleAddTask = async () => {
         console.log(taskTitle);
         if (!taskTitle) {
@@ -39,7 +48,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
             return;
         }
         try {
-            const task = await createTask(taskTitle, galleryId);
+            const task = await createTask(taskTitle, props.galleryId);
             if (task) {
                 await fetchTasks();
                 setTaskTitle("");
@@ -49,6 +58,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
         }
     };
 
+    /* -- Task löschen -- */
     const handleDeleteTask = async (taskId: string) => {
         try {
             const result = await deleteTask(taskId);
@@ -67,13 +77,17 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
             {tasks.length > 0 ? (
                 tasks.map((task) => (
                     <div key={task.id}>
-                        <Link to={`/gallery/${galleryId}/${task.id}`} className="task-item">
+                        <Link to={`/gallery/${props.galleryId}/${task.id}`} className="task-item">
                             <div className="task-def">
-                                <IonIcon aria-hidden="true" icon={camera}/>
+                                <IonIcon aria-hidden="true" icon={camera} />
                                 <p>{task.task}</p>
                             </div>
                             <div>
-                                <IonIcon className="task-item-check" aria-hidden="true" icon={checkmark}/>
+                                <IonIcon
+                                    className={`task-item-check ${task.gallery_images.length > 0 ? "task-done" : "task-undone"}`}
+                                    aria-hidden="true"
+                                    icon={checkmark}
+                                />
                             </div>
                         </Link>
                     </div>
@@ -82,24 +96,22 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                 <div className="ion-padding no-content">
                     <p>No tasks</p>
                 </div>
-
             )}
 
             {/* Delete-Bestätigungsdialog Tastk */}
             <IonAlert
                 isOpen={showDeleteConfirm_Task}
                 onDidDismiss={() => setShowDeleteConfirm_Task(false)}
-                header={'Delete Task'}
-                message={`Do you really want to delete this task?
-                        ${taskToDelete?.task}`}
+                header={"Delete Task"}
+                message={`Do you really want to delete this task? ${taskToDelete?.task}`}
                 buttons={[
                     {
-                        text: 'Cancel',
-                        role: 'cancel',
+                        text: "Cancel",
+                        role: "cancel",
                         handler: () => setShowDeleteConfirm_Task(false),
                     },
                     {
-                        text: 'Delete',
+                        text: "Delete",
                         handler: () => {
                             if (taskToDelete) {
                                 handleDeleteTask(taskToDelete.id); // Aktuelle Task-ID übergeben
@@ -112,13 +124,12 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
 
             {/* Task Manager Modal */}
             <IonModal
-                isOpen={isTaskManagerOpen}
+                isOpen={props.isTaskManagerOpen}
                 className="task-manager-modal"
-                initialBreakpoint={.9}
+                initialBreakpoint={0.9}
                 showBackdrop={true}
                 handleBehavior="none"
             >
-
                 <div>
                     <p className="ion-padding">Task Manager</p>
                     <IonContent className="ion-padding">
@@ -126,7 +137,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                             tasks.map((task) => (
                                 <div key={task.id} className="task-item">
                                     <div className="task-def">
-                                        <IonIcon aria-hidden="true" icon={camera}/>
+                                        <IonIcon aria-hidden="true" icon={camera} />
                                         <p>{task.task}</p>
                                     </div>
                                     <div>
@@ -150,7 +161,7 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                     </IonContent>
 
                     <div className="form-container-row">
-                    <IonItem>
+                        <IonItem>
                             <IonInput
                                 placeholder="Task..."
                                 labelPlacement="floating"
@@ -168,12 +179,9 @@ const TaskComponent: React.FC<TaskComponentProps> = ({galleryId, isTaskManagerOp
                         </IonButton>
                     </div>
                 </div>
-
             </IonModal>
-
         </div>
-
     );
-};
+});
 
 export default TaskComponent;

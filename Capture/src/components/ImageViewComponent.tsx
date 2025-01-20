@@ -1,5 +1,6 @@
+
 import React, {useEffect, useState} from "react";
-import {deleteImageFromGallery, downloadPublicFile, getGalleryImages, getImageFromUrl} from "../services/galleryService";
+import {deleteImageFromGallery, downloadPublicFile, getImageFromUrl} from "../services/galleryService";
 import {useAuth} from "../contexts/AuthContext";
 import {IonFab, IonFabButton, IonIcon, IonModal, IonRefresher, IonRefresherContent, useIonViewWillEnter} from "@ionic/react";
 import {add, arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
@@ -26,10 +27,10 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({ referenceType, 
 
     useEffect(() => {
         console.log(referenceType);
-        fetchImages();
+        //fetchImages();
     }, [referenceId]);
 
-
+/*
     const fetchImages = async () => {
         if (referenceType === "Gallery") {
             const imagesRes = await getGalleryImages(referenceId);
@@ -45,7 +46,7 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({ referenceType, 
             }
         }
     }
-
+*/
     const checkUserImageRights = async (ImageUrl: string) => {
         const image = await getImageFromUrl(ImageUrl);
         if (image && ((image[0].owner_id === currentUser.id) || (currentUser.id === galleryOwnerId))) {
@@ -74,7 +75,7 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({ referenceType, 
             if (isImageOwner && image) {
                 await deleteImageFromGallery(image[0].id, ImageUrl);
                 closeModal();
-                await fetchImages();
+                //await fetchImages();
                 showToast('Image deleted.');
             } else {
                 console.error('You are not allowed to delete this image');
@@ -105,7 +106,7 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({ referenceType, 
 
     // Refresh Content
     const handleRefresh = async (event: CustomEvent) => {
-        fetchImages()
+        //fetchImages()
         event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
     };
 
