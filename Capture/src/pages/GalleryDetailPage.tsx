@@ -4,7 +4,7 @@ import {
 import {useParams} from 'react-router-dom';
 import React, {useRef, useState} from 'react';
 import {useHistory} from "react-router";
-import {add, ellipsisVerticalSharp} from "ionicons/icons";
+import {add, camera, createSharp, ellipsisVerticalSharp, logOut, share, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
 import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
@@ -13,7 +13,7 @@ import {useToast} from "../contexts/ToastContext";
 import QRCodeComponent from "../components/QRCodeComponent";
 import TaskComponent from "../components/TaskComponent";
 import {sideEnterAnimation, sideLeaveAnimation} from "../theme/animations";
-import {getLoggedInUserId} from '../services/authService';
+import {getLoggedInUser} from '../services/authService';
 import ImageComponent from "../components/ImageComponent";
 import {Image} from "../models/Image";
 import {useAuth} from "../contexts/AuthContext";
@@ -114,7 +114,7 @@ const GalleryDetailPage: React.FC = () => {
     /* -- Verlassen der Galerie -- */
     const leaveSharedGallery = async () => {
         try {
-            const userResponse = await getLoggedInUserId();
+            const userResponse = await getLoggedInUser();
             const userId = userResponse.user?.id;
             if (userId) {
                 await removeUserFromGallery(galleryId, userId);
@@ -167,6 +167,7 @@ const GalleryDetailPage: React.FC = () => {
     };
 
     const handleSegmentChange = (value: string) => {
+        setTaskManagerModal(false);
         setSelectedSegment(value);
     };
 
@@ -189,27 +190,28 @@ const GalleryDetailPage: React.FC = () => {
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 showToast("COMING SOON - Edit Function");
-                            }}>Edit</IonItem>
+                            }}> <IonIcon aria-hidden="true" icon={createSharp}/>Edit gallery</IonItem>
 
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
+                                setSelectedSegment("gallery-tasks-segment")
                                 setTaskManagerModal(true);
-                            }}>Task Manager</IonItem>
+                            }}> <IonIcon aria-hidden="true" icon={camera}/>Manage tasks</IonItem>
 
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowShareModal(true);
-                            }}> Share </IonItem>
+                            }}>  <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>
 
                             <IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowDeleteConfirm(true);
-                            }}>Delete</IonItem>
+                            }}>  <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>
 
-                            {isParticipant && (<IonItem onClick={() => {
+                            {isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowLeaveConfirm(true);
-                            }}>Leave Gallery</IonItem>)}
+                            }}>  <IonIcon aria-hidden="true" icon={logOut}/>Leave Gallery</IonItem>)}
                         </IonContent>
                     </IonModal>
 
@@ -317,7 +319,14 @@ const GalleryDetailPage: React.FC = () => {
                         ]}
                     />
 
-                    <IonFab slot="fixed" vertical="bottom" horizontal="end" onClick={handleAddImagesToGallery}>
+
+                    <IonFab
+                        slot="fixed"
+                        vertical="bottom"
+                        horizontal="end"
+                        onClick={handleAddImagesToGallery}
+                        className={selectedSegment === "gallery-images-segment" ? "" : "hide-btn"}
+                    >
                         <IonFabButton>
                             <IonIcon icon={add}></IonIcon>
                         </IonFabButton>

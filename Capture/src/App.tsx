@@ -18,7 +18,7 @@ import AllGalleriesPage from "./pages/allGalleriesPage";
 
 /* Context */
 import {ToastProvider} from './contexts/ToastContext';
-import {AuthProvider} from "./contexts/AuthContext";
+import {AuthProvider, useAuth} from "./contexts/AuthContext";
 import ProtectedRoute from "./utilitys/ProtectedRoute";
 
 /* Core CSS required for Ionic components to work properly */
@@ -56,6 +56,7 @@ setupIonicReact();
 
 const AppContent: React.FC = () => {
     const location = useLocation();
+    const {currentUser} = useAuth();
 
     // Liste der Routen, auf denen die Tabbar angezeigt werden soll
     const showTabBarRoutes = [
@@ -66,6 +67,7 @@ const AppContent: React.FC = () => {
         '/gallery/:galleryId/:taskId',
         '/all-galleries'
     ];
+
 
     const showTabBar = showTabBarRoutes.some((route) => {
         const matchFn = match(route, { decode: decodeURIComponent });
@@ -92,7 +94,7 @@ const AppContent: React.FC = () => {
                 <ProtectedRoute exact path="/signup" component={SignUpPage} publicOnly/>
 
                 <ProtectedRoute exact path="/profil" component={ProfilPage}/>
-                <ProtectedRoute exact path="/create-gallery" component={CreateGalleryPage}/>
+                <ProtectedRoute exact path="/create-gallery" component={CreateGalleryPage} requireNonAnonymous />
                 <ProtectedRoute exact path="/galleries" component={GalleriesPage}/>
 
                 {/*TODO Sonder fall*/}
@@ -106,9 +108,13 @@ const AppContent: React.FC = () => {
                     <IonTabButton tab="galleries" href="/galleries">
                         <IonIcon aria-hidden="true" icon={imagesOutline}/>
                     </IonTabButton>
-                    <IonTabButton tab="create-gallery" href="/create-gallery">
-                        <IonIcon aria-hidden="true" icon={addOutline}/>
-                    </IonTabButton>
+
+                    {currentUser && !currentUser.is_anonymous ? (
+                        <IonTabButton tab="create-gallery" href="/create-gallery">
+                            <IonIcon aria-hidden="true" icon={addOutline}/>
+                        </IonTabButton>
+                    ) : null}
+
                     <IonTabButton tab="profil" href="/profil">
                         <IonIcon aria-hidden="true" icon={personOutline}/>
                     </IonTabButton>

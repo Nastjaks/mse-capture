@@ -7,20 +7,17 @@ interface ProtectedRouteProps extends RouteProps {
     component: React.ComponentType<any>;
     redirectTo?: string;
     publicOnly?: boolean; // Neue Option für öffentliche Routen
+    requireNonAnonymous?: boolean; // für nicht-anonyme Benutzer
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                                                            component: Component,
                                                            redirectTo = '/signin',
                                                            publicOnly = false, // Standardmäßig ist es eine geschützte Route
+                                                           requireNonAnonymous = false,
                                                            ...rest
                                                        }) => {
-    const {isAuthenticated, loading} = useAuth();
-
-    useIonViewWillEnter(() => {
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + isAuthenticated);
-    });
-
+    const {isAuthenticated, currentUser, loading} = useAuth();
 
     return (
         <Route
@@ -38,6 +35,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                     }
                     return <Component {...props} />;
                 }
+
+                // Zusätzliche Bedingung: Prüfen, ob der Benutzer anonym ist
+                if (requireNonAnonymous && currentUser?.is_anonymous) {
+                    return <Redirect to="/profil" />;
+                }
+
 
                 // Geschützte Route: Weiterleitung, wenn Benutzer nicht eingeloggt ist
                 if (isAuthenticated) {

@@ -5,7 +5,7 @@ import {Gallery} from "../models/Gallery";
 import {useParams} from "react-router-dom";
 import {useHistory} from "react-router";
 import {signIn, signInAnon} from '../services/authService';
-import {getLoggedInUserId} from "../services/authService";
+import {getLoggedInUser} from "../services/authService";
 
 
 const JoinGalleryPage: React.FC = () => {
@@ -46,7 +46,7 @@ const JoinGalleryPage: React.FC = () => {
             if (result_galleryData) {
                 setGallery(result_galleryData);
             }
-            const userResponse = await getLoggedInUserId();
+            const userResponse = await getLoggedInUser();
             if (userResponse.success && userResponse.user) {
                 AddUserToGallery(galleryId, userResponse.user?.id);
                 history.push(`/gallery/${galleryId}`);

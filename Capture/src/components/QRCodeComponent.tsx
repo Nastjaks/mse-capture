@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {IonButton, IonContent, IonIcon, IonModal} from "@ionic/react";
 import * as QRCode from "qrcode";
 import {useToast} from "../contexts/ToastContext";
-import {copySharp, shareOutline} from "ionicons/icons";
+import {copySharp, download, shareOutline} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
 
 interface QRCodeComponentProps {
@@ -72,8 +72,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
                                     <div>
                                         <p>The QR code <br/>for this gallery</p>
                                         <p>Scan to join</p>
-                                        {galleryId}
-                                        <IonButton shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={shareOutline}/>Download</IonButton>
+                                        <IonButton shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={download}/>Download</IonButton>
                                     </div>
                                     <div className="qr-image-wrapper">
                                         <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>

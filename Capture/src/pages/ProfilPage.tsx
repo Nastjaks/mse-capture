@@ -1,17 +1,19 @@
-import {IonAlert, IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonModal, IonPage, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
+import {IonAlert, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {menuController} from '@ionic/core/components';
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {signOut, updateUser} from "../services/authService";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 import {useAuth} from "../contexts/AuthContext";
+import {addOutline, alert, alertCircle, camera, checkmark, createSharp, logOut, trash} from "ionicons/icons";
+import {create} from "qrcode";
 
 const ProfilPage: React.FC = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [newName, setNewName] = useState("");
 
     const {showToast} = useToast();
-    const {checkUser, currentUser, isAuthenticated, updateCurrentUser} = useAuth();
+    const {checkUser, currentUser, updateCurrentUser} = useAuth();
     const history = useHistory();
 
     const modal = useRef<HTMLIonModalElement>(null);
@@ -44,10 +46,6 @@ const ProfilPage: React.FC = () => {
         showToast(message);
     }
 
-    // Galerie-Daten laden, wenn die page aufgerufen wird
-    useIonViewWillEnter(() => {
-        console.log(currentUser, isAuthenticated);
-    });
 
     const restFields = () => {
         setNewName("");
@@ -72,11 +70,23 @@ const ProfilPage: React.FC = () => {
                     <p>{currentUser.id}</p>
                 </div>
 
+                {currentUser.is_anonymous ? (
+                    <div className="ion-padding">
+                        <p>You are anonymous</p>
+                        <div className="profile-settings-wrapper">
+                            <IonItem button onClick={() => showToast("COMING SOON: COMPLETE REGISTRATION FUNCTION")}>
+                                <IonIcon aria-hidden="true" icon={alertCircle}/> <p>Complete registration</p>
+                            </IonItem>
+                        </div>
+                    </div>
+
+                ) : null}
+
                 <div className="ion-padding">
                     <p>Settings</p>
                     <div className="profile-settings-wrapper">
                         <IonItem id='open-edit-name-dialog' button>
-                            <p>Edit name</p>
+                            <IonIcon aria-hidden="true" icon={createSharp}/><p>Edit name</p>
                         </IonItem>
                     </div>
                 </div>
@@ -85,10 +95,10 @@ const ProfilPage: React.FC = () => {
                     <p>Account</p>
                     <div className="profile-settings-wrapper">
                         <IonItem button onClick={() => setShowLogoutConfirm(true)}>
-                            <p>Logout</p>
+                            <IonIcon aria-hidden="true" icon={logOut}/> <p>Logout</p>
                         </IonItem>
                         <IonItem button onClick={() => showToast("COMING SOON: DELETE ACCOUNT FUNCTION")}>
-                            <p>Delete Account</p>
+                            <IonIcon aria-hidden="true" icon={trash}/><p>Delete Account</p>
                         </IonItem>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 // AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { getLoggedInUserId } from "../services/authService";
+import { getLoggedInUser } from "../services/authService";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkUser = async (): Promise<boolean> => {
         setLoading(true);
         try {
-            const userResponse = await getLoggedInUserId();
+            const userResponse = await getLoggedInUser();
             if (userResponse && userResponse.success) {
                 login(userResponse);
                 return true;
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const updateCurrentUser = async () => {
         try {
-            const userResponse = await getLoggedInUserId();
+            const userResponse = await getLoggedInUser();
             if (userResponse && userResponse.success) {
                 setCurrentUser(userResponse.user);
             } else {

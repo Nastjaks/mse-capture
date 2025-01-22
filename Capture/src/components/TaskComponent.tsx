@@ -1,34 +1,34 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
-import { IonAlert, IonButton, IonContent, IonIcon, IonInput, IonItem, IonModal, IonText } from "@ionic/react";
-import { camera, checkmark, trash } from "ionicons/icons";
-import { createTask, deleteTask, getTasks } from "../services/taskService";
-import { Task } from "../models/Task";
-import { useToast } from "../contexts/ToastContext";
-import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import React, {useState, useEffect, useImperativeHandle, forwardRef} from "react";
+import {IonAlert, IonButton, IonContent, IonIcon, IonInput, IonItem, IonModal, IonText} from "@ionic/react";
+import {add, camera, checkmark, trash} from "ionicons/icons";
+import {createTask, deleteTask, getTasks} from "../services/taskService";
+import {Task} from "../models/Task";
+import {useToast} from "../contexts/ToastContext";
+import {Link} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
 
 interface TaskComponentProps {
     galleryId: string;
     isTaskManagerOpen: boolean;
 }
 
-const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
+const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
     const [showDeleteConfirm_Task, setShowDeleteConfirm_Task] = useState(false);
     const [taskToDelete, settaskToDelete] = useState<Task | null>(null);
 
-    const { showToast } = useToast();
-    const { currentUser } = useAuth();
+    const {showToast} = useToast();
+    const {currentUser} = useAuth();
 
     useEffect(() => {
         fetchTasks();
-    }, [props.galleryId]);
+    }, [galleryId]);
 
     /* -- Holt alle Tasks -- */
     const fetchTasks = async () => {
         try {
-            const tasks = await getTasks(props.galleryId, currentUser.id);
+            const tasks = await getTasks(galleryId, currentUser.id);
             if (tasks) setTasks(tasks);
         } catch (err) {
             console.error("Fehler beim Laden der Aufgaben:", err);
@@ -42,13 +42,12 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
 
     /* -- Task erstellen -- */
     const handleAddTask = async () => {
-        console.log(taskTitle);
         if (!taskTitle) {
             showToast("Task required");
             return;
         }
         try {
-            const task = await createTask(taskTitle, props.galleryId);
+            const task = await createTask(taskTitle, galleryId);
             if (task) {
                 await fetchTasks();
                 setTaskTitle("");
@@ -77,9 +76,9 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
             {tasks.length > 0 ? (
                 tasks.map((task) => (
                     <div key={task.id}>
-                        <Link to={`/gallery/${props.galleryId}/${task.id}`} className="task-item">
+                        <Link to={`/gallery/${galleryId}/${task.id}`} className="task-item">
                             <div className="task-def">
-                                <IonIcon aria-hidden="true" icon={camera} />
+                                <IonIcon aria-hidden="true" icon={camera}/>
                                 <p>{task.task}</p>
                             </div>
                             <div>
@@ -124,20 +123,21 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
 
             {/* Task Manager Modal */}
             <IonModal
-                isOpen={props.isTaskManagerOpen}
+                isOpen={isTaskManagerOpen}
                 className="task-manager-modal"
                 initialBreakpoint={0.9}
                 showBackdrop={true}
                 handleBehavior="none"
+                keepContentsMounted={false}
             >
-                <div>
-                    <p className="ion-padding">Task Manager</p>
+                <div className="task-manager-container">
+                    <p className="task-manager-title">Task Manager</p>
                     <IonContent className="ion-padding">
                         {tasks.length > 0 ? (
                             tasks.map((task) => (
                                 <div key={task.id} className="task-item">
                                     <div className="task-def">
-                                        <IonIcon aria-hidden="true" icon={camera} />
+                                        <IonIcon aria-hidden="true" icon={camera}/>
                                         <p>{task.task}</p>
                                     </div>
                                     <div>
@@ -161,22 +161,20 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                     </IonContent>
 
                     <div className="form-container-row">
-                        <IonItem>
-                            <IonInput
-                                placeholder="Task..."
-                                labelPlacement="floating"
-                                value={taskTitle}
-                                type="text"
-                                onIonInput={(e) => setTaskTitle(e.detail.value!)}
-                            >
-                                <div slot="label">
-                                    Task<IonText>*</IonText>
-                                </div>
-                            </IonInput>
-                        </IonItem>
-                        <IonButton expand="block" onClick={handleAddTask}>
-                            Add Task
-                        </IonButton>
+                        <IonInput
+                            placeholder="Task..."
+                            labelPlacement="floating"
+                            value={taskTitle}
+                            type="text"
+                            onIonInput={(e) => setTaskTitle(e.detail.value!)}
+                        >
+                            <div slot="label">
+                                Task<IonText>*</IonText>
+                            </div>
+                        </IonInput>
+                        <div  className="addTaskBtn" onClick={handleAddTask}>
+                            <IonIcon icon={add}></IonIcon>
+                        </div>
                     </div>
                 </div>
             </IonModal>

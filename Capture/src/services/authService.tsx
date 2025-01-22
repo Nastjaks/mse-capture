@@ -50,7 +50,7 @@ export const signOut = async (): Promise<AuthResponse> => {
 };
 
 // ----- Get logged-in User -----
-export const getLoggedInUserId = async (): Promise<AuthResponse> => {
+export const getLoggedInUser = async (): Promise<AuthResponse> => {
     try {
         const {data: {user}, error} = await supabase.auth.getUser()
         if (error) {

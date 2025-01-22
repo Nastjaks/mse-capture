@@ -96,12 +96,18 @@ ion-label {
 
 
 /*-----------------------------------------*/
-
-
 ion-fab-button {
     --border-radius: var(--rounded-border);
 }
 
+ion-fab{
+    scale: 1;
+    transition: all .2s ease-in-out;
+}
+
+ion-fab.hide-btn {
+    scale: 0 !important;
+}
 /* ----- FORMULAR -----*/
 
 .input-label-placement-floating.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
@@ -229,6 +235,10 @@ ion-fab-button {
     flex-wrap: nowrap;
     gap: 10px;
 }
+.task-def p{
+    hyphens: auto;
+    max-width: 90%;
+}
 
 .task-item ion-icon {
     font-size: 20px;
@@ -247,6 +257,30 @@ ion-fab-button {
     cursor: pointer;
 }
 
+.task-manager-container {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+}
+
+.task-manager-title{
+    padding: 0 16px;
+}
+
+.task-manager-container  ion-input{
+    background: var(--light-BG);
+}
+
+.addTaskBtn {
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    width: auto;
+    font-size: 15px !important;
+    background: var(--ion-color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 /*-------------------------------------------------*/
 h1.pageTitle {
     text-transform: uppercase;
@@ -511,4 +545,8 @@ ion-modal.modal-dialog .form-container {
     transition: transform 0.3s ease;
     z-index: 0; /* Hintergrund hinter den Buttons */
     border-radius: var(--rounded-border);
+}
+
+ion-item ion-icon, ion-button ion-icon{
+    padding-right: 15px;
 }

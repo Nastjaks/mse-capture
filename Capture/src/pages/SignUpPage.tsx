@@ -16,17 +16,24 @@ const SignUpPage: React.FC = () => {
     const history = useHistory();
 
 
-    //Todo Validate input fields
-
     const handleSignUp = async () => {
+
+        if (!email) {
+            showToast("Email required");
+            return;
+        }
+
+        if (!password) {
+            showToast("Password required");
+            return;
+        }
+
         const finalUserName = userName || getRandomUserName(); //setzt einen Random namen
         try {
             const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
                 await checkUser();
-
                     //history.push(`/profil`); // Weiterleitung
-
             }
             showToast(message);
         } catch (err) {
@@ -40,9 +47,6 @@ const SignUpPage: React.FC = () => {
         restFields();
     });
 
-    useIonViewWillEnter(() => {
-        console.log("Sign UP ", isAuthenticated );
-    });
 
     const restFields = () => {
         setEmail("");
