@@ -1,15 +1,11 @@
-
+/* -------------------- GALLERIE DETAIL PAGE --------------------*/
 .gallery-container{
     max-width: 500px;
-}
-.page-bottom-wrapper{
-
 }
 
 .galerie-header{
     min-height: 215px;
     position: relative;
-    /*max-width: 500px;*/
     overflow: hidden;
     padding: 10px;
 }
@@ -39,7 +35,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin: 30px 0;
+    margin: 16px 0;
 }
 
 .galerie-img-wrapper img {

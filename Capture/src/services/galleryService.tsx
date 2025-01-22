@@ -86,6 +86,7 @@ export const getGalleryById = async (galleryId: string) => {
     }
 };
 
+
 // ---------- GET Gallery Images by Gallery ID ---------- NEW
 export const getGalleryImages = async (galleryId: string) => {
     try {

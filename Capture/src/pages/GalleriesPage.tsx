@@ -1,5 +1,5 @@
-import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
-import {useState} from 'react';
+import {IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
+import React, {useState} from 'react';
 import {getSharedGalleries, getUsersGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import GalleryListComponent from "../components/GalleryListComponent";
@@ -9,11 +9,12 @@ const GalleriesPage: React.FC = () => {
 
     const [usersGalleries, setUsersGalleries] = useState<Gallery[]>([]);
     const [sharedGalleries, setSharedGalleries] = useState<Gallery[]>([]);
-    const {currentUser, isAuthenticated} = useAuth();
+    const {currentUser} = useAuth();
+    const [selectedSegment, setSelectedSegment] = useState("users-galleries");
 
     // Galerie-Daten abrufen und setzen
     const fetchGalleries = async () => {
-         const userGalleries = await getUsersGalleries(currentUser.id);
+        const userGalleries = await getUsersGalleries(currentUser.id);
         setUsersGalleries(userGalleries);
         const userSharedGalleries = await getSharedGalleries(currentUser.id);
         setSharedGalleries(userSharedGalleries)
@@ -28,6 +29,10 @@ const GalleriesPage: React.FC = () => {
     const handleRefresh = async (event: CustomEvent) => {
         await fetchGalleries();
         event.detail.complete();
+    };
+
+    const handleSegmentChange = (value: string) => {
+        setSelectedSegment(value);
     };
 
     return (
@@ -49,16 +54,31 @@ const GalleriesPage: React.FC = () => {
                     />
                 </IonRefresher>
 
-                <div>
-                    <h1>YOURS</h1>
-                    <GalleryListComponent galleries={usersGalleries}/>
+                <div className="custom-segment-container">
+                    <div className="custom-segment-background" style={{transform: `translateX(${selectedSegment === 'users-shared-galleries' ? '100%' : '0'})`}}></div>
+                    <div
+                        className={`custom-segment-button ${selectedSegment === "users-galleries" ? "active" : ""}`}
+                        onClick={() => handleSegmentChange("users-galleries")}>
+                        <IonText>Yours</IonText>
+                    </div>
+                    <div
+                        className={`custom-segment-button ${selectedSegment === "users-shared-galleries" ? "active" : ""}`}
+                        onClick={() => handleSegmentChange("users-shared-galleries")}>
+                        <IonText>Shared</IonText>
+                    </div>
                 </div>
 
-                <div>
-                    <h1>SHARED</h1>
-                    <GalleryListComponent galleries={sharedGalleries}/>
-                </div>
+                {selectedSegment === "users-galleries" && (
+                    <div>
+                        <GalleryListComponent galleries={usersGalleries}/>
+                    </div>
+                )}
 
+                {selectedSegment === "users-shared-galleries" && (
+                    <div>
+                        <GalleryListComponent galleries={sharedGalleries}/>
+                    </div>
+                )}
 
             </IonContent>
         </IonPage>

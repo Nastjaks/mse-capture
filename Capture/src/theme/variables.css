@@ -30,16 +30,10 @@ http://ionicframework.com/docs/theming/ //#A23347*/
     --ion-text-color: #fff;
     --ion-text-color-rgb: 255, 255, 255;
 
-    --light-BG: #222125;
-    --gradient: linear-gradient(160deg, #73373b, #571d21);
+    --light-BG: #1e1e1e;
+    --ion-color-success: #00D1B8;
 }
-/*--
-@property --myColor {
-    syntax: "<color>";
-    inherits: true;
-    initial-value: lightgray;
-}
-----*/
+
 
 ion-label {
     font-size: 10px;
@@ -69,18 +63,21 @@ ion-label {
 }
 
 */
-.no-content{
-    font-size: 30px;
+
+/*---------------------------------------*/
+.no-content {
+    font-size: 40px;
     max-width: 70%;
-    color: #262626;
+    color: #1e1e1e;
     font-weight: 900 !important;
 }
 
-.no-content p{
-     margin: 0;
+.no-content p {
+    margin: 0;
     text-transform: uppercase;
- }
+}
 
+/*---------------------------------------*/
 .page-bottom {
     display: flex;
     align-items: center;
@@ -94,145 +91,8 @@ ion-label {
     width: 100%;
 }
 
-/*#-----------------------------------------*/
 
-:root {
-    --color-primary: #6b6bc1;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-a.container {
-    display: block;
-    max-width: 500px;
-    margin: 0 auto;
-    background-color: var(--color-primary);
-}
-
-
-svg {
-    width: auto;
-    overflow: visible;
-    transition: all 0.3s ease-in-out;
-}
-
-g.outer {
-    fill: var(--color-primary);
-    transition: fill 0.5s ease-in;
-}
-
-g.outer,
-g.mid,
-g.inner,
-g.lens-flare {
-    transform-origin: 50% 50%;
-}
-
-g.mid {
-    fill: #4c4c91; /* darken(var(--color-primary), 25%) */
-    transition: fill 0.5s ease-in;
-}
-
-g.mid path {
-    stroke: #4c4c91; /* darken(var(--color-primary), 25%) */
-}
-
-g.inner {
-    stroke-width: 20;
-    fill: #4c4c91; /* darken(var(--color-primary), 25%) */
-    transition: stroke-width 0.5s ease-in, fill 0.5s ease-in;
-}
-
-g.lens-flare {
-    opacity: 0.6;
-    transition: opacity 1s ease-in;
-}
-
-a:hover g.outer {
-    fill: #7b7bd1; /* darken(var(--color-primary), 10%) */
-    animation: rotate 0.5s ease-in-out 0.3s, scale 0.3s ease-in-out;
-}
-
-a:hover g.mid {
-    animation: scale 0.4s ease-in-out 0.2s;
-    fill: #8c8ce1; /* lighten(var(--color-primary), 20%) */
-}
-
-a:hover g.inner {
-    animation: scale-inner 0.8s ease-in-out 0.3s;
-    fill: #9c9cf1; /* lighten(var(--color-primary), 30%) */
-    stroke-width: 25;
-}
-
-a:hover g.lens-flare {
-    animation: scale-flare 1s ease-in-out 0.3s;
-    opacity: 0.8;
-}
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    70% {
-        transform: rotate(45deg);
-    }
-    90% {
-        transform: rotate(20deg);
-    }
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
-@keyframes scale {
-    0% {
-        transform: scale(1);
-    }
-    30% {
-        transform: scale(0.95);
-    }
-    70% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-@keyframes scale-inner {
-    0% {
-        transform: scale(1);
-    }
-    30% {
-        transform: scale(0.95);
-    }
-    70% {
-        transform: scale(1.25);
-    }
-    100% {
-        transform: scale(1.2);
-    }
-}
-
-@keyframes scale-flare {
-    0% {
-        transform: scale(1);
-    }
-    30% {
-        transform: scale(0.95);
-    }
-    70% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-
-/*#-----------------------------------------*/
+/*-----------------------------------------*/
 
 
 ion-fab-button {
@@ -342,11 +202,8 @@ ion-fab-button {
     height: 50px;
 }
 
-/* --------------------*/
+/* ---------- TASK ITEM ---------- */
 
-ion-segment-view {
-    height: max-content;
-}
 
 .task-item {
     display: flex;
@@ -355,7 +212,7 @@ ion-segment-view {
     flex-direction: row;
     background: var(--light-BG);
     margin-bottom: 10px;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 0px 15px;
     justify-content: space-between;
     text-decoration: none;
@@ -371,30 +228,29 @@ ion-segment-view {
 }
 
 .task-item ion-icon {
+    font-size: 20px;
     color: #8D3948 !important;
 }
 
-.task-item .task-item-check.task-done{
-    color: green !important;
-    font-size: 20px;
+.task-item .task-item-check.task-done {
+    color: #00D1B8 !important;
 }
 
-.task-item .task-item-check.task-undone{
-    color: #434343 !important;
-    font-size: 20px;
+.task-item .task-item-check.task-undone {
+    color: #000000 !important;
 }
 
 .item-trash {
     cursor: pointer;
 }
 
+/*-------------------------------------------------*/
 h1.pageTitle {
     text-transform: uppercase;
     text-align: center;
 }
 
-/*-------------------------------------------------*/
-ion-header{
+ion-header {
     box-shadow: none !important;
 }
 
@@ -421,14 +277,15 @@ img.join-galerie-previeImg {
     width: 100%;
 }
 
-.galleryTopBar ion-icon{
+.galleryTopBar ion-icon {
     cursor: pointer;
     transition: all .3s ease-in-out;
 }
 
-.galleryTopBar ion-icon:hover{
+.galleryTopBar ion-icon:hover {
     color: var(--ion-color-primary);
 }
+
 /*-------------------------------------------------*/
 .taskTopBar {
     padding: 10px;
@@ -437,14 +294,15 @@ img.join-galerie-previeImg {
     display: flex;
 }
 
-.taskTopBar ion-icon{
+.taskTopBar ion-icon {
     cursor: pointer;
     transition: all .3s ease-in-out;
 }
 
-.taskTopBar ion-icon:hover{
+.taskTopBar ion-icon:hover {
     color: var(--ion-color-primary);
 }
+
 /*-------------------------------------------------*/
 .lightbox-header {
     display: flex;
@@ -461,12 +319,12 @@ img.join-galerie-previeImg {
     gap: 20px;
 }
 
-.lightbox-header ion-icon{
+.lightbox-header ion-icon {
     cursor: pointer;
     transition: all .3s ease-in-out;
 }
 
-.lightbox-header ion-icon:hover{
+.lightbox-header ion-icon:hover {
     color: var(--ion-color-primary);
 }
 
@@ -492,6 +350,7 @@ img.join-galerie-previeImg {
     align-items: center;
     width: 100%;
 }
+
 .image-container-wrapper {
     width: 100%;
     height: 100%;
@@ -552,18 +411,20 @@ ion-modal.task-manager-modal {
     display: flex;
     justify-content: space-between;
 }
-/*-------------------------------------------------*/
 
-.customSpinner{
+/*-------------------------------------------------*/
+.customSpinner {
     width: 100%;
     padding: 20px;
     margin: 20px;
 }
+
 /*-------------------------------------------------*/
-ion-tab-bar{
+ion-tab-bar {
     height: 45px;
     box-shadow: 0px -6px 26px rgba(0, 0, 0, 0.3);
 }
+
 /*-------------------------------------------------*/
 .sign-txt {
     font-size: 12px;
@@ -582,17 +443,17 @@ ion-tab-bar{
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.49);
 }
 
-.profile-settings-wrapper{
-    background: var( --light-BG);
+.profile-settings-wrapper {
+    background: var(--light-BG);
     border-radius: 20px;
     overflow: hidden;
 }
 
-.profile-settings-wrapper ion-item{
-    --background: var( --light-BG);
+.profile-settings-wrapper ion-item {
+    --background: var(--light-BG);
 }
-/*-------------------------------------------------*/
 
+/*-------------------------------------------------*/
 
 ion-modal.modal-dialog {
     --width: fit-content;
@@ -601,16 +462,48 @@ ion-modal.modal-dialog {
     --border-radius: 6px;
     --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
 }
-ion-modal.modal-dialog .form-container{
+
+ion-modal.modal-dialog .form-container {
     margin: 0;
 }
 
-/*
-@media only screen and (min-width: 768px) and (min-height: 768px) {
-    :host {
-        --width: 90vh;
-        --height: 90vh;
-    }
+/*----------------- SEGMENTE -----------------*/
+.custom-segment-container {
+    display: flex;
+    position: relative;
+    background: #1e1e1e;
+    border-radius: 50px;
+    margin: 10px 0 0 0 ;
+    overflow: hidden;
 }
 
-*/
+.custom-segment-button ion-text{
+    text-transform: uppercase;
+    font-size: 13px;
+}
+.custom-segment-button {
+    padding: 8px;
+    width: 50%;
+    text-align: center;
+    text-transform: capitalize;
+    cursor: pointer;
+    border-radius: 50px;
+    position: relative;
+    z-index: 1; /* Damit der Text oben bleibt */
+}
+
+.custom-segment-button.active {
+    color: white; /* Textfarbe für den aktiven Button */
+}
+
+.custom-segment-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: #8c3947; /* Hintergrundfarbe für den aktiven Segment-Button */
+    transition: transform 0.3s ease;
+    z-index: 0; /* Hintergrund hinter den Buttons */
+    border-radius: 20px;
+}

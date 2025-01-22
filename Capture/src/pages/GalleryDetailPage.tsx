@@ -1,5 +1,5 @@
 import {
-    IonAlert, IonContent, IonFab, IonFabButton, IonIcon, IonItem, IonLabel, IonModal, IonPage, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, useIonViewWillEnter
+    IonAlert, IonContent, IonFab, IonFabButton, IonIcon, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useRef, useState} from 'react';
@@ -30,6 +30,7 @@ const GalleryDetailPage: React.FC = () => {
     const [showSettings, setShowSettings] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showTaskManagerModal, setTaskManagerModal] = useState(false);
+    const [selectedSegment, setSelectedSegment] = useState("gallery-images-segment");
 
     const taskComponentRef = useRef<any>(null);
 
@@ -165,6 +166,10 @@ const GalleryDetailPage: React.FC = () => {
         setShowSettings(false);
     };
 
+    const handleSegmentChange = (value: string) => {
+        setSelectedSegment(value);
+    };
+
     return (
         <>
             <IonPage id="gallerie-content">
@@ -237,28 +242,33 @@ const GalleryDetailPage: React.FC = () => {
                         <p>Gallery not found</p>
                     )}
 
+                    <div className="ion-padding">
+                        <div className="custom-segment-container ">
+                            <div className="custom-segment-background" style={{transform: `translateX(${selectedSegment === 'gallery-tasks-segment' ? '100%' : '0'})`}}></div>
+                            <div
+                                className={`custom-segment-button ${selectedSegment === "gallery-images-segment" ? "active" : ""}`}
+                                onClick={() => handleSegmentChange("gallery-images-segment")}>
+                                <IonText>Images</IonText>
+                            </div>
+                            <div
+                                className={`custom-segment-button ${selectedSegment === "gallery-tasks-segment" ? "active" : ""}`}
+                                onClick={() => handleSegmentChange("gallery-tasks-segment")}>
+                                <IonText>Tasks</IonText>
+                            </div>
+                        </div>
+                    </div>
 
-
-                    <IonSegment value="gallery-images-segment">
-                        <IonSegmentButton value="gallery-images-segment" contentId={`gallery-images-segment-${galleryId}`}>
-                            <IonLabel>Images</IonLabel>
-                        </IonSegmentButton>
-                        <IonSegmentButton value="gallery-tasks-segment" contentId={`gallery-task-segment-${galleryId}`}>
-                            <IonLabel>Tasks</IonLabel>
-                        </IonSegmentButton>
-                    </IonSegment>
-
-                    <IonSegmentView>
-                        <IonSegmentContent id={`gallery-images-segment-${galleryId}`}>
-                            {/* Gallery Images*/}
+                    {selectedSegment === "gallery-images-segment" && (
+                        <div>
                             <ImageComponent images={galleryImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchGalleryImages}/>
-                        </IonSegmentContent>
-                        <IonSegmentContent id={`gallery-task-segment-${galleryId}`}>
-                            {/* Gallerie Tasks*/}
-                            {gallery && <TaskComponent  ref={taskComponentRef} galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>}
-                        </IonSegmentContent>
-                    </IonSegmentView>
+                        </div>
+                    )}
 
+                    {selectedSegment === "gallery-tasks-segment" && (
+                        <div>
+                            <TaskComponent ref={taskComponentRef} galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>
+                        </div>
+                    )}
 
                     {/* Share Gallery */}
                     <QRCodeComponent galleryId={galleryId} istShareOpen={showShareModal}/>
