@@ -67,13 +67,13 @@ const ProfilPage: React.FC = () => {
             <IonContent fullscreen={true}>
 
                 <div className="profile-header ion-padding">
-                    <h1>name global: {currentUser.user_metadata.display_name}</h1>
-                    <h1>mail global: {currentUser.email}</h1>
-                    <h1>id global: {currentUser.id}</h1>
+                    <h3>{currentUser.user_metadata.display_name}</h3>
+                    <p>{currentUser.email}</p>
+                    <p>{currentUser.id}</p>
                 </div>
 
                 <div className="ion-padding">
-                    <h2>Settings</h2>
+                    <p>Settings</p>
                     <div className="profile-settings-wrapper">
                         <IonItem id='open-edit-name-dialog' button>
                             <p>Edit name</p>
@@ -82,7 +82,7 @@ const ProfilPage: React.FC = () => {
                 </div>
 
                 <div className="ion-padding">
-                    <h2>Account</h2>
+                    <p>Account</p>
                     <div className="profile-settings-wrapper">
                         <IonItem button onClick={() => setShowLogoutConfirm(true)}>
                             <p>Logout</p>

@@ -93,8 +93,8 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                     </div>
                 ))
             ) : (
-                <div className="ion-padding no-content">
-                    <p>No tasks</p>
+                <div className="no-content">
+                    <p>No tasks.</p>
                 </div>
             )}
 

@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
 import {useState} from "react";
 import {useHistory} from 'react-router-dom';
 import {createGallery} from "../services/galleryService";
@@ -14,7 +14,7 @@ const CreateGalleryPage: React.FC = () => {
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
     const {showToast} = useToast();
-    const {checkUser, currentUser, isAuthenticated} = useAuth();
+    const {currentUser, isAuthenticated} = useAuth();
     const history = useHistory();
 
     const handleCreateGallery = async () => {
@@ -68,8 +68,8 @@ const CreateGalleryPage: React.FC = () => {
         }
     };
 
-    useIonViewWillEnter(() => {
-        console.log("Create Gallery ", isAuthenticated );
+    useIonViewWillLeave(() => {
+        restFields();
     });
 
 

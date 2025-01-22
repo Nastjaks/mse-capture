@@ -71,20 +71,24 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
     return (
         <>
             {/* Image Ausgabe */}
-            <div className="galerie-img-wrapper">
+            <div>
                 {images.length > 0 ? (
-                    images.map((image, index) => (
-                        <img
-                            key={index}
-                            src={image.image_url}
-                            alt={`Bild ${index}`}
-                            onClick={() => {
-                                setCurrentImageIndex(index);
-                                openModal();
-                            }}
-                            style={{cursor: 'pointer'}}
-                        />
-                    ))
+                    <div className="galerie-img-wrapper">
+
+                        {images.map((image, index) => (
+                            <img
+                                key={index}
+                                src={image.image_url}
+                                alt={`Bild ${index}`}
+                                onClick={() => {
+                                    setCurrentImageIndex(index);
+                                    openModal();
+                                }}
+                                style={{cursor: 'pointer'}}
+                            />
+                        ))}
+                    </div>
+
                 ) : (
                     <div className="ion-padding no-content">
                         <p>No pictures.</p>

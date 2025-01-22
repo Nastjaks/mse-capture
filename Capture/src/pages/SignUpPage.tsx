@@ -15,8 +15,7 @@ const SignUpPage: React.FC = () => {
     const {showToast} = useToast();
     const history = useHistory();
 
-    //TODO wenn der nutzer schon eingelogt ist, soll es auf die Profiel seite umgeleitet werden
-    //TODO solabt er sich enloggt soll er auf die profiel seite weitergeleitet werden
+
     //Todo Validate input fields
 
     const handleSignUp = async () => {

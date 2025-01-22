@@ -32,6 +32,9 @@ http://ionicframework.com/docs/theming/ //#A23347*/
 
     --light-BG: #1e1e1e;
     --ion-color-success: #00D1B8;
+
+    --rounded-border: 20px;
+    --round-border: 50px;
 }
 
 
@@ -96,7 +99,7 @@ ion-label {
 
 
 ion-fab-button {
-    --border-radius: 15px;
+    --border-radius: var(--rounded-border);
 }
 
 /* ----- FORMULAR -----*/
@@ -130,7 +133,7 @@ ion-fab-button {
 }
 
 .form-container .item {
-    border-radius: 50px;
+    border-radius: var(--rounded-border);
     --background: #1e1e1e;
 }
 
@@ -140,15 +143,15 @@ ion-fab-button {
 
 #imagePreview_label {
     height: 120px;
-    background: #1e1e1e;
     cursor: pointer;
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #878787;
     transition: all .3s ease-in-out;
+    background: #1e1e1e center center;
 }
 
 .imagePicker {
@@ -157,7 +160,7 @@ ion-fab-button {
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
 }
 
 #imagePreview_label.hasImg .imagePicker {
@@ -211,8 +214,8 @@ ion-fab-button {
     flex-wrap: nowrap;
     flex-direction: row;
     background: var(--light-BG);
-    margin-bottom: 10px;
-    border-radius: 15px;
+    margin-bottom: 5px;
+    border-radius: var(--rounded-border);
     padding: 0px 15px;
     justify-content: space-between;
     text-decoration: none;
@@ -237,7 +240,7 @@ ion-fab-button {
 }
 
 .task-item .task-item-check.task-undone {
-    color: #000000 !important;
+    color: #151515 !important;
 }
 
 .item-trash {
@@ -265,7 +268,7 @@ img.join-galerie-previeImg {
     max-height: 230px;
     width: 100%;
     object-fit: cover;
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
 }
 
 /*-------------------------------------------------*/
@@ -367,7 +370,7 @@ img.join-galerie-previeImg {
 /*-------------------- QR CODE --------------------*/
 .qr-code-image {
     width: 200px;
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
     text-align: center;
 }
 
@@ -397,6 +400,8 @@ img.join-galerie-previeImg {
 .qr-image-content p {
     margin-top: 0;
 }
+
+/*-------------------------------------------------*/
 
 ion-modal.share-modal {
     --height: 800px;
@@ -445,7 +450,7 @@ ion-tab-bar {
 
 .profile-settings-wrapper {
     background: var(--light-BG);
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
     overflow: hidden;
 }
 
@@ -472,7 +477,7 @@ ion-modal.modal-dialog .form-container {
     display: flex;
     position: relative;
     background: #1e1e1e;
-    border-radius: 50px;
+    border-radius: var(--rounded-border);
     margin: 10px 0 0 0 ;
     overflow: hidden;
 }
@@ -487,7 +492,7 @@ ion-modal.modal-dialog .form-container {
     text-align: center;
     text-transform: capitalize;
     cursor: pointer;
-    border-radius: 50px;
+    border-radius: var(--rounded-border);
     position: relative;
     z-index: 1; /* Damit der Text oben bleibt */
 }
@@ -505,5 +510,5 @@ ion-modal.modal-dialog .form-container {
     background-color: #8c3947; /* Hintergrundfarbe für den aktiven Segment-Button */
     transition: transform 0.3s ease;
     z-index: 0; /* Hintergrund hinter den Buttons */
-    border-radius: 20px;
+    border-radius: var(--rounded-border);
 }
