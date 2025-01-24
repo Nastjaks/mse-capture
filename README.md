@@ -36,6 +36,7 @@
    - Nutzer können Bilder in die Gallerie, oder zu einer spezifischen Task hochladen.
    - Wenn ein Nutzer eine Task erfüllt hat, wird das mit einem grünen Hacken hervorgehoben.
    - Nutzer können ihre eigenen Bilder löschen.
+   - Bilder können runtergeldan werden (nur in Web)
 
 - [X] Registrierte Nutzer, die einem Fotoalbum beitreten, können das Album in ihrem Profil sehen und Fotos nachträglich löschen.
    - Geteile Gallerie werden in einem seperaten Bereich angezeigt, sowohl für regestrierte Nutzer als auch für temporäre. 
