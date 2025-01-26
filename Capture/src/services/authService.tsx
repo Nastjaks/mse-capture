@@ -7,6 +7,11 @@ interface AuthResponse {
     user?: User | null;
 }
 
+type UpdateUserOptions = {
+    name?: string;
+    password?: string;
+  };
+
 // ----- Regestrieren -----
 export const signUp = async (email: string, password: string, displayName: string): Promise<AuthResponse> => {
     try {
@@ -65,36 +70,49 @@ export const getLoggedInUser = async (): Promise<AuthResponse> => {
 };
 
 // ----- Update User -----
-export const updateUser = async (name: string): Promise<AuthResponse> => {
+export const updateUserData = async (options: UpdateUserOptions): Promise<AuthResponse> => {
     try {
-        // Update the user data. (email, etc... possible too)
-        const {data, error} = await supabase.auth.updateUser({
-            data: {
-                display_name: name,
-            },
-        });
-        if (error) {
-            console.error(error);
-            return {
-                success: false,
-                message: "Error updating user data.",
-                user: null,
-            };
-        }
+      // Objekt vorbereiten, das wir an supabase.auth.updateUser übergeben
+      const updatePayload: {
+        data?: any;
+        password?: string;
+      } = {};
+  
+      // Nur dann data: { display_name: name } setzen, wenn "name" übergeben wurde
+      if (options.name) {
+        updatePayload.data = { display_name: options.name };
+      }
+  
+      // Nur dann password setzen, wenn "password" übergeben wurde
+      if (options.password) {
+        updatePayload.password = options.password;
+      }
+  
+      const { data, error } = await supabase.auth.updateUser(updatePayload);
+  
+      if (error) {
+        console.error(error);
         return {
-            success: true,
-            message: "User data updated successfully.",
-            user: data.user,
+          success: false,
+          message: "Error updating user data.",
+          user: null,
         };
+      }
+  
+      return {
+        success: true,
+        message: "User data updated successfully.",
+        user: data.user,
+      };
     } catch (err) {
-        console.error(err);
-        return {
-            success: false,
-            message: "Unexpected error.",
-            user: null,
-        };
+      console.error(err);
+      return {
+        success: false,
+        message: "Unexpected error.",
+        user: null,
+      };
     }
-};
+  };
 
 // ----- Anon Login -----
 export const signInAnon = async (): Promise<AuthResponse> => {

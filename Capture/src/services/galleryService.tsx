@@ -396,6 +396,39 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
     }
 };
 
+// ---- UPDATE GALLERY ----
+export const updateGallery = async (gallery: Gallery, newTitle: string, newDescr: string, preview_image: File | null) => {
+    try {
+        const { error } = await supabase
+            .from('galleries')
+            .update({
+                title: newTitle,
+                description: newDescr,
+            })
+            .eq('id', gallery.id);
+
+        if (error) {
+            console.error('Fehler beim Aktualisieren der Galerie:', error);
+            return { success: false, message: 'Fehler beim Aktualisieren der Galerie.' };
+        }
+
+        if (preview_image != null) {
+            const previewImageUrl = await insertPreviewImage(gallery.owner_id, gallery.id, preview_image);
+            if (previewImageUrl) {
+                const updateResult = await updateGalleryPreviewImage(previewImageUrl, gallery.id);
+                if (!updateResult) {
+                    console.error("Fehler beim Aktualisieren der Galerie mit Vorschaubild.");
+                }
+            }
+        }
+
+        return { success: true, message: 'Galerie erfolgreich aktualisiert.' };
+    } catch (err) {
+        console.error('Unerwarteter Fehler:', err);
+        return { success: false, message: 'Unerwarteter Fehler.' };
+    }
+};
+
 
 // ---- ADD GALLERY MEMBER ----
 export const AddUserToGallery = async (galleryId: string, userId: string) => {

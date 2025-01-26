@@ -12,7 +12,7 @@ interface TaskComponentProps {
     isTaskManagerOpen: boolean;
 }
 
-const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
+const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
     const [showDeleteConfirm_Task, setShowDeleteConfirm_Task] = useState(false);
@@ -23,12 +23,12 @@ const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
 
     useEffect(() => {
         fetchTasks();
-    }, [galleryId]);
+    }, [props.galleryId]);
 
     /* -- Holt alle Tasks -- */
     const fetchTasks = async () => {
         try {
-            const tasks = await getTasks(galleryId, currentUser.id);
+            const tasks = await getTasks(props.galleryId, currentUser.id);
             if (tasks) setTasks(tasks);
         } catch (err) {
             console.error("Fehler beim Laden der Aufgaben:", err);
@@ -47,7 +47,7 @@ const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
             return;
         }
         try {
-            const task = await createTask(taskTitle, galleryId);
+            const task = await createTask(taskTitle, props.galleryId);
             if (task) {
                 await fetchTasks();
                 setTaskTitle("");
@@ -76,7 +76,7 @@ const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
             {tasks.length > 0 ? (
                 tasks.map((task) => (
                     <div key={task.id}>
-                        <Link to={`/gallery/${galleryId}/${task.id}`} className="task-item">
+                        <Link to={`/gallery/${props.galleryId}/${task.id}`} className="task-item">
                             <div className="task-def">
                                 <IonIcon aria-hidden="true" icon={camera}/>
                                 <p>{task.task}</p>
@@ -123,7 +123,7 @@ const TaskComponent = forwardRef(({galleryId, isTaskManagerOpen}, ref) => {
 
             {/* Task Manager Modal */}
             <IonModal
-                isOpen={isTaskManagerOpen}
+                isOpen={props.isTaskManagerOpen}
                 className="task-manager-modal"
                 initialBreakpoint={0.9}
                 showBackdrop={true}

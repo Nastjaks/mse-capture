@@ -6,6 +6,8 @@ import {useParams} from "react-router-dom";
 import {useHistory} from "react-router";
 import {signIn, signInAnon} from '../services/authService';
 import {getLoggedInUser} from "../services/authService";
+import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 
 
 const JoinGalleryPage: React.FC = () => {
@@ -15,6 +17,9 @@ const JoinGalleryPage: React.FC = () => {
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    const {showToast} = useToast();
+    const {checkUser} = useAuth();
 
     useIonViewWillEnter(() => {
         fetchGallery();
@@ -50,6 +55,7 @@ const JoinGalleryPage: React.FC = () => {
             if (userResponse.success && userResponse.user) {
                 AddUserToGallery(galleryId, userResponse.user?.id);
                 history.push(`/gallery/${galleryId}`);
+                showToast("Joined gallery!");
             }
         }
     };
@@ -57,10 +63,15 @@ const JoinGalleryPage: React.FC = () => {
 
     const onButtonClick = async () => {
         const user = await signInAnon();
-        if (user.success) {
-            if (gallery) {
+        if (user.success && gallery && user.user) {
+            const checkUserResponse = await checkUser();
+            if (checkUserResponse) {
+                AddUserToGallery(gallery.id, user.user?.id);
                 history.push(`/gallery/${gallery.id}`);
+            } else {
+                showToast("Failed to join gallery");
             }
+            history.push(`/gallery/${gallery.id}`);
         }
         console.log("User:", user);
     };
@@ -69,8 +80,14 @@ const JoinGalleryPage: React.FC = () => {
         try {
             const result = await signIn(email, password);
             if (result.success && gallery && result.user) {
-                AddUserToGallery(gallery.id, result.user?.id);
-                history.push(`/gallery/${gallery.id}`);
+                const checkUserResponse = await checkUser();
+                if (checkUserResponse) {
+                    AddUserToGallery(gallery.id, result.user?.id);
+                    history.push(`/gallery/${gallery.id}`);
+                    showToast("Joined gallery!");
+                } else {
+                    showToast("Failed to join gallery");
+                }
             }
         } catch (err) {
             console.error(err);

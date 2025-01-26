@@ -1,7 +1,7 @@
 import {IonAlert, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import {menuController} from '@ionic/core/components';
 import React, {useRef, useState} from "react";
-import {signOut, updateUser} from "../services/authService";
+import {signOut, updateUserData} from "../services/authService";
 import {Link, useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 import {useAuth} from "../contexts/AuthContext";
@@ -11,6 +11,8 @@ import {create} from "qrcode";
 const ProfilPage: React.FC = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [newName, setNewName] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     const {showToast} = useToast();
     const {checkUser, currentUser, updateCurrentUser} = useAuth();
@@ -39,16 +41,31 @@ const ProfilPage: React.FC = () => {
     };
 
     const handleUpdateUsername = async () => {
-        const {success, message} = await updateUser(newName);
+        const {success, message} = await updateUserData({ name: newName });
         if (success) {
             updateCurrentUser();
         }
         showToast(message);
     }
 
+    const handleUpdatePassword = async () => {
+        if(newPassword === confirmPassword && newPassword !== ""){ 
+            const {success, message} = await updateUserData({ password: newPassword });
+            if (success) {
+                updateCurrentUser();
+                dismiss();
+            }
+            showToast(message);
+        } else {
+            showToast("Passwords do not match");
+        }
+    }
+
 
     const restFields = () => {
         setNewName("");
+        setNewPassword("");
+        setConfirmPassword("");
     }
 
 
@@ -87,6 +104,9 @@ const ProfilPage: React.FC = () => {
                     <div className="profile-settings-wrapper">
                         <IonItem id='open-edit-name-dialog' button>
                             <IonIcon aria-hidden="true" icon={createSharp}/><p>Edit name</p>
+                        </IonItem>
+                        <IonItem id='open-edit-password-dialog' button>
+                            <IonIcon aria-hidden="true" icon={createSharp}/><p>Edit password</p>
                         </IonItem>
                     </div>
                 </div>
@@ -152,6 +172,43 @@ const ProfilPage: React.FC = () => {
                 </div>
             </IonModal>
 
+            <IonModal
+                className="modal-dialog"
+                ref={modal}
+                trigger="open-edit-password-dialog"
+                onDidDismiss={restFields}>
+                <div className="ion-padding form-container">
+                    <p>Set new Password</p>
+                    <IonItem>
+                        <IonInput
+                            placeholder="Password..."
+                            label="Password"
+                            labelPlacement="floating"
+                            value={newPassword}
+                            required={true}
+                            type='password'
+                            onIonChange={(e) => setNewPassword(e.detail.value!)}
+                        />
+                    </IonItem>
+                    <p>Confirm new Password</p>
+                    <IonItem>
+                        <IonInput
+                            placeholder="Password..."
+                            label="Password"
+                            labelPlacement="floating"
+                            value={confirmPassword}
+                            required={true}
+                            type='password'
+                            onIonChange={(e) => setConfirmPassword(e.detail.value!)}
+                        />
+                    </IonItem>
+                    <IonButton expand="block"
+                               onClick={() => {
+                                   handleUpdatePassword();
+                                   restFields();
+                               }} shape="round"> Save </IonButton>
+                </div>
+            </IonModal>
         </IonPage>
 
     );

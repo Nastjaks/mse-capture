@@ -1,12 +1,12 @@
 import {
-    IonAlert, IonContent, IonFab, IonFabButton, IonIcon, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter
+    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useHistory} from "react-router";
-import {add, camera, createSharp, ellipsisVerticalSharp, logOut, share, trash} from "ionicons/icons";
+import {add, camera, createSharp, ellipsisVerticalSharp, imageOutline, logOut, share, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery, updateGallery} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
@@ -25,6 +25,11 @@ const GalleryDetailPage: React.FC = () => {
     const [galleryImages, setGalleryImages] = useState<Image[]>([]);
     const [isParticipant, setIsParticipant] = useState(false); // State für die Galerie
 
+    const [newTitle, setNewTitle] = useState("");
+    const [newDescription, setNewDescription] = useState("");
+    const [newPreviewImage, setNewPreviewImage] = useState<File | null>(null);
+    const [newPreviewImageUrl, setNewPreviewImageUrl] = useState<string | null>(null);
+
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
@@ -33,22 +38,31 @@ const GalleryDetailPage: React.FC = () => {
     const [selectedSegment, setSelectedSegment] = useState("gallery-images-segment");
 
     const taskComponentRef = useRef<any>(null);
+    
+    const modal = useRef<HTMLIonModalElement>(null);
 
     const {showToast} = useToast();
     const {currentUser} = useAuth();
     const history = useHistory();
 
+    // Gallery laden in useIonViewWillEnter
     useIonViewWillEnter(() => {
-        if (galleryId) {
-            loadGalleryInfos();
-            isParticipantInGallery();
-            fetchGalleryImages();
-
-            if (taskComponentRef.current) {
-                taskComponentRef.current.fetchTasks(); // Ruft die fetchTasks Funktion in der Kindkomponente auf
-            }
+    (async () => {
+        if (!galleryId) return;
+        await loadGalleryInfos();    // => setzt gallery
+        await fetchGalleryImages();  // => setzt galleryImages
+        if (taskComponentRef.current) {
+        await taskComponentRef.current.fetchTasks();
         }
+    })();
     });
+
+    // useEffect überwacht gallery und currentUser
+    useEffect(() => {
+    if (gallery && currentUser) {
+        isParticipantInGallery();
+    }
+    }, [gallery, currentUser]);
 
     /* -- Content Refresh -- */
     const handleRefresh = async (event: CustomEvent) => {
@@ -63,7 +77,6 @@ const GalleryDetailPage: React.FC = () => {
 
         event.detail.complete();
     };
-
 
     /* -- Prüft Rolle -- */
     const isParticipantInGallery = async () => {
@@ -110,7 +123,6 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-
     /* -- Verlassen der Galerie -- */
     const leaveSharedGallery = async () => {
         try {
@@ -156,6 +168,39 @@ const GalleryDetailPage: React.FC = () => {
         input.click();
     };
 
+    /* -- Edit Gallery -- */
+    const handleEditGallery = async () => {
+        if (gallery) {
+            const {message} = await updateGallery(gallery, newTitle, newDescription, newPreviewImage);
+            showToast(message);
+            await loadGalleryInfos();
+        } else {
+            showToast('Gallery not found.');
+        }
+    }
+
+    /* -- Bildvorschau -- */
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+
+            // Validierung der Dateigröße (max. 2 MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("The file must not be larger than 2 MB.");
+                return;
+            }
+
+            setNewPreviewImage(file);
+
+            // Bildvorschau generieren
+            const reader = new FileReader();
+            reader.onload = () => {
+                setNewPreviewImageUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleOpenSettings = () => {
         setShowSettings(true);
         setShowShareModal(false);
@@ -170,6 +215,20 @@ const GalleryDetailPage: React.FC = () => {
         setTaskManagerModal(false);
         setSelectedSegment(value);
     };
+
+    const resetFields = () => {
+        setNewTitle("");
+        setNewDescription("");
+        setNewPreviewImage(null);
+    }
+
+    function dismiss() {
+        modal.current?.dismiss();
+    }
+
+    function present() {
+        modal.current?.present();
+    }
 
     return (
         <>
@@ -187,26 +246,26 @@ const GalleryDetailPage: React.FC = () => {
                     >
                         <IonContent>
                             <IonItem>Gallery Settings</IonItem>
-                            <IonItem button onClick={() => {
+                            {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
-                                showToast("COMING SOON - Edit Function");
-                            }}> <IonIcon aria-hidden="true" icon={createSharp}/>Edit gallery</IonItem>
+                                present();
+                            }}> <IonIcon aria-hidden="true" icon={createSharp}/>Edit gallery</IonItem>)}
 
-                            <IonItem button onClick={() => {
+                            {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setSelectedSegment("gallery-tasks-segment")
                                 setTaskManagerModal(true);
-                            }}> <IonIcon aria-hidden="true" icon={camera}/>Manage tasks</IonItem>
+                            }}> <IonIcon aria-hidden="true" icon={camera}/>Manage tasks</IonItem>)}
 
-                            <IonItem button onClick={() => {
+                            {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowShareModal(true);
-                            }}>  <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>
+                            }}>  <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>)}
 
-                            <IonItem button onClick={() => {
+                            {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowDeleteConfirm(true);
-                            }}>  <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>
+                            }}>  <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>)}
 
                             {isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
@@ -334,6 +393,83 @@ const GalleryDetailPage: React.FC = () => {
 
                 </IonContent>
 
+                    <IonModal
+                        className="modal-dialog"
+                        ref={modal}
+                        onDidDismiss={resetFields}>
+                        <div className="ion-padding form-container">
+                            <p>Set new title</p>
+                            <IonItem>
+                                <IonInput
+                                    placeholder="Title"
+                                    label="Title"
+                                    labelPlacement="floating"
+                                    value={newTitle}
+                                    required={true}
+                                    type='text'
+                                    onIonChange={(e) => setNewTitle(e.detail.value!)}
+                                />
+                            </IonItem>
+                            <p>Set new description</p>
+                            <IonItem>
+                                <IonInput
+                                    placeholder="Description..."
+                                    label="Description"
+                                    labelPlacement="floating"
+                                    value={newDescription}
+                                    required={true}
+                                    type='text'
+                                    onIonChange={(e) => setNewDescription(e.detail.value!)}
+                                />
+                            </IonItem>
+
+                            <span className="imgPickerLabel">
+                                <p className="label tumb-label">Thumbnail</p>
+        
+                                {/* Bild entfernen */}
+                                {newPreviewImage && (
+                                    <IonIcon
+                                        className="removeImage"
+                                        aria-hidden="true"
+                                        icon={trash}
+                                        onClick={() => {
+                                            setNewPreviewImage(null);
+                                            setNewPreviewImageUrl(null);
+                                        }}
+                                    />
+                                )}
+        
+                            </span>
+        
+                            <input
+                                type="file"
+                                accept="image/*"
+                                id="imagePreview_id"
+                                hidden
+                                onChange={handleFileChange}
+                            />
+        
+                            <label
+                                id="imagePreview_label"
+                                htmlFor="imagePreview_id"
+                                className={newPreviewImage ? "hasImg" : ""}
+                                style={{
+                                    backgroundImage: newPreviewImage ? `url(${newPreviewImageUrl})` : undefined,
+                                }}
+                            >
+                                    <span className="imagePicker">
+                                        <span>Choose Image</span>
+                                        <IonIcon aria-hidden="true" icon={imageOutline}/>
+                                    </span>
+                            </label>
+                            <IonButton expand="block"
+                                        onClick={() => {
+                                            handleEditGallery();
+                                            resetFields();
+                                            dismiss();
+                                        }} shape="round"> Save </IonButton>
+                        </div>
+                    </IonModal>
             </IonPage>
 
         </>
