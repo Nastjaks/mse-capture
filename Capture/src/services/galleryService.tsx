@@ -6,7 +6,7 @@ export const getGalleries = async () => {
     try {
         const {data, error} = await supabase
             .from('galleries')
-            .select('*');
+            .select('*, profiles(display_name)'); 
 
         if (error) {
             throw error;
@@ -22,7 +22,7 @@ export const getUsersGalleries = async (userId: string): Promise<Gallery[]> => {
     try {
         const {data, error} = await supabase
             .from('galleries')
-            .select('*')
+            .select('*, profiles(display_name)')
             .eq('owner_id', userId); // Hier wird nach der userId gefiltert
 
         if (error) {
@@ -51,7 +51,7 @@ export const getSharedGalleries = async (userId: string): Promise<Gallery[]> => 
             const galleryIds = data.map(gallery => gallery.gallery_id);
             const { data: galleries, error: galleriesError } = await supabase
                 .from('galleries')
-                .select('*')
+                .select('*, profiles(display_name)')
                 .in('id', galleryIds);
 
             if (galleriesError) {
@@ -71,34 +71,34 @@ export const getSharedGalleries = async (userId: string): Promise<Gallery[]> => 
 /* -- GET a Gallery by Id  -- */
 export const getGalleryById = async (galleryId: string) => {
     try {
-        const {data, error} = await supabase
+        const {data: gallery_data, error} = await supabase
             .from('galleries')
-            .select('*')
+            .select('*, profiles(display_name)') // Hier wird der Besitzer der Galerie abgerufen
             .eq('id', galleryId)
             .single(); // Eine einzelne Galerie abrufen
         if (error) {
             throw error;
         }
-        return data;
+        return {gallery_data};
     } catch (err) {
         console.error("Fehler beim Abrufen der Galerie:", err);
         return null;
     }
 };
 
-
 // ---------- GET Gallery Images by Gallery ID ---------- NEW
 export const getGalleryImages = async (galleryId: string) => {
     try {
         const {data, error} = await supabase
             .from('gallery_images')
-            .select('*,  tasks (task)', )
+            .select('*,  tasks (task), profiles(display_name)',)
             .eq('gallery_id', galleryId);  // Filtere nach der gallery_id
 
         if (error) {
             console.error('Fehler beim Abrufen der Bilder:', error.message);
             throw error;
         }
+        console.log("Gallery Images:", data);
         return data;  // Gibt die Bilder zurück
     } catch (err) {
         console.error('Fehler beim Abrufen der Galerie-Bilder:', err);
@@ -109,7 +109,6 @@ export const getGalleryImages = async (galleryId: string) => {
 
 // ---------- CREATING A NEW GALLERY
 export const createGallery = async (gallery: Gallery, preview_image: File | null) => {
-
     try {
         //Gallery erstellen
         const {data, error} = await supabase
@@ -306,8 +305,7 @@ export const downloadPublicFile = async (filePath: string) => {
     }
 };
 
-//------------------------------------------------------------------------------------------------------
-
+// ---- DELETE GALLERY ----
 export const deleteGallery = async (id: string, ownerId: string, previewImageUrl: string) => {
     try {
         // Preview-Bild löschen
@@ -435,11 +433,7 @@ export const AddUserToGallery = async (galleryId: string, userId: string) => {
     try {
       const { data, error } = await supabase
         .from('gallery_members')
-        .insert({
-          gallery_id: galleryId,
-          user_id: userId,
-        });
-
+        .insert([{ gallery_id: galleryId, user_id: userId }])
       if (error) {
         console.error('Fehler beim Hinzufügen des Nutzers:', error);
       } else {

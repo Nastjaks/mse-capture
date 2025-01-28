@@ -4,15 +4,16 @@ import {AddUserToGallery, getGalleryById} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import {useParams} from "react-router-dom";
 import {useHistory} from "react-router";
-import {signIn, signInAnon} from '../services/authService';
+import {signIn, signInAnon, signUp} from '../services/authService';
 import {getLoggedInUser} from "../services/authService";
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
+import { getRandomUserName } from '../utilitys/randomUsername';
 
 
 const JoinGalleryPage: React.FC = () => {
     const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
-    const [name, setName] = useState("");
+    const [anonName, setAnonName] = useState("");
     const history = useHistory();
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
     const [email, setEmail] = useState("");
@@ -49,7 +50,7 @@ const JoinGalleryPage: React.FC = () => {
         if (galleryId) {
             const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
             if (result_galleryData) {
-                setGallery(result_galleryData);
+                setGallery(result_galleryData.gallery_data);
             }
             const userResponse = await getLoggedInUser();
             if (userResponse.success && userResponse.user) {
@@ -60,15 +61,14 @@ const JoinGalleryPage: React.FC = () => {
         }
     };
 
-
-    const onButtonClick = async () => {
-        const user = await signInAnon();
+    const handleAnonLogin = async () => {
+        const user = await signUp("", "", anonName);
         if (user.success && gallery && user.user) {
             const checkUserResponse = await checkUser();
             if (checkUserResponse) {
                 AddUserToGallery(gallery.id, user.user?.id);
                 history.push(`/gallery/${gallery.id}`);
-            } else {
+            } else {    
                 showToast("Failed to join gallery");
             }
             history.push(`/gallery/${gallery.id}`);
@@ -82,7 +82,7 @@ const JoinGalleryPage: React.FC = () => {
             if (result.success && gallery && result.user) {
                 const checkUserResponse = await checkUser();
                 if (checkUserResponse) {
-                    AddUserToGallery(gallery.id, result.user?.id);
+                    AddUserToGallery(gallery.id, result.user?.id, );
                     history.push(`/gallery/${gallery.id}`);
                     showToast("Joined gallery!");
                 } else {
@@ -114,24 +114,23 @@ const JoinGalleryPage: React.FC = () => {
 
 
                         <h1>{gallery.title}</h1>
-                        <h2>Galerie: {gallery.id}</h2>
-                        <h2>Owner: {gallery.owner_id}</h2>
+                        <h2>Owner: {gallery.profiles.display_name}</h2>
                         <p>{gallery.description}</p>
 
                         <div className="form-container">
                             <IonItem>
                                 <IonInput
-                                    placeholder="Anonymer Loris stinkt..."
+                                    placeholder="Name..."
                                     label="Name"
                                     labelPlacement="floating"
-                                    value={name}
+                                    value={anonName}
                                     required={true}
                                     type="text"
-                                    onIonInput={(e) => setName(e.detail.value!)}
+                                    onIonInput={(e) => setAnonName(e.detail.value!)}
                                 />
                             </IonItem>
 
-                            <IonButton expand="block" onClick={onButtonClick} shape="round"> Join Gallery </IonButton>
+                            <IonButton expand="block" onClick={handleAnonLogin} shape="round"> Join Gallery </IonButton>
                         </div>
 
 

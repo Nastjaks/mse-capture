@@ -16,6 +16,7 @@ const SignInPage: React.FC = () => {
     //Todo Validate input fields
 
     const handleLogin = async () => {
+        console.log(password);
         try {
             const {success, message} = await signIn(email, password);
             if (success) {
@@ -72,7 +73,7 @@ const SignInPage: React.FC = () => {
                                 value={password}
                                 required={true}
                                 type="password"
-                                onIonInput={(e) => setPassword(e.detail.value!)}
+                                onIonInput={(e) => {setPassword(e.detail.value!), console.log(password)}}
                             >
                             </IonInput>
                         </IonItem>

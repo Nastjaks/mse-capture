@@ -1,7 +1,5 @@
 import {supabase} from "../config/supabaseConfig";
 
-
-
 /* -- Create a Task -- */
 export const createTask = async (task: string, galleryId: string) => {
     const { data: tasks, error } = await supabase
@@ -68,7 +66,7 @@ export const getTaksImages = async (taskId: string) => {
     try {
         const {data, error} = await supabase
             .from('gallery_images')
-            .select('*,  tasks (task)', )
+            .select('*,  tasks (task), profiles(display_name)', )
             .eq('task_id', taskId);  // Filtere nach der gallery_id
 
         if (error) {

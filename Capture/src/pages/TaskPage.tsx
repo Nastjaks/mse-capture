@@ -52,7 +52,7 @@ const TaskPage: React.FC = () => {
     const fetchGallery = async () => {
         if (galleryId) {
             const fetchedGallery = await getGalleryById(galleryId);
-            setGallery(fetchedGallery);
+            setGallery(fetchedGallery?.gallery_data);
         }
     };
 

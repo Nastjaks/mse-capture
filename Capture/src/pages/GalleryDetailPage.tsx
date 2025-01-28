@@ -89,7 +89,7 @@ const GalleryDetailPage: React.FC = () => {
     const loadGalleryInfos = async () => {
         const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
         if (result_galleryData) {
-            setGallery(result_galleryData);
+            setGallery(result_galleryData.gallery_data);
         }
     };
 
@@ -291,8 +291,7 @@ const GalleryDetailPage: React.FC = () => {
                             <div className="galleryTopBar">
                                 <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                             </div>
-
-                            <p>Owner: {gallery.owner_id}</p>
+                            <p>Owner: {gallery.profiles.display_name}</p>
                             <h1>{gallery.title}</h1>
                             <p>{gallery.description}</p>
                             {gallery.preview_image && (

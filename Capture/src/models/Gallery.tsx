@@ -4,4 +4,7 @@ export interface Gallery {
     description: string;
     preview_image: string;
     owner_id: string;
+    profiles: {
+        display_name: string;
+    };
 }

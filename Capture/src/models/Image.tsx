@@ -8,4 +8,7 @@ export interface Image {
     owner_id: string;
     task_id: string;
     tasks?: Task;
+    profiles: {
+        display_name: string;
+    };
 }

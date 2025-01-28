@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Image} from "../models/Image";
 import {IonIcon, IonModal} from "@ionic/react";
-import {arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
+import {arrowBackSharp, downloadOutline, image, trash} from "ionicons/icons";
 import {useSwipeable} from "react-swipeable";
 import {deleteImageFromGallery, downloadPublicFile, getImageFromUrl} from "../services/galleryService";
 import {useAuth} from "../contexts/AuthContext";
@@ -12,6 +12,7 @@ interface ImageComponentProps {
     galleryOwnerId: string;
     onImageDelete: () => void;
 }
+
 /* Ausgabe der Bilder mit Lightbox*/
 const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, onImageDelete}) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -20,6 +21,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
     const {currentUser} = useAuth();
     const {showToast} = useToast();
+
 
     // ----- Download eines Bildes
     const downloadGalleryImagesFromURL = async (url: string) => {
@@ -143,7 +145,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
 
                             {/* Infos */}
                             <div className="lightbox-footer">
-                                <p>By XYZ</p>
+                                <p>By {images[currentImageIndex].profiles.display_name}</p>
                                 {images[currentImageIndex]?.tasks && (
                                     <p>Task: {images[currentImageIndex].tasks.task}</p>
                                 )}

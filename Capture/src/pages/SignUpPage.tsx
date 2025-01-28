@@ -76,7 +76,7 @@ const SignUpPage: React.FC = () => {
                                 value={userName}
                                 required={true}
                                 type="text"
-                                onIonChange={(e) => setUserName(e.detail.value!)}
+                                onIonInput={(e) => setUserName(e.detail.value!)}
                             >
                             </IonInput>
                         </IonItem>
@@ -89,7 +89,7 @@ const SignUpPage: React.FC = () => {
                                 value={email}
                                 required={true}
                                 type="email"
-                                onIonChange={(e) => setEmail(e.detail.value!)}
+                                onIonInput={(e) => setEmail(e.detail.value!)}
                             >
                             </IonInput>
                         </IonItem>
@@ -102,7 +102,7 @@ const SignUpPage: React.FC = () => {
                                 value={password}
                                 required={true}
                                 type="password"
-                                onIonChange={(e) => setPassword(e.detail.value!)}
+                                onIonInput={(e) => setPassword(e.detail.value!)}
                             >
                             </IonInput>
                         </IonItem>

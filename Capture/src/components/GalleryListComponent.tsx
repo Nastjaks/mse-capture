@@ -14,6 +14,7 @@ const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
                 galleries.map((gallery) => (
                     <div key={gallery.id}>
                         <Link to={`/gallery/${gallery.id}`} className="gallery-link gallery-itme">
+                        <p>Owner: {gallery.profiles.display_name}</p>
                         <h1 className="gallery-title">{gallery.title}</h1>
                         <p className="gallery-description">{gallery.description}</p>
                         {gallery.preview_image && (
