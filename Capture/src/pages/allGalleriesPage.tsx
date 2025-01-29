@@ -4,13 +4,16 @@ import {getGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import GalleryListComponent from "../components/GalleryListComponent";
 
+/*
+* Seite zur Anzeige aller verfügbaren Galerien.
+*/
 const AllGalleriesPage: React.FC = () => {
-    const [galleries, setGalleries] = useState<Gallery[]>([]); // Typisierung des States
+    const [galleries, setGalleries] = useState<Gallery[]>([]);
 
     const fetchGalleries = async () => {
         const data = await getGalleries();
         if (data) {
-            setGalleries(data); // Galerie-Daten setzen
+            setGalleries(data);
         }
     };
 
@@ -19,8 +22,8 @@ const AllGalleriesPage: React.FC = () => {
     });
 
     const handleRefresh = async (event: CustomEvent) => {
-        await fetchGalleries(); // Galerie-Daten neu laden
-        event.detail.complete(); // Signalisiert, dass das Refresh abgeschlossen ist
+        await fetchGalleries();
+        event.detail.complete();
     };
 
     return (

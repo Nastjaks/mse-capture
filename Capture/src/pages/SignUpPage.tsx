@@ -33,7 +33,7 @@ const SignUpPage: React.FC = () => {
             const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
                 await checkUser();
-                    //history.push(`/profil`); // Weiterleitung
+                //history.push(`/profil`); // Weiterleitung
             }
             showToast(message);
         } catch (err) {
@@ -68,7 +68,7 @@ const SignUpPage: React.FC = () => {
 
 
                     <div className="form-container">
-                        <IonItem>
+                        <IonItem lines="none">
                             <IonInput
                                 placeholder="Anonymer Loris..."
                                 labelPlacement="floating"
@@ -81,7 +81,7 @@ const SignUpPage: React.FC = () => {
                             </IonInput>
                         </IonItem>
 
-                        <IonItem>
+                        <IonItem lines="none">
                             <IonInput
                                 placeholder="Email..."
                                 labelPlacement="floating"
@@ -94,7 +94,7 @@ const SignUpPage: React.FC = () => {
                             </IonInput>
                         </IonItem>
 
-                        <IonItem>
+                        <IonItem lines="none">
                             <IonInput
                                 placeholder="Password..."
                                 labelPlacement="floating"

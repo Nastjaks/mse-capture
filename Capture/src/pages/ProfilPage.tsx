@@ -1,8 +1,7 @@
-import {IonAlert, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
+import {IonAlert, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonModal, IonPage, IonTitle, IonToolbar} from '@ionic/react';
 import {menuController} from '@ionic/core/components';
 import React, {useRef, useState} from "react";
 import {signOut, updateUserData} from "../services/authService";
-import {useHistory} from "react-router-dom";
 import {useToast} from "../contexts/ToastContext";
 import {useAuth} from "../contexts/AuthContext";
 import {alertCircle, createSharp, logOut, trash} from "ionicons/icons";
@@ -82,9 +81,12 @@ const ProfilPage: React.FC = () => {
             <IonContent fullscreen={true}>
 
                 <div className="profile-header ion-padding">
-                    <h3>{currentUser.user_metadata.display_name}</h3>
-                    <p>{currentUser.email}</p>
-                    <p>{currentUser.id}</p>
+
+                    <h1 className="profile-name">{currentUser.user_metadata.display_name}</h1>
+                    <p className="profile-mail">{currentUser.email}</p>
+
+
+                    <div className="placeholder-img"/>
                 </div>
 
                 {currentUser.is_anonymous ? (
@@ -153,7 +155,7 @@ const ProfilPage: React.FC = () => {
                 <div className="ion-padding form-container">
                     <p>Set new Username</p>
                     <IonItem>
-                        <IonInput
+                    <IonInput
                             placeholder="Username"
                             label="New username"
                             labelPlacement="floating"

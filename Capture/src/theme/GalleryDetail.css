@@ -24,16 +24,16 @@
     z-index: -1;
 }
 
-.galerie-header .gallery-owner{
-    font-size: 16px;
+.gallery-owner{
+    font-size: var(--font-sm);
 }
 
-.galerie-header .gallery-title{
-    font-size: 30px;
+.gallery-title{
+    font-size: var(--font-xl);
 }
 
-.galerie-header .gallery-descr{
-    font-size: 14px;
+.gallery-descr{
+    font-size: var(--font-xs);
     opacity: .5;
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../theme/GalleryList.css';
 import {Gallery} from '../models/Gallery';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {useAuth} from "../contexts/AuthContext";
 
 interface GalleryListProps {
@@ -22,9 +22,9 @@ const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
                             )}
                             <h1 className="gallery-title">{gallery.title}</h1>
                             {gallery.preview_image ? (
-                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image" />
+                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image"/>
                             ) : (
-                                <img src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image" />
+                                <div className="gallery-image  placeholder-img"/>
                             )}
                         </Link>
                     </div>

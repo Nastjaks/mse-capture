@@ -136,7 +136,7 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                     </div>
 
                     <IonContent className="ion-padding">
-                    {tasks.length > 0 ? (
+                        {tasks.length > 0 ? (
                             tasks.map((task) => (
                                 <div key={task.id} className="task-item">
                                     <div className="task-def">

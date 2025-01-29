@@ -35,43 +35,28 @@ http://ionicframework.com/docs/theming/ //#A23347*/
 
     --rounded-border: 20px;
     --round-border: 50px;
+    --prew-img-height: 230px;
+
+    --font-xxs: 12px;
+    --font-xs: 14px;
+    --font-sm: 16px;
+    --font-lg: 22px;
+    --font-xl: 25px;
+    --font-xxl: 40px;
+
+
 }
 
 
 ion-label {
-    font-size: 10px;
+    font-size: var(--font-xxs);
 }
-
-/*-----------------------------------------*/
-/*
-.header-wrapper{
-    position: absolute;
-    aspect-ratio: 1 / 1;
-    width: 150%;
-    top: -20%;
-    left: 50%;
-    z-index: -1;
-    transform: translate(-50%);
-}
-
-.header-top{
-    position: absolute;
-    background: #ffffff03;
-    height: auto;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    top: -50%;
-    left: 0;
-    border-radius: 100%;
-}
-
-*/
 
 /*---------------------------------------*/
 .no-content {
-    font-size: 40px;
+    font-size: var(--font-xxl);
     max-width: 70%;
-    color:var(--light-BG);
+    color: var(--light-BG);
 }
 
 .no-content p {
@@ -174,13 +159,12 @@ ion-fab.hide-btn {
     color: rgba(255, 255, 255, 0.8);
 }
 
-
 #imagePreview_label:hover {
     background: #272727;
 }
 
 #imagePreview_label ion-icon {
-    font-size: 40px;
+    font-size: var( --font-xxl);
 }
 
 #imagePreview_label.hasImg {
@@ -209,6 +193,10 @@ ion-fab.hide-btn {
     margin-top: 30px;
     max-width: 250px;
     height: 50px;
+}
+
+.create-gallery-form.form-container{
+    margin-top: 0;
 }
 
 /* ---------- TASK ITEM ---------- */
@@ -276,7 +264,7 @@ ion-fab.hide-btn {
     aspect-ratio: 1 / 1;
     height: 100%;
     width: auto;
-    font-size: 15px !important;
+    font-size: var(--font-lg) !important;
     background: var(--ion-color-primary);
     display: flex;
     align-items: center;
@@ -292,10 +280,14 @@ ion-header {
     box-shadow: none !important;
 }
 
+ion-toolbar{
+    --background: transparent;
+}
+
 ion-toolbar ion-title {
     letter-spacing: 2px;
-    text-align: start;
     text-transform: uppercase;
+    text-align: center;
 }
 
 /*-------------------------------------------------*/
@@ -311,7 +303,7 @@ img.join-galerie-previeImg {
     display: flex;
     padding: 10px;
     justify-content: end;
-    font-size: 22px;
+    font-size:var(--font-lg);
     width: 100%;
 }
 
@@ -327,7 +319,7 @@ img.join-galerie-previeImg {
 /*-------------------------------------------------*/
 .taskTopBar {
     padding: 10px;
-    font-size: 22px;
+    font-size: var(--font-lg);
     width: 100%;
     display: flex;
 }
@@ -346,7 +338,7 @@ img.join-galerie-previeImg {
     display: flex;
     padding: 20px;
     justify-content: space-between;
-    font-size: 22px;
+    font-size: var(--font-lg);
     position: absolute;
     width: 100%;
     top: 0;
@@ -433,6 +425,9 @@ img.join-galerie-previeImg {
 }
 
 /*-------------------------------------------------*/
+ion-modal, ion-alert{
+    backdrop-filter: blur(5px);
+}
 
 ion-modal.share-modal {
     --height: 800px;
@@ -443,15 +438,15 @@ ion-modal.task-manager-modal {
 }
 
 ion-modal.action-modal{
-    --border-radius: 20px;
-    backdrop-filter: blur(5px) !important;
+    --border-radius: var(--rounded-border);
 }
 
 .action-modal-title{
     text-align: center;
     border-bottom: 1px solid var(--light-BG);
-    font-size: 25px;
+    font-size: var(--font-lg);
 }
+
 /*-------------------------------------------------*/
 .form-container-row {
     display: flex;
@@ -473,7 +468,7 @@ ion-tab-bar {
 
 /*-------------------------------------------------*/
 .sign-txt {
-    font-size: 12px;
+    font-size: var(--font-xxs);
     color: rgba(255, 255, 255, 0.50);
     text-align: center;
     margin-top: 0px;
@@ -486,7 +481,26 @@ ion-tab-bar {
 
 /* ---------------------- PROFILE ---------------------- */
 .profile-header {
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.49);
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    margin:  16px;
+    border-radius: var(--rounded-border);
+    overflow: hidden;
+}
+
+.profile-header:after{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--ion-background-color);
+    top: 0;
+    left: 0;
+    opacity: .65;
+    z-index: -1;
 }
 
 .profile-settings-wrapper {
@@ -499,6 +513,22 @@ ion-tab-bar {
     --background: var(--light-BG);
 }
 
+.profile-header .placeholder-img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+}
+
+.profile-name{
+
+}
+
+.profile-mail{
+
+}
 /*-------------------------------------------------*/
 
 ion-modal.modal-dialog {
@@ -517,7 +547,7 @@ ion-modal.modal-dialog .form-container {
 .custom-segment-container {
     display: flex;
     position: relative;
-    background: #1e1e1e;
+    background: var(--light-BG);
     border-radius: var(--rounded-border);
     margin: 10px 0 0 0 ;
     overflow: hidden;
@@ -525,8 +555,9 @@ ion-modal.modal-dialog .form-container {
 
 .custom-segment-button ion-text{
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: var(--font-xxs);
 }
+
 .custom-segment-button {
     padding: 8px;
     width: 50%;
@@ -535,11 +566,11 @@ ion-modal.modal-dialog .form-container {
     cursor: pointer;
     border-radius: var(--rounded-border);
     position: relative;
-    z-index: 1; /* Damit der Text oben bleibt */
+    z-index: 1;
 }
 
 .custom-segment-button.active {
-    color: white; /* Textfarbe für den aktiven Button */
+    color: var(--ion-text-color);
 }
 
 .custom-segment-background {
@@ -548,9 +579,9 @@ ion-modal.modal-dialog .form-container {
     left: 0;
     width: 50%;
     height: 100%;
-    background-color: #8c3947; /* Hintergrundfarbe für den aktiven Segment-Button */
+    background-color: var( --ion-color-primary);
     transition: transform 0.3s ease;
-    z-index: 0; /* Hintergrund hinter den Buttons */
+    z-index: 0;
     border-radius: var(--rounded-border);
 }
 
@@ -558,6 +589,11 @@ ion-item ion-icon, ion-button ion-icon{
     padding-right: 15px;
 }
 
-.swiper {
-    height: calc(100% - 30px);
+/*----------------- Placeholder Image -----------------*/
+.placeholder-img{
+    height: 100%;
+    width: 100%;
+    background-image: url("https://images.unsplash.com/photo-1688494930098-e88c53c26e3a?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-position: center center;
+    background-size: cover;
 }

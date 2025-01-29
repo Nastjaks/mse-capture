@@ -24,7 +24,7 @@ const TaskPage: React.FC = () => {
     });
 
 
-   /* -- Refresh Content -- */
+    /* -- Refresh Content -- */
     const handleRefresh = async (event: CustomEvent) => {
         await fetchGallery();
         await fetchTask();
@@ -103,32 +103,32 @@ const TaskPage: React.FC = () => {
 
                 {gallery && task ? (
                     <>
-                    <div className="galerie-header">
+                        <div className="galerie-header">
 
-                        <div className="taskTopBar">
-                            <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
+                            <div className="taskTopBar">
+                                <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
+                            </div>
+
+                            <div className="gallery-header-wrapper">
+                                <p className="gallery-owner">By {gallery.profiles.display_name}</p>
+                                <h1 className="gallery-title">{gallery.title}</h1>
+                            </div>
+                            {gallery.preview_image ? (
+                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image"/>
+                            ) : (
+                                <div className="gallery-image  placeholder-img"/>
+                            )}
                         </div>
 
-                        <div className="gallery-header-wrapper">
-                            <p className="gallery-owner">By {gallery.profiles.display_name}</p>
-                            <h1 className="gallery-title">{gallery.title}</h1>
+                        <div>
+                            <div className="ion-padding">
+                                <IonText color="primary">Task</IonText>
+                                <h2>{task.task}</h2>
+                            </div>
+
+                            <ImageComponent images={taskImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchTaskImages}/>
+
                         </div>
-                        {gallery.preview_image ? (
-                            <img src={gallery.preview_image} alt={gallery.title} className="gallery-image" />
-                        ) : (
-                            <img src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image" />
-                        )}
-                    </div>
-
-                    <div>
-                        <div className="ion-padding">
-                            <IonText color="primary">Task</IonText>
-                            <h2>{task.task}</h2>
-                        </div>
-
-                        <ImageComponent images={taskImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchTaskImages}/>
-
-                    </div>
                     </>
 
                 ) : (
@@ -136,7 +136,6 @@ const TaskPage: React.FC = () => {
                         <p>Error</p>
                     </div>
                 )}
-
 
 
             </IonContent>

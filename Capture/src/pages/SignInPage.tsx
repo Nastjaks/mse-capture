@@ -31,7 +31,7 @@ const SignInPage: React.FC = () => {
     };
 
     useIonViewWillEnter(() => {
-        console.log("Sign IN ", isAuthenticated );
+        console.log("Sign IN ", isAuthenticated);
     });
 
 
@@ -52,7 +52,7 @@ const SignInPage: React.FC = () => {
                     <h1 className="pageTitle">SIGN IN</h1>
 
                     <div className="form-container">
-                        <IonItem>
+                        <IonItem lines="none">
                             <IonInput
                                 placeholder="Email..."
                                 label="Email*"
@@ -65,7 +65,7 @@ const SignInPage: React.FC = () => {
                             </IonInput>
                         </IonItem>
 
-                        <IonItem>
+                        <IonItem lines="none">
                             <IonInput
                                 placeholder="Password..."
                                 labelPlacement="floating"
@@ -73,7 +73,9 @@ const SignInPage: React.FC = () => {
                                 value={password}
                                 required={true}
                                 type="password"
-                                onIonInput={(e) => {setPassword(e.detail.value!), console.log(password)}}
+                                onIonInput={(e) => {
+                                    setPassword(e.detail.value!), console.log(password)
+                                }}
                             >
                             </IonInput>
                         </IonItem>

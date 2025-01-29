@@ -6,9 +6,9 @@ import {Link, useParams} from "react-router-dom";
 import {useHistory} from "react-router";
 import {signIn, signUp} from '../services/authService';
 import {getLoggedInUser} from "../services/authService";
-import { useToast } from '../contexts/ToastContext';
-import { useAuth } from '../contexts/AuthContext';
-import { getRandomUserName } from '../utilitys/randomUsername';
+import {useToast} from '../contexts/ToastContext';
+import {useAuth} from '../contexts/AuthContext';
+import {getRandomUserName} from '../utilitys/randomUsername';
 import {menuController} from "@ionic/core/components";
 
 
@@ -71,7 +71,7 @@ const JoinGalleryPage: React.FC = () => {
             if (checkUserResponse) {
                 AddUserToGallery(gallery.id, user.user?.id);
                 history.replace(`/gallery/${gallery.id}`);
-            } else {    
+            } else {
                 showToast("Failed to join gallery");
             }
         }
@@ -83,7 +83,7 @@ const JoinGalleryPage: React.FC = () => {
             if (result.success && gallery && result.user) {
                 const checkUserResponse = await checkUser();
                 if (checkUserResponse) {
-                    AddUserToGallery(gallery.id, result.user?.id, );
+                    AddUserToGallery(gallery.id, result.user?.id,);
                     history.replace(`/gallery/${gallery.id}`);
                     showToast("Joined gallery!");
                 } else {
@@ -112,7 +112,7 @@ const JoinGalleryPage: React.FC = () => {
                         {gallery.preview_image ? (
                             <img className="join-galerie-previeImg" src={gallery.preview_image}/>
                         ) : (
-                            <img className="join-galerie-previeImg placeholder-img gallery-image" src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder"/>
+                            <div className="join-galerie-previeImg placeholder-img"></div>
                         )}
 
                         <div className="gallery-header-wrapper">
@@ -125,7 +125,7 @@ const JoinGalleryPage: React.FC = () => {
                         </div>
 
                         <div className="form-container">
-                            <IonItem>
+                            <IonItem lines="none">
                                 <IonInput
                                     placeholder="Name..."
                                     label="Name"
@@ -163,7 +163,7 @@ const JoinGalleryPage: React.FC = () => {
                                         <div className="action-modal-title">
                                             <p>Join with account</p>
                                         </div>
-                                        <IonItem>
+                                        <IonItem lines="none">
                                             <IonInput
                                                 placeholder="Email..."
                                                 labelPlacement="floating"
@@ -176,7 +176,7 @@ const JoinGalleryPage: React.FC = () => {
                                             </IonInput>
                                         </IonItem>
 
-                                        <IonItem>
+                                        <IonItem lines="none">
                                             <IonInput
                                                 placeholder="Password..."
                                                 labelPlacement="floating"
@@ -201,9 +201,6 @@ const JoinGalleryPage: React.FC = () => {
                 ) : (
                     <p>No Gallery found</p>
                 )}
-
-
-
 
 
             </IonContent>

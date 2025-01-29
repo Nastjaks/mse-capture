@@ -18,6 +18,9 @@ import ImageComponent from "../components/ImageComponent";
 import {Image} from "../models/Image";
 import {useAuth} from "../contexts/AuthContext";
 
+/*
+* Gallerie Detailseite
+* */
 const GalleryDetailPage: React.FC = () => {
 
     const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
@@ -46,21 +49,21 @@ const GalleryDetailPage: React.FC = () => {
 
     // Gallery laden in useIonViewWillEnter
     useIonViewWillEnter(() => {
-    (async () => {
-        if (!galleryId) return;
-        await loadGalleryInfos();    // => setzt gallery
-        await fetchGalleryImages();  // => setzt galleryImages
-        if (taskComponentRef.current) {
-        await taskComponentRef.current.fetchTasks();
-        }
-    })();
+        (async () => {
+            if (!galleryId) return;
+            await loadGalleryInfos();    // => setzt gallery
+            await fetchGalleryImages();  // => setzt galleryImages
+            if (taskComponentRef.current) {
+                await taskComponentRef.current.fetchTasks();
+            }
+        })();
     });
 
     // useEffect überwacht gallery und currentUser
     useEffect(() => {
-    if (gallery && currentUser) {
-        isParticipantInGallery();
-    }
+        if (gallery && currentUser) {
+            isParticipantInGallery();
+        }
     }, [gallery, currentUser]);
 
     /* -- Content Refresh -- */
@@ -151,7 +154,7 @@ const GalleryDetailPage: React.FC = () => {
             const files = event.target.files;
 
             if (files && gallery?.owner_id && gallery.id) {
-                const fileArray = Array.from(files); // Dateien in ein Array konvertieren
+                const fileArray = Array.from(files);
                 try {
                     await Promise.all(fileArray.map(file => addImagesToGallery(gallery.owner_id, gallery.id, file as File)));
                     await fetchGalleryImages();
@@ -259,17 +262,17 @@ const GalleryDetailPage: React.FC = () => {
                             {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowShareModal(true);
-                            }}>  <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>)}
+                            }}> <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>)}
 
                             {!isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowDeleteConfirm(true);
-                            }}>  <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>)}
+                            }}> <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>)}
 
                             {isParticipant && (<IonItem button onClick={() => {
                                 setShowSettings(false);
                                 setShowLeaveConfirm(true);
-                            }}>  <IonIcon aria-hidden="true" icon={logOut}/>Leave Gallery</IonItem>)}
+                            }}> <IonIcon aria-hidden="true" icon={logOut}/>Leave Gallery</IonItem>)}
                         </IonContent>
                     </IonModal>
 
@@ -300,9 +303,9 @@ const GalleryDetailPage: React.FC = () => {
                             </div>
 
                             {gallery.preview_image ? (
-                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image" />
+                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image"/>
                             ) : (
-                                <img src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image" />
+                                <div className="gallery-image placeholder-img"/>
                             )}
 
                         </div>
@@ -375,7 +378,7 @@ const GalleryDetailPage: React.FC = () => {
                                 text: 'Cancel',
                                 role: 'cancel',
                                 handler: async () => {
-                                    await menuController.close(); // Menü schließen
+                                    await menuController.close();
                                 },
                             },
                             {
@@ -400,83 +403,83 @@ const GalleryDetailPage: React.FC = () => {
 
                 </IonContent>
 
-                    <IonModal
-                        className="modal-dialog"
-                        ref={modal}
-                        onDidDismiss={resetFields}>
-                        <div className="ion-padding form-container">
-                            <p>Set new title</p>
-                            <IonItem>
-                                <IonInput
-                                    placeholder="Title"
-                                    label="Title"
-                                    labelPlacement="floating"
-                                    value={newTitle}
-                                    required={true}
-                                    type='text'
-                                    onIonChange={(e) => setNewTitle(e.detail.value!)}
-                                />
-                            </IonItem>
-                            <p>Set new description</p>
-                            <IonItem>
-                                <IonInput
-                                    placeholder="Description..."
-                                    label="Description"
-                                    labelPlacement="floating"
-                                    value={newDescription}
-                                    required={true}
-                                    type='text'
-                                    onIonChange={(e) => setNewDescription(e.detail.value!)}
-                                />
-                            </IonItem>
+                <IonModal
+                    className="modal-dialog"
+                    ref={modal}
+                    onDidDismiss={resetFields}>
+                    <div className="ion-padding form-container">
+                        <p>Set new title</p>
+                        <IonItem>
+                            <IonInput
+                                placeholder="Title"
+                                label="Title"
+                                labelPlacement="floating"
+                                value={newTitle}
+                                required={true}
+                                type='text'
+                                onIonChange={(e) => setNewTitle(e.detail.value!)}
+                            />
+                        </IonItem>
+                        <p>Set new description</p>
+                        <IonItem>
+                            <IonInput
+                                placeholder="Description..."
+                                label="Description"
+                                labelPlacement="floating"
+                                value={newDescription}
+                                required={true}
+                                type='text'
+                                onIonChange={(e) => setNewDescription(e.detail.value!)}
+                            />
+                        </IonItem>
 
-                            <span className="imgPickerLabel">
+                        <span className="imgPickerLabel">
                                 <p className="label tumb-label">Thumbnail</p>
 
-                                {/* Bild entfernen */}
-                                {newPreviewImage && (
-                                    <IonIcon
-                                        className="removeImage"
-                                        aria-hidden="true"
-                                        icon={trash}
-                                        onClick={() => {
-                                            setNewPreviewImage(null);
-                                            setNewPreviewImageUrl(null);
-                                        }}
-                                    />
-                                )}
+                            {/* Bild entfernen */}
+                            {newPreviewImage && (
+                                <IonIcon
+                                    className="removeImage"
+                                    aria-hidden="true"
+                                    icon={trash}
+                                    onClick={() => {
+                                        setNewPreviewImage(null);
+                                        setNewPreviewImageUrl(null);
+                                    }}
+                                />
+                            )}
 
                             </span>
 
-                            <input
-                                type="file"
-                                accept="image/*"
-                                id="imagePreview_id"
-                                hidden
-                                onChange={handleFileChange}
-                            />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            id="imagePreview_id"
+                            hidden
+                            onChange={handleFileChange}
+                        />
 
-                            <label
-                                id="imagePreview_label"
-                                htmlFor="imagePreview_id"
-                                className={newPreviewImage ? "hasImg" : ""}
-                                style={{
-                                    backgroundImage: newPreviewImage ? `url(${newPreviewImageUrl})` : undefined,
-                                }}
-                            >
+                        <label
+                            id="imagePreview_label"
+                            htmlFor="imagePreview_id"
+                            className={newPreviewImage ? "hasImg" : ""}
+                            style={{
+                                backgroundImage: newPreviewImage ? `url(${newPreviewImageUrl})` : undefined,
+                            }}
+                        >
                                     <span className="imagePicker">
                                         <span>Choose Image</span>
                                         <IonIcon aria-hidden="true" icon={imageOutline}/>
                                     </span>
-                            </label>
-                            <IonButton expand="block"
-                                        onClick={() => {
-                                            handleEditGallery();
-                                            resetFields();
-                                            dismiss();
-                                        }} shape="round"> Save </IonButton>
-                        </div>
-                    </IonModal>
+                        </label>
+                        <IonButton expand="block"
+                                   onClick={() => {
+                                       handleEditGallery();
+                                       resetFields();
+                                       dismiss();
+                                   }} shape="round"> Save </IonButton>
+                    </div>
+                </IonModal>
             </IonPage>
 
         </>

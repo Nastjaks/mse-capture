@@ -1,3 +1,5 @@
+/* -------- Gallery list item --------*/
+
 .gallery-container{
     display: flex;
     gap: 20px;
@@ -43,11 +45,11 @@
 
 .gallery-title{
     margin: 5px 0;
-    font-size: 23px;
+    font-size: var(--font-xl);
 }
 
 .gallery-description{
     margin: 5px 0;
-    font-size: 14px;
+    font-size: var(--font-xs);
 }
 

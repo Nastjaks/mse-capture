@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonPage, IonTitle, IonToolbar, useIonViewWillLeave} from '@ionic/react';
 import {useState} from "react";
 import {useHistory} from 'react-router-dom';
 import {createGallery} from "../services/galleryService";
@@ -7,6 +7,9 @@ import {useToast} from "../contexts/ToastContext";
 import {imageOutline, trash} from 'ionicons/icons';
 import {useAuth} from "../contexts/AuthContext";
 
+/*
+* Seite zur Erstellung einer neuen Galerie.
+*/
 const CreateGalleryPage: React.FC = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -84,7 +87,7 @@ const CreateGalleryPage: React.FC = () => {
 
             <IonContent fullscreen={true} className="ion-padding">
 
-                <div className="form-container">
+                <div className="create-gallery-form form-container">
                     <IonItem>
                         <IonInput
                             placeholder="Title..."
