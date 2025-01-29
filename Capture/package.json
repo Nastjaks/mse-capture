@@ -31,7 +31,8 @@
     "react-dom": "^18.2.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
-    "react-swipeable": "^7.0.2"
+    "react-swipeable": "^7.0.2",
+    "swiper": "^11.2.1"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.2.0",

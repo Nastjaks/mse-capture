@@ -124,16 +124,19 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
             {/* Task Manager Modal */}
             <IonModal
                 isOpen={props.isTaskManagerOpen}
-                className="task-manager-modal"
-                initialBreakpoint={0.9}
+                className="task-manager-modal action-modal"
+                initialBreakpoint={0.75}
                 showBackdrop={true}
                 handleBehavior="none"
                 keepContentsMounted={false}
             >
                 <div className="task-manager-container">
-                    <p className="task-manager-title">Task Manager</p>
+                    <div className="action-modal-title">
+                        <p className="task-manager-title">Task Manager</p>
+                    </div>
+
                     <IonContent className="ion-padding">
-                        {tasks.length > 0 ? (
+                    {tasks.length > 0 ? (
                             tasks.map((task) => (
                                 <div key={task.id} className="task-item">
                                     <div className="task-def">
@@ -172,7 +175,7 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                                 Task<IonText>*</IonText>
                             </div>
                         </IonInput>
-                        <div  className="addTaskBtn" onClick={handleAddTask}>
+                        <div className="addTaskBtn" onClick={handleAddTask}>
                             <IonIcon icon={add}></IonIcon>
                         </div>
                     </div>

@@ -4,6 +4,10 @@ import {getSharedGalleries, getUsersGalleries} from '../services/galleryService'
 import {Gallery} from "../models/Gallery";
 import GalleryListComponent from "../components/GalleryListComponent";
 import {useAuth} from "../contexts/AuthContext";
+import 'swiper/css'; // Importiere nur die notwendigen Styles
+import 'swiper/css/pagination'; // Falls du auch die Pagination verwenden möchtest (optional)
+import 'swiper/css/navigation'; // Falls du die Navigation verwenden möchtest (optional)
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 const GalleriesPage: React.FC = () => {
 
@@ -79,6 +83,7 @@ const GalleriesPage: React.FC = () => {
                         <GalleryListComponent galleries={sharedGalleries}/>
                     </div>
                 )}
+
 
             </IonContent>
         </IonPage>

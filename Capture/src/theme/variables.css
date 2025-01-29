@@ -24,13 +24,13 @@ http://ionicframework.com/docs/theming/ //#A23347*/
     --ion-color-secondary-shade: #571d21;
     --ion-color-secondary-tint: #73373b;
 
-    --ion-background-color: #151515 !important;
+    --ion-background-color: #121212 !important;
     --ion-background-color-rgb: 21, 21, 21;
 
     --ion-text-color: #fff;
     --ion-text-color-rgb: 255, 255, 255;
 
-    --light-BG: #1e1e1e;
+    --light-BG: #1c1c1c;
     --ion-color-success: #00D1B8;
 
     --rounded-border: 20px;
@@ -71,13 +71,13 @@ ion-label {
 .no-content {
     font-size: 40px;
     max-width: 70%;
-    color: #1e1e1e;
-    font-weight: 900 !important;
+    color:var(--light-BG);
 }
 
 .no-content p {
     margin: 0;
     text-transform: uppercase;
+    font-weight: 400 !important;
 }
 
 /*---------------------------------------*/
@@ -140,7 +140,7 @@ ion-fab.hide-btn {
 
 .form-container .item {
     border-radius: var(--rounded-border);
-    --background: #1e1e1e;
+    --background: var(--light-BG);
 }
 
 .tumb-label {
@@ -157,7 +157,7 @@ ion-fab.hide-btn {
     align-items: center;
     color: #878787;
     transition: all .3s ease-in-out;
-    background: #1e1e1e center center;
+    background: var(--light-BG) center center;
 }
 
 .imagePicker {
@@ -242,15 +242,16 @@ ion-fab.hide-btn {
 
 .task-item ion-icon {
     font-size: 20px;
-    color: #8D3948 !important;
+    color: var(--ion-color-primary) !important;
 }
+
 
 .task-item .task-item-check.task-done {
     color: #00D1B8 !important;
 }
 
 .task-item .task-item-check.task-undone {
-    color: #151515 !important;
+    color: #0b0b0b !important;
 }
 
 .item-trash {
@@ -260,7 +261,7 @@ ion-fab.hide-btn {
 .task-manager-container {
     display: flex;
     flex-direction: column;
-    height: 90%;
+    height: 75%;
 }
 
 .task-manager-title{
@@ -416,11 +417,7 @@ img.join-galerie-previeImg {
 }
 
 .qr-image-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #3b3b3b;
+    padding-bottom: 30px;
     margin-bottom: 30px;
 }
 
@@ -445,6 +442,16 @@ ion-modal.task-manager-modal {
     --height: 100%;
 }
 
+ion-modal.action-modal{
+    --border-radius: 20px;
+    backdrop-filter: blur(5px) !important;
+}
+
+.action-modal-title{
+    text-align: center;
+    border-bottom: 1px solid var(--light-BG);
+    font-size: 25px;
+}
 /*-------------------------------------------------*/
 .form-container-row {
     display: flex;
@@ -549,4 +556,8 @@ ion-modal.modal-dialog .form-container {
 
 ion-item ion-icon, ion-button ion-icon{
     padding-right: 15px;
+}
+
+.swiper {
+    height: calc(100% - 30px);
 }

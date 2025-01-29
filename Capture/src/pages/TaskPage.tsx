@@ -101,28 +101,25 @@ const TaskPage: React.FC = () => {
                     </IonFabButton>
                 </IonFab>
 
-                {gallery ? (
+                {gallery && task ? (
+                    <>
                     <div className="galerie-header">
 
                         <div className="taskTopBar">
                             <IonIcon onClick={() => history.push(`/gallery/${galleryId}`)} aria-hidden="true" icon={arrowBackSharp}/>
                         </div>
 
-                        <p>Owner: {gallery?.owner_id}</p>
-                        <h1>{gallery?.title}</h1>
-                        <p>{gallery?.description}</p>
-                        {gallery?.preview_image && (
-                            <img className="galerie-previeImg" src={gallery.preview_image}/>
+                        <div className="gallery-header-wrapper">
+                            <p className="gallery-owner">By {gallery.profiles.display_name}</p>
+                            <h1 className="gallery-title">{gallery.title}</h1>
+                        </div>
+                        {gallery.preview_image ? (
+                            <img src={gallery.preview_image} alt={gallery.title} className="gallery-image" />
+                        ) : (
+                            <img src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image" />
                         )}
                     </div>
-                ) : (
-                    <div className="ion-padding no-content">
-                        <p>Error</p>
-                    </div>
-                )}
 
-
-                {task ? (
                     <div>
                         <div className="ion-padding">
                             <IonText color="primary">Task</IonText>
@@ -132,11 +129,15 @@ const TaskPage: React.FC = () => {
                         <ImageComponent images={taskImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchTaskImages}/>
 
                     </div>
+                    </>
+
                 ) : (
                     <div className="ion-padding no-content">
                         <p>Error</p>
                     </div>
                 )}
+
+
 
             </IonContent>
         </IonPage>

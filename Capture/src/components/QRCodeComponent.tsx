@@ -50,7 +50,9 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
 
         <IonModal
             isOpen={istShareOpen}
-            initialBreakpoint={0.6}
+            breakpoints={[0, 0.55]}
+            initialBreakpoint={0.55}
+            className="share-modal action-modal"
             backdropDismiss={true}
             keepContentsMounted={false}
             show-backdrop={true}
@@ -63,8 +65,8 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
                     <div className="qr-code-container">
                         {qrCodeData ? (
                             <>
-                                <div className="qr-image-top">
-                                    <h1>Invite your friends</h1>
+                                <div className="action-modal-title qr-image-top">
+                                    <p>Invite your friends</p>
                                     <IonButton shape="round" onClick={() => copyToClipboard(window.location.origin + "/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
                                 </div>
 

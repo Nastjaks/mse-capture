@@ -38,7 +38,6 @@ const GalleryDetailPage: React.FC = () => {
     const [selectedSegment, setSelectedSegment] = useState("gallery-images-segment");
 
     const taskComponentRef = useRef<any>(null);
-    
     const modal = useRef<HTMLIonModalElement>(null);
 
     const {showToast} = useToast();
@@ -287,16 +286,25 @@ const GalleryDetailPage: React.FC = () => {
                     {gallery ? (
                         <div className="galerie-header">
 
-                            {/* Optionen */}
                             <div className="galleryTopBar">
                                 <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                             </div>
-                            <p>Owner: {gallery.profiles.display_name}</p>
-                            <h1>{gallery.title}</h1>
-                            <p>{gallery.description}</p>
-                            {gallery.preview_image && (
-                                <img className="galerie-previeImg" src={gallery.preview_image}/>
+
+                            <div className="gallery-header-wrapper">
+                                <p className="gallery-owner">By {gallery.profiles.display_name}</p>
+                                <h1 className="gallery-title">{gallery.title}</h1>
+
+                                {gallery.description && (
+                                    <p className="gallery-descr">{gallery.description}</p>
+                                )}
+                            </div>
+
+                            {gallery.preview_image ? (
+                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image" />
+                            ) : (
+                                <img src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image" />
                             )}
+
                         </div>
                     ) : (
                         <p>Gallery not found</p>
@@ -424,7 +432,7 @@ const GalleryDetailPage: React.FC = () => {
 
                             <span className="imgPickerLabel">
                                 <p className="label tumb-label">Thumbnail</p>
-        
+
                                 {/* Bild entfernen */}
                                 {newPreviewImage && (
                                     <IonIcon
@@ -437,9 +445,9 @@ const GalleryDetailPage: React.FC = () => {
                                         }}
                                     />
                                 )}
-        
+
                             </span>
-        
+
                             <input
                                 type="file"
                                 accept="image/*"
@@ -447,7 +455,7 @@ const GalleryDetailPage: React.FC = () => {
                                 hidden
                                 onChange={handleFileChange}
                             />
-        
+
                             <label
                                 id="imagePreview_label"
                                 htmlFor="imagePreview_id"

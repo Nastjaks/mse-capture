@@ -4,10 +4,13 @@
 }
 
 .galerie-header{
-    min-height: 215px;
+    min-height: 230px;
     position: relative;
     overflow: hidden;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .galerie-header:after{
@@ -15,10 +18,23 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), #151515);
+    background: linear-gradient(rgba(0, 0, 0, 0.5), var(--ion-background-color));
     top: 0;
     left: 0;
     z-index: -1;
+}
+
+.galerie-header .gallery-owner{
+    font-size: 16px;
+}
+
+.galerie-header .gallery-title{
+    font-size: 30px;
+}
+
+.galerie-header .gallery-descr{
+    font-size: 14px;
+    opacity: .5;
 }
 
 .galerie-previeImg{
