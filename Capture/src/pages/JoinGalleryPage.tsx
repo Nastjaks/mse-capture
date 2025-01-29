@@ -58,25 +58,23 @@ const JoinGalleryPage: React.FC = () => {
             const userResponse = await getLoggedInUser();
             if (userResponse.success && userResponse.user) {
                 AddUserToGallery(galleryId, userResponse.user?.id);
-                history.push(`/gallery/${galleryId}`);
+                history.replace(`/gallery/${galleryId}`);
                 showToast("Joined gallery!");
             }
         }
     };
 
     const handleAnonLogin = async () => {
-        const user = await signUp("", "", anonName);
+        const user = await signUp("", "", anonName || getRandomUserName());
         if (user.success && gallery && user.user) {
             const checkUserResponse = await checkUser();
             if (checkUserResponse) {
                 AddUserToGallery(gallery.id, user.user?.id);
-                history.push(`/gallery/${gallery.id}`);
+                history.replace(`/gallery/${gallery.id}`);
             } else {    
                 showToast("Failed to join gallery");
             }
-            history.push(`/gallery/${gallery.id}`);
         }
-        console.log("User:", user);
     };
 
     const handleLoginWithInviteCode = async () => {
@@ -86,7 +84,7 @@ const JoinGalleryPage: React.FC = () => {
                 const checkUserResponse = await checkUser();
                 if (checkUserResponse) {
                     AddUserToGallery(gallery.id, result.user?.id, );
-                    history.push(`/gallery/${gallery.id}`);
+                    history.replace(`/gallery/${gallery.id}`);
                     showToast("Joined gallery!");
                 } else {
                     showToast("Failed to join gallery");
@@ -114,7 +112,7 @@ const JoinGalleryPage: React.FC = () => {
                         {gallery.preview_image ? (
                             <img className="join-galerie-previeImg" src={gallery.preview_image}/>
                         ) : (
-                            <img className="join-galerie-previeImg placeholder-img" src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder" className="gallery-image"/>
+                            <img className="join-galerie-previeImg placeholder-img gallery-image" src="https://images.unsplash.com/photo-1638438134099-a91e5373aaf0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="placeholder"/>
                         )}
 
                         <div className="gallery-header-wrapper">
@@ -141,7 +139,7 @@ const JoinGalleryPage: React.FC = () => {
 
                             <IonButton expand="block" onClick={handleAnonLogin} shape="round"> Join Gallery </IonButton>
 
-                            <IonText className="sign-txt">Have an account? <Link  button id="open-modal">Log in</Link></IonText>
+                            <IonText className="sign-txt">Have an account? <Link to='' id="open-modal">Log in</Link></IonText>
 
                         </div>
 
