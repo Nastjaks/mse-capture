@@ -17,7 +17,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
     useEffect(() => {
         const generateQRCode = async () => {
             try {
-                const qrCodeUrl = `$capture-mse.netlify.app/${galleryId}`;
+                const qrCodeUrl = `capture-mse.netlify.app/${galleryId}`;
                 const qrCode = await QRCode.toDataURL(qrCodeUrl);
                 setQrCodeData(qrCode);
             } catch (err) {
@@ -66,7 +66,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
                             <>
                                 <div className="action-modal-title qr-image-top">
                                     <p>Invite your friends</p>
-                                    <IonButton shape="round" onClick={() => copyToClipboard("capture-mse.netlify.app//join-gallery/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
+                                    <IonButton shape="round" onClick={() => copyToClipboard("capture-mse.netlify.app/join-gallery/" + galleryId)}> <IonIcon aria-hidden="true" icon={copySharp}/>Copy Link</IonButton>
                                 </div>
 
                                 <div className="qr-image-content">
