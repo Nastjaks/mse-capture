@@ -1,11 +1,16 @@
 # MSE CAPTURE APP
 
+Im Web: https://capture-mse.netlify.app
+
+Projekt https://github.com/users/Nastjaks/projects/2
+
 ## Toolstack
 
 - Ionic https://ionicframework.com/
 - Capacitor https://capacitorjs.com/
 - React https://react.dev/
 - Supabase https://supabase.com/
+- Netlify.com https://www.netlify.com/
 - Figma https://www.figma.com/design/6B8HuH0injDHiGtOu7qunu/Untitled?node-id=48-237&t=5WNaP2zGBFHvpJPH-1
 
 ## MVP
