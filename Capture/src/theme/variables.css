@@ -290,6 +290,21 @@ ion-toolbar ion-title {
     text-align: center;
 }
 
+ion-toast{
+    --border-radius: var(--rounded-border);
+    animation: toastIn .3s 1;
+}
+
+@keyframes toastIn {
+    from {scale: 0.95;}
+    to {scale: 1;}
+}
+
+/*
+ion-content::part(scroll) {
+    padding-top: var(--ion-safe-area-top, 0);
+}*/
+
 /*-------------------------------------------------*/
 img.join-galerie-previeImg {
     max-height: 230px;

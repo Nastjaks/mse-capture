@@ -38,6 +38,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
                 isOpen={show}
                 message={message}
                 duration={duration}
+                swipeGesture="vertical"
                 onDidDismiss={() => setShow(false)}
             />
         </ToastContext.Provider>
