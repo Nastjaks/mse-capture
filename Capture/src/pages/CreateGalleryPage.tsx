@@ -79,13 +79,13 @@ const CreateGalleryPage: React.FC = () => {
     return (
         <IonPage>
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Create Gallery</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent fullscreen={true} className="ion-padding">
+
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Create Gallery</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
 
                 <div className="create-gallery-form form-container">
                     <IonItem>

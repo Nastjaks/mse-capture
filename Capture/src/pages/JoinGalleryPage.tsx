@@ -98,13 +98,13 @@ const JoinGalleryPage: React.FC = () => {
     return (
         <IonPage>
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>CAPTURE</IonTitle>
-                </IonToolbar>
-            </IonHeader>
+            <IonContent fullscreen={true} className="ion-padding">
 
-            <IonContent fullscreen className="ion-padding">
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>CAPTURE</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
 
                 {gallery ? (
                     <div>

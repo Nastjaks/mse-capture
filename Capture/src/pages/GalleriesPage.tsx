@@ -41,13 +41,13 @@ const GalleriesPage: React.FC = () => {
     return (
         <IonPage>
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Galleries</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent fullscreen={true} className="ion-padding">
+
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Galleries</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
 
                 <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                     <IonRefresherContent

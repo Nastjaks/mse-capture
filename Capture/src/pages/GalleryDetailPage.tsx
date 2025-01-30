@@ -1,5 +1,5 @@
 import {
-    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter
+    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewDidLeave, useIonViewWillEnter
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useEffect, useRef, useState} from 'react';
@@ -17,6 +17,8 @@ import {getLoggedInUser} from '../services/authService';
 import ImageComponent from "../components/ImageComponent";
 import {Image} from "../models/Image";
 import {useAuth} from "../contexts/AuthContext";
+import {StatusBar, Style} from "@capacitor/status-bar";
+import {Capacitor} from "@capacitor/core";
 
 /*
 * Gallerie Detailseite
@@ -49,6 +51,7 @@ const GalleryDetailPage: React.FC = () => {
 
     // Gallery laden in useIonViewWillEnter
     useIonViewWillEnter(() => {
+
         (async () => {
             if (!galleryId) return;
             await loadGalleryInfos();    // => setzt gallery
@@ -233,10 +236,10 @@ const GalleryDetailPage: React.FC = () => {
     }
 
     return (
-        <>
+
             <IonPage id="gallerie-content">
 
-                <IonContent fullscreen>
+                <IonContent fullscreen={true}>
 
                     {/* Custom Navigation*/}
                     <IonModal
@@ -481,8 +484,6 @@ const GalleryDetailPage: React.FC = () => {
                     </div>
                 </IonModal>
             </IonPage>
-
-        </>
     );
 };
 

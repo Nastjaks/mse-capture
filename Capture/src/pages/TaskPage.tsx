@@ -85,7 +85,7 @@ const TaskPage: React.FC = () => {
 
     return (
         <IonPage>
-            <IonContent fullscreen>
+            <IonContent  fullscreen={true}>
 
                 <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                     <IonRefresherContent

@@ -4,7 +4,7 @@
 }
 
 .galerie-header{
-    min-height: 230px;
+    min-height: var( --prew-img-height);
     position: relative;
     overflow: hidden;
     padding: 10px;

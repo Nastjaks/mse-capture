@@ -72,13 +72,13 @@ const ProfilPage: React.FC = () => {
 
         <IonPage id="profile-content">
 
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Profile</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent fullscreen={true}>
+
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Profile</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
 
                 <div className="profile-header ion-padding">
 

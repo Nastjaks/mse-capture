@@ -24,7 +24,7 @@ http://ionicframework.com/docs/theming/ //#A23347*/
     --ion-color-secondary-shade: #571d21;
     --ion-color-secondary-tint: #73373b;
 
-    --ion-background-color: #121212 !important;
+    --ion-background-color: #0e0e0e !important;
     --ion-background-color-rgb: 21, 21, 21;
 
     --ion-text-color: #fff;
@@ -35,7 +35,7 @@ http://ionicframework.com/docs/theming/ //#A23347*/
 
     --rounded-border: 20px;
     --round-border: 50px;
-    --prew-img-height: 230px;
+    --prew-img-height: 250px;
 
     --font-xxs: 12px;
     --font-xs: 14px;
@@ -169,7 +169,7 @@ ion-fab.hide-btn {
 
 #imagePreview_label.hasImg {
     position: relative;
-    height: 215px;
+    height: var( --prew-img-height);
     width: 100%;
     background-size: 100%;
     overflow: hidden;
@@ -300,14 +300,9 @@ ion-toast{
     to {scale: 1;}
 }
 
-/*
-ion-content::part(scroll) {
-    padding-top: var(--ion-safe-area-top, 0);
-}*/
-
 /*-------------------------------------------------*/
 img.join-galerie-previeImg {
-    max-height: 230px;
+    max-height: var( --prew-img-height);
     width: 100%;
     object-fit: cover;
     border-radius: var(--rounded-border);
