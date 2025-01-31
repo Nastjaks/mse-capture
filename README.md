@@ -4,6 +4,10 @@ Im Web: https://capture-mse.netlify.app
 
 Projekt https://github.com/users/Nastjaks/projects/2
 
+Gallery zum Scannen
+
+![QRCode](/qrcode-lustige-tiere.png)
+
 ## Toolstack
 
 - Ionic https://ionicframework.com/
