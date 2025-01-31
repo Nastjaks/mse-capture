@@ -6,11 +6,12 @@ import {useToast} from "../contexts/ToastContext";
 import {useAuth} from "../contexts/AuthContext";
 import {alertCircle, createSharp, logOut, trash} from "ionicons/icons";
 
+// Page to display and manage the user profile
 const ProfilPage: React.FC = () => {
-    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Zustand für das Bestätigungsdialog
     const [newName, setNewName] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const {showToast} = useToast();
     const {checkUser, currentUser, updateCurrentUser} = useAuth();
@@ -26,10 +27,9 @@ const ProfilPage: React.FC = () => {
         try {
             const {success, message} = await signOut();
             if (success) {
-                await checkUser(); // Benutzerinformationen abrufen/aktualisieren
+                await checkUser();
                 await menuController.close();
                 window.location.href = `/signin`;
-                //history.push(`/signin`);
             }
             showToast(message);
         } catch (err) {
@@ -39,7 +39,7 @@ const ProfilPage: React.FC = () => {
     };
 
     const handleUpdateUsername = async () => {
-        const {success, message} = await updateUserData({ name: newName }, currentUser.id);
+        const {success, message} = await updateUserData({name: newName}, currentUser.id);
         if (success) {
             updateCurrentUser();
             dismiss(usernameModal.current!);
@@ -48,8 +48,8 @@ const ProfilPage: React.FC = () => {
     }
 
     const handleUpdatePassword = async () => {
-        if(newPassword === confirmPassword && newPassword !== ""){ 
-            const {success, message} = await updateUserData({ password: newPassword }, currentUser.id);
+        if (newPassword === confirmPassword && newPassword !== "") {
+            const {success, message} = await updateUserData({password: newPassword}, currentUser.id);
             if (success) {
                 updateCurrentUser();
                 dismiss(passwordModal.current!);
@@ -60,18 +60,14 @@ const ProfilPage: React.FC = () => {
         }
     }
 
-
     const resetFields = () => {
         setNewName("");
         setNewPassword("");
         setConfirmPassword("");
     }
 
-
     return (
-
         <IonPage id="profile-content">
-
             <IonContent fullscreen={true}>
 
                 <IonHeader>
@@ -81,11 +77,8 @@ const ProfilPage: React.FC = () => {
                 </IonHeader>
 
                 <div className="profile-header ion-padding">
-
                     <h1 className="profile-name">{currentUser.user_metadata.display_name}</h1>
                     <p className="profile-mail">{currentUser.email}</p>
-
-
                     <div className="placeholder-img"/>
                 </div>
 
@@ -126,7 +119,7 @@ const ProfilPage: React.FC = () => {
                 </div>
             </IonContent>
 
-            {/* Logout-Bestätigungsdialog */}
+            {/* Logout-Confirmation */}
             <IonAlert
                 isOpen={showLogoutConfirm}
                 onDidDismiss={() => setShowLogoutConfirm(false)}
@@ -137,7 +130,7 @@ const ProfilPage: React.FC = () => {
                         text: 'Cancel',
                         role: 'cancel',
                         handler: async () => {
-                            await menuController.close(); // Menü schließen
+                            await menuController.close();
                         },
                     },
                     {
@@ -147,6 +140,7 @@ const ProfilPage: React.FC = () => {
                 ]}
             />
 
+            {/* Modal for setting username */}
             <IonModal
                 className="modal-dialog"
                 ref={usernameModal}
@@ -155,7 +149,7 @@ const ProfilPage: React.FC = () => {
                 <div className="ion-padding form-container">
                     <p>Set new Username</p>
                     <IonItem>
-                    <IonInput
+                        <IonInput
                             placeholder="Username"
                             label="New username"
                             labelPlacement="floating"
@@ -173,6 +167,7 @@ const ProfilPage: React.FC = () => {
                 </div>
             </IonModal>
 
+            {/* Modal for setting password */}
             <IonModal
                 className="modal-dialog"
                 ref={passwordModal}
@@ -211,7 +206,6 @@ const ProfilPage: React.FC = () => {
                 </div>
             </IonModal>
         </IonPage>
-
     );
 };
 

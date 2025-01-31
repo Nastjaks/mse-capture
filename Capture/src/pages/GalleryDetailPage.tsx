@@ -1,12 +1,10 @@
-import {
-    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewDidLeave, useIonViewWillEnter, useIonViewWillLeave
-} from '@ionic/react';
+import {    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewWillEnter} from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useEffect, useRef, useState} from 'react';
 import {useHistory} from "react-router";
 import {add, camera, createSharp, ellipsisVerticalSharp, imageOutline, logOut, share, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery, updateGallery, updateGalleryInfos, updateGalleryPreviewImg} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery, updateGalleryInfos, updateGalleryPreviewImg} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
@@ -17,26 +15,21 @@ import {getLoggedInUser} from '../services/authService';
 import ImageComponent from "../components/ImageComponent";
 import {Image} from "../models/Image";
 import {useAuth} from "../contexts/AuthContext";
-import {StatusBar, Style} from "@capacitor/status-bar";
-import {Capacitor} from "@capacitor/core";
 import {addTimestampToFilename} from "../utilitys/timeStamp";
 
-/*
-* Gallerie Detailseite
-* */
+// Page for displaying the selected gallery
 const GalleryDetailPage: React.FC = () => {
-
-    const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
-    const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
+    const {galleryId} = useParams<{ galleryId: string }>();
+    const [gallery, setGallery] = useState<Gallery | null>(null);
     const [galleryImages, setGalleryImages] = useState<Image[]>([]);
-    const [isParticipant, setIsParticipant] = useState(false); // State für die Galerie
+    const [isParticipant, setIsParticipant] = useState(false);
 
     const [newTitle, setNewTitle] = useState("");
     const [newDescription, setNewDescription] = useState("");
     const [newPreviewImage, setNewPreviewImage] = useState<File | null>(null);
     const [newPreviewImageUrl, setNewPreviewImageUrl] = useState<string | null>(null);
 
-    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false); // Zustand für das Bestätigungsdialog
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -51,56 +44,50 @@ const GalleryDetailPage: React.FC = () => {
     const {currentUser} = useAuth();
     const history = useHistory();
 
-    // Gallery laden in useIonViewWillEnter
+    // Fetch gallery data and images when entering the page
     useIonViewWillEnter(() => {
-
         (async () => {
             if (!galleryId) return;
-            await loadGalleryInfos();    // => setzt gallery
-            await fetchGalleryImages();  // => setzt galleryImages
+            await loadGalleryInfos();
+            await fetchGalleryImages();
             if (taskComponentRef.current) {
                 await taskComponentRef.current.fetchTasks();
             }
         })();
     });
 
-    // useEffect überwacht gallery und currentUser
+    // Check if the current user is a participant in the gallery
     useEffect(() => {
         if (gallery && currentUser) {
             isParticipantInGallery();
         }
     }, [gallery, currentUser]);
 
-    /* -- Content Refresh -- */
     const handleRefresh = async (event: CustomEvent) => {
         await loadGalleryInfos();
         await isParticipantInGallery();
         await fetchGalleryImages();
 
-        // fetchTasks in der Kindkomponente auslösen
         if (taskComponentRef.current) {
-            await taskComponentRef.current.fetchTasks(); // Ruft die fetchTasks Funktion in der Kindkomponente auf
+            await taskComponentRef.current.fetchTasks();
         }
-
         event.detail.complete();
     };
 
-    /* -- Prüft Rolle -- */
+    // Check if the current user is a participant in the gallery
     const isParticipantInGallery = async () => {
         if (gallery) {
             setIsParticipant(currentUser.id !== gallery.owner_id);
         }
     };
 
-    /* -- Holt die Gallery Infos -- */
     const loadGalleryInfos = async () => {
-        const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
+        const result_galleryData = await getGalleryById(galleryId);
         if (result_galleryData) {
             setGallery(result_galleryData.gallery_data);
         }
     };
 
-    /* -- Holt die Bilder der Galerie -- */
     const fetchGalleryImages = async () => {
         const images = await getGalleryImages(galleryId);
         if (images) {
@@ -108,7 +95,6 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    /* -- Galerie Löschen -- */
     const handleDeleteGallery = async () => {
         try {
             if (!gallery || !gallery.owner_id) {
@@ -116,21 +102,20 @@ const GalleryDetailPage: React.FC = () => {
                 showToast('Unexpected error.');
                 return;
             }
-            const result = await deleteGallery(galleryId, gallery.owner_id, gallery.preview_image); // Galerie löschen
+            const result = await deleteGallery(galleryId, gallery.owner_id, gallery.preview_image);
             console.log(galleryId)
             if (result.success) {
                 showToast(result.message);
-                await menuController.close(); // Menü schließen
-                history.push('/profil');
+                await menuController.close();
+                history.push('/galleries');
             } else {
                 showToast(result.message);
             }
         } catch (err) {
-            console.error('Fehler beim Löschen der Galerie:', err);
+            console.error('Error deleting gallery:', err);
         }
     };
 
-    /* -- Verlassen der Galerie -- */
     const leaveSharedGallery = async () => {
         try {
             const userResponse = await getLoggedInUser();
@@ -149,7 +134,6 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    /* -- Läd die Bilde hoch zur Galerie -- */
     const handleAddImagesToGallery = async () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -167,6 +151,7 @@ const GalleryDetailPage: React.FC = () => {
                         return addImagesToGallery(gallery.owner_id, gallery.id, renamedFile);
                     }));
                     await fetchGalleryImages();
+                    showToast('Images uploaded successfully');
                 } catch (error) {
                     console.error('Error uploading the images', error);
                     showToast('Error uploading the images');
@@ -179,7 +164,7 @@ const GalleryDetailPage: React.FC = () => {
         input.click();
     };
 
-    /* -- Edit Gallery Infos-- */
+
     const handleEditGallery = async () => {
         if (gallery) {
             const titleToUse = newTitle || gallery.title; // Fallback auf bestehenden Titel
@@ -194,7 +179,7 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    /* -- Edit Gallery PreviewImage-- */
+
     const handleChangePreviewImage = async () => {
         if (gallery && newPreviewImage) {
 
@@ -213,12 +198,12 @@ const GalleryDetailPage: React.FC = () => {
         }
     };
 
-    /* -- Bildvorschau -- */
+    // Set the preview image when a new file is selected and prepare the image for upload
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
 
-            // Validierung der Dateigröße (max. 2 MB)
+
             if (file.size > 2 * 1024 * 1024) {
                 showToast("The file must not be larger than 2 MB.");
                 return;
@@ -226,7 +211,6 @@ const GalleryDetailPage: React.FC = () => {
 
             setNewPreviewImage(file);
 
-            // Bildvorschau generieren
             const reader = new FileReader();
             reader.onload = () => {
                 setNewPreviewImageUrl(reader.result as string);
@@ -258,12 +242,10 @@ const GalleryDetailPage: React.FC = () => {
     }
 
     return (
-
         <IonPage id="gallerie-content">
-
             <IonContent fullscreen={true}>
 
-                {/* Custom Navigation*/}
+                {/* Gallery Settings */}
                 <IonModal
                     isOpen={showSettings}
                     onDidDismiss={handleCloseSettings}
@@ -308,7 +290,7 @@ const GalleryDetailPage: React.FC = () => {
                     </IonContent>
                 </IonModal>
 
-                {/* Fontent Refresher */}
+                {/* Frontend Refresher */}
                 <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                     <IonRefresherContent
                         pullingText="Pull to refresh"
@@ -372,7 +354,7 @@ const GalleryDetailPage: React.FC = () => {
                 {/* Share Gallery */}
                 <QRCodeComponent galleryId={galleryId} istShareOpen={showShareModal}/>
 
-                {/* Delete-Galerie-Bestätigungsdialog */}
+                {/* Delete-Gallery-Confirmation */}
                 <IonAlert
                     isOpen={showDeleteConfirm}
                     onDidDismiss={() => setShowDeleteConfirm(false)}
@@ -395,19 +377,19 @@ const GalleryDetailPage: React.FC = () => {
                     ]}
                 />
 
-                {/* Logout-Bestätigungsdialog */}
+                {/* Logout-Confirmation */}
                 <IonAlert
                     isOpen={showLeaveConfirm}
                     onDidDismiss={() => setShowLeaveConfirm(false)}
                     header={'Leave Gallery'}
-                    message={'Do you really want to leave this gallery?'}
+                    message={`Do you really want to delete this gallery?
+                            ${gallery?.title}`}
                     buttons={[
                         {
                             text: 'Cancel',
                             role: 'cancel',
                             handler: async () => {
-                                await menuController.close();
-                            },
+                                await menuController.close();},
                         },
                         {
                             text: 'Leave',
@@ -428,9 +410,7 @@ const GalleryDetailPage: React.FC = () => {
                     </IonFabButton>
                 </IonFab>
 
-
-
-                {/* Change Infos*/}
+                {/*Edit Infos*/}
                 <IonModal
                     className="action-modal"
                     ref={editInfosModal}
@@ -476,7 +456,7 @@ const GalleryDetailPage: React.FC = () => {
                 </IonModal>
 
 
-                {/* new Preview image*/}
+                {/*Edit Preview image*/}
                 <IonModal
                     className="action-modal"
                     ref={editPreviewModal}

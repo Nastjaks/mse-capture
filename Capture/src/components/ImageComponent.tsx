@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Image} from "../models/Image";
 import {IonIcon, IonModal} from "@ionic/react";
-import {arrowBackSharp, downloadOutline, image, trash} from "ionicons/icons";
+import {arrowBackSharp, downloadOutline, trash} from "ionicons/icons";
 import {useSwipeable} from "react-swipeable";
 import {deleteImageFromGallery, downloadPublicFile, getImageFromUrl} from "../services/galleryService";
 import {useAuth} from "../contexts/AuthContext";
@@ -13,7 +13,7 @@ interface ImageComponentProps {
     onImageDelete: () => void;
 }
 
-/* Ausgabe der Bilder mit Lightbox*/
+// Component to display images in a gallery
 const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, onImageDelete}) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const openModal = () => setIsModalOpen(true);
@@ -23,7 +23,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
     const {showToast} = useToast();
 
 
-    // ----- Download eines Bildes
+    // Download image from URL
     const downloadGalleryImagesFromURL = async (url: string) => {
         console.log('URL:', url);
         const cutUrl = url.split('/public/').slice(2).join('/');
@@ -32,11 +32,12 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
         await downloadPublicFile(result);
     };
 
-    // ----- Bild Löschen
+
+    // Delete image from gallery
     const handleDeleteImage = async (imageToDelete: Image) => {
         const image = await getImageFromUrl(imageToDelete.image_url);
         try {
-            if ((currentUser.id == galleryOwnerId) || (imageToDelete.owner_id == galleryOwnerId) && image) {
+            if ((currentUser.id == galleryOwnerId) || (imageToDelete.owner_id == currentUser.id) && image) {
                 await deleteImageFromGallery(imageToDelete.id, imageToDelete.image_url);
                 closeModal();
 
@@ -72,7 +73,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
 
     return (
         <>
-            {/* Image Ausgabe */}
+            {/* Displays the images */}
             <div>
                 {images.length > 0 ? (
                     <div className="galerie-img-wrapper">
@@ -102,7 +103,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
             <IonModal isOpen={isModalOpen} onDidDismiss={() => closeModal()}>
                 <div className="modal-content galerie-lightbox">
 
-                    {/* Optionen */}
+                    {/* Options */}
                     <div className="lightbox-header">
                         <IonIcon onClick={closeModal} aria-hidden="true" icon={arrowBackSharp}/>
                         <span>
@@ -132,7 +133,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({images, galleryOwnerId, 
                         </span>
                     </div>
 
-                    {/* Bildanzeige */}
+                    {/* Image display */}
                     {images[currentImageIndex] && (
                         <div className="image-container-wrapper">
                             <div className="image-container" {...handlers}>

@@ -5,9 +5,7 @@ import {Gallery} from "../models/Gallery";
 import GalleryListComponent from "../components/GalleryListComponent";
 import {useAuth} from "../contexts/AuthContext";
 
-/*
-* Seite zur Anzeige der Galerien des Nutzers und der Galerien, denen der Nutzer beigetreten ist.
-*/
+// Page to display the galleries of the user and the galleries the user has joined
 const GalleriesPage: React.FC = () => {
 
     const [usersGalleries, setUsersGalleries] = useState<Gallery[]>([]);
@@ -15,7 +13,6 @@ const GalleriesPage: React.FC = () => {
     const {currentUser} = useAuth();
     const [selectedSegment, setSelectedSegment] = useState("users-galleries");
 
-    // Galerie-Daten abrufen und setzen
     const fetchGalleries = async () => {
         const userGalleries = await getUsersGalleries(currentUser.id);
         setUsersGalleries(userGalleries);
@@ -23,12 +20,10 @@ const GalleriesPage: React.FC = () => {
         setSharedGalleries(userSharedGalleries)
     };
 
-    // Galerie-Daten laden, wenn die page aufgerufen wird
     useIonViewWillEnter(() => {
         fetchGalleries();
     });
 
-    // Galerie-Daten neu laden, wenn die page refreshed wird
     const handleRefresh = async (event: CustomEvent) => {
         await fetchGalleries();
         event.detail.complete();
@@ -82,7 +77,6 @@ const GalleriesPage: React.FC = () => {
                         <GalleryListComponent galleries={sharedGalleries}/>
                     </div>
                 )}
-
 
             </IonContent>
         </IonPage>

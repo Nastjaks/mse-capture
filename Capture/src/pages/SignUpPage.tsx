@@ -1,39 +1,35 @@
-import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter, useIonViewWillLeave} from '@ionic/react';
-import {useEffect, useState} from "react";
+import {IonButton, IonContent, IonInput, IonItem, IonPage, IonText, useIonViewWillLeave} from '@ionic/react';
+import {useState} from "react";
 import {signUp} from "../services/authService";
 import {useToast} from "../contexts/ToastContext";
 import {Link, useHistory} from "react-router-dom";
 import {getRandomUserName} from "../utilitys/randomUsername";
 import {useAuth} from "../contexts/AuthContext";
 
+// Page to sign up
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
 
-    const {isAuthenticated, checkUser} = useAuth();
+    const {checkUser} = useAuth();
     const {showToast} = useToast();
-    const history = useHistory();
 
 
     const handleSignUp = async () => {
-
         if (!email) {
             showToast("Email required");
             return;
         }
-
         if (!password) {
             showToast("Password required");
             return;
         }
-
-        const finalUserName = userName || getRandomUserName(); //setzt einen Random namen
+        const finalUserName = userName || getRandomUserName();
         try {
             const {success, message} = await signUp(email, password, finalUserName);
             if (success) {
                 await checkUser();
-                //history.push(`/profil`); // Weiterleitung
             }
             showToast(message);
         } catch (err) {
@@ -42,13 +38,12 @@ const SignUpPage: React.FC = () => {
         }
     };
 
-    //Resetet die Felder wenn die View verlassen wird
     useIonViewWillLeave(() => {
-        restFields();
+        resetFields();
     });
 
 
-    const restFields = () => {
+    const resetFields = () => {
         setEmail("");
         setPassword("");
         setUserName("");
@@ -56,7 +51,6 @@ const SignUpPage: React.FC = () => {
 
     return (
         <IonPage>
-
             <IonContent fullscreen={true} className="ion-padding">
                 <div className="page-bottom">
                     <div className="header-wrapper">
@@ -65,7 +59,6 @@ const SignUpPage: React.FC = () => {
                     </div>
 
                     <h1 className="pageTitle">Sign up</h1>
-
 
                     <div className="form-container">
                         <IonItem lines="none">
@@ -106,9 +99,7 @@ const SignUpPage: React.FC = () => {
                             >
                             </IonInput>
                         </IonItem>
-
                         <IonButton expand="block" onClick={handleSignUp} shape="round"> Sign Up </IonButton>
-
                         <IonText className="sign-txt">Have an account? <Link to={`/signin`}>Sign In</Link></IonText>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ interface GalleryListProps {
     galleries: Gallery[];
 }
 
+// Defines the View of a gallery element
 const GalleryListComponent: React.FC<GalleryListProps> = ({galleries}) => {
     const {currentUser} = useAuth();
 

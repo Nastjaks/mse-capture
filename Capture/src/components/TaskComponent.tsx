@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useImperativeHandle, forwardRef} from "react";
-import {IonAlert, IonButton, IonContent, IonIcon, IonInput, IonItem, IonModal, IonText} from "@ionic/react";
+import {useState, useEffect, useImperativeHandle, forwardRef} from "react";
+import {IonAlert, IonContent, IonIcon, IonInput, IonModal, IonText} from "@ionic/react";
 import {add, camera, checkmark, trash} from "ionicons/icons";
 import {createTask, deleteTask, getTasks} from "../services/taskService";
 import {Task} from "../models/Task";
@@ -12,6 +12,7 @@ interface TaskComponentProps {
     isTaskManagerOpen: boolean;
 }
 
+// Component to display and manage tasks in a gallery
 const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskTitle, setTaskTitle] = useState("");
@@ -25,22 +26,21 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
         fetchTasks();
     }, [props.galleryId]);
 
-    /* -- Holt alle Tasks -- */
+    // Get all tasks for the current gallery
     const fetchTasks = async () => {
         try {
             const tasks = await getTasks(props.galleryId, currentUser.id);
             if (tasks) setTasks(tasks);
         } catch (err) {
-            console.error("Fehler beim Laden der Aufgaben:", err);
+            console.error("Error loading tasks:", err);
         }
     };
 
-    // useImperativeHandle, um die fetchTasks Methode verfügbar zu machen
     useImperativeHandle(ref, () => ({
         fetchTasks
     }));
 
-    /* -- Task erstellen -- */
+    // Add a new task
     const handleAddTask = async () => {
         if (!taskTitle) {
             showToast("Task required");
@@ -53,25 +53,26 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                 setTaskTitle("");
             }
         } catch (err) {
-            console.error("Fehler beim Erstellen der Aufgabe:", err);
+            console.error("Error creating task:", err);
         }
     };
 
-    /* -- Task löschen -- */
+    // Delete a task
     const handleDeleteTask = async (taskId: string) => {
         try {
             const result = await deleteTask(taskId);
             if (result) {
-                showToast("Task gelöscht");
+                showToast("Task deleted");
                 await fetchTasks();
             }
         } catch (err) {
-            console.error("Fehler beim Löschen der Aufgabe:", err);
-            showToast("Fehler beim Löschen der Aufgabe.");
+            console.error("Error deleting task:", err);
+            showToast("Error deleting the task");
         }
     };
 
     return (
+        // Display tasks
         <div className="ion-padding">
             {tasks.length > 0 ? (
                 tasks.map((task) => (
@@ -97,7 +98,7 @@ const TaskComponent = forwardRef((props: TaskComponentProps, ref) => {
                 </div>
             )}
 
-            {/* Delete-Bestätigungsdialog Tastk */}
+            {/* Confirmation to delete Task */}
             <IonAlert
                 isOpen={showDeleteConfirm_Task}
                 onDidDismiss={() => setShowDeleteConfirm_Task(false)}

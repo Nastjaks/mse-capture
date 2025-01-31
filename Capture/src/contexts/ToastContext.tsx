@@ -7,6 +7,7 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+// Hook to use the ToastContext
 export const useToast = () => {
     const context = useContext(ToastContext);
     if (!context) {
@@ -19,11 +20,12 @@ interface ToastProviderProps {
     children: ReactNode;
 }
 
+// ToastProvider component to wrap the entire application and provide toast notifications
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     const [show, setShow] = useState(false);
     const [message, setMessage] = useState('');
 
-    const duration = 5000; // Default duration: 5 seconds
+    const duration = 5000;
 
     const showToast = (message: string) => {
         setMessage(message);

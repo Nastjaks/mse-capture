@@ -5,18 +5,25 @@ import {useToast} from '../contexts/ToastContext';
 import {Link, useHistory} from "react-router-dom";
 import {useAuth} from "../contexts/AuthContext";
 
+// Page to sign in
 const SignInPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const {checkUser, currentUser, isAuthenticated} = useAuth();
+    const {checkUser} = useAuth();
     const {showToast} = useToast();
     const history = useHistory();
 
-    //Todo Validate input fields
-
     const handleLogin = async () => {
-        console.log(password);
+        if (!email) {
+            showToast("Email required");
+            return;
+        }
+
+        if (!password) {
+            showToast("Password required");
+            return;
+        }
         try {
             const {success, message} = await signIn(email, password);
             if (success) {
@@ -30,23 +37,17 @@ const SignInPage: React.FC = () => {
         }
     };
 
-    useIonViewWillEnter(() => {
-        console.log("Sign IN ", isAuthenticated);
-    });
-
-
     useIonViewWillLeave(() => {
-        restFields();
+        resetFields();
     });
 
-    const restFields = () => {
+    const resetFields = () => {
         setEmail("");
         setPassword("");
     }
 
     return (
         <IonPage>
-
             <IonContent fullscreen={true} className="ion-padding">
                 <div className="page-bottom">
                     <h1 className="pageTitle">SIGN IN</h1>
@@ -79,11 +80,8 @@ const SignInPage: React.FC = () => {
                             >
                             </IonInput>
                         </IonItem>
-
                         <IonButton expand="block" onClick={handleLogin} shape="round"> Sign In </IonButton>
-
                         <IonText className="sign-txt">Don't have an account? <Link to={`/signup`}>Sign up</Link></IonText>
-
                     </div>
                 </div>
             </IonContent>

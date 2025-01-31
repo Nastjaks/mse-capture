@@ -10,6 +10,7 @@ import {Image} from "../models/Image";
 import ImageComponent from "../components/ImageComponent";
 import {addTimestampToFilename} from "../utilitys/timeStamp";
 
+// Page to display a task and its images
 const TaskPage: React.FC = () => {
     const {galleryId, taskId} = useParams<{ galleryId: string; taskId: string }>();
     const [task, setTask] = useState<Task | null>(null);
@@ -24,8 +25,6 @@ const TaskPage: React.FC = () => {
         fetchTaskImages();
     });
 
-
-    /* -- Refresh Content -- */
     const handleRefresh = async (event: CustomEvent) => {
         await fetchGallery();
         await fetchTask();
@@ -33,7 +32,6 @@ const TaskPage: React.FC = () => {
         event.detail.complete();
     };
 
-    /* -- Holt die Task -- */
     const fetchTask = async () => {
         if (taskId) {
             const fetchedTask = await getTaskById(taskId);
@@ -41,15 +39,13 @@ const TaskPage: React.FC = () => {
         }
     };
 
-    /* -- Holt die Bilder der Task -- */
     const fetchTaskImages = async () => {
         const images = await getTaksImages(taskId);
         if (images) {
-            setTaskImages(images); // Bild-URLs extrahieren
+            setTaskImages(images);
         }
     };
 
-    /* -- Holt die Gallery Infos -- */
     const fetchGallery = async () => {
         if (galleryId) {
             const fetchedGallery = await getGalleryById(galleryId);
@@ -57,8 +53,7 @@ const TaskPage: React.FC = () => {
         }
     };
 
-
-    /* -- Läd die Bilde hoch und verknüpft sie mit der Task -- */
+    // Upload images to the task
     const handleUploadImagesToTask = async () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -72,7 +67,7 @@ const TaskPage: React.FC = () => {
                 const fileArray = Array.from(files);
                 try {
                     await Promise.all(fileArray.map(file => {
-                        const renamedFile = new File([file], addTimestampToFilename(file), { type: file.type });
+                        const renamedFile = new File([file], addTimestampToFilename(file as File), { type: file.type });
                         return uploadImageToTask(gallery.owner_id, gallery.id, renamedFile, taskId);
                     }));
                     await fetchTaskImages();
@@ -91,7 +86,6 @@ const TaskPage: React.FC = () => {
     return (
         <IonPage>
             <IonContent  fullscreen={true}>
-
                 <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                     <IonRefresherContent
                         pullingText="Pull to refresh"
@@ -141,7 +135,6 @@ const TaskPage: React.FC = () => {
                         <p>Error</p>
                     </div>
                 )}
-
 
             </IonContent>
         </IonPage>

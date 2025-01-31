@@ -4,9 +4,7 @@ import {getGalleries} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import GalleryListComponent from "../components/GalleryListComponent";
 
-/*
-* Seite zur Anzeige aller verfügbaren Galerien.
-*/
+// Page to display all galleries - ONLY FOR DEBUGGING AND DEVELOPMENT
 const AllGalleriesPage: React.FC = () => {
     const [galleries, setGalleries] = useState<Gallery[]>([]);
 

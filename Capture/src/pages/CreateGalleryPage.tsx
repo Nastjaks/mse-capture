@@ -8,9 +8,7 @@ import {imageOutline, trash} from 'ionicons/icons';
 import {useAuth} from "../contexts/AuthContext";
 import {addTimestampToFilename} from "../utilitys/timeStamp";
 
-/*
-* Seite zur Erstellung einer neuen Galerie.
-*/
+// Page to create a new gallery
 const CreateGalleryPage: React.FC = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -22,7 +20,7 @@ const CreateGalleryPage: React.FC = () => {
     const history = useHistory();
 
     const handleCreateGallery = async () => {
-        // Titel validieren
+
         if (!title.trim()) {
             showToast("The title is required.");
             return;
@@ -39,7 +37,7 @@ const CreateGalleryPage: React.FC = () => {
             const result_newGallery = await createGallery({title, description, owner_id} as Gallery, renamedPreviewImage);
 
             if (result_newGallery.success) {
-                restFields();
+                resetFields();
                 history.push(`/gallery/${result_newGallery.data}`);
             }
             showToast(result_newGallery.message);
@@ -50,18 +48,18 @@ const CreateGalleryPage: React.FC = () => {
         }
     };
 
-    const restFields = () => {
+    const resetFields = () => {
         setTitle("");
         setDescription("");
         setPreviewImage(null);
         setImagePreviewUrl(null);
     }
 
+    // Set the preview image when a new file is selected and prepare the image for upload
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
-            const file = event.target.files[0];
+            const file = event.target.files![0];
 
-            // Validierung der Dateigröße (max. 2 MB)
             if (file.size > 2 * 1024 * 1024) {
                 showToast("The file must not be larger than 2 MB.");
                 return;
@@ -69,7 +67,6 @@ const CreateGalleryPage: React.FC = () => {
 
             setPreviewImage(file);
 
-            // Bildvorschau generieren
             const reader = new FileReader();
             reader.onload = () => {
                 setImagePreviewUrl(reader.result as string);
@@ -79,13 +76,13 @@ const CreateGalleryPage: React.FC = () => {
     };
 
     useIonViewWillLeave(() => {
-        restFields();
+        resetFields();
     });
 
 
     return (
         <IonPage>
-
+            {/* Display the form to create a new gallery */}
             <IonContent fullscreen={true} className="ion-padding">
 
                 <IonHeader>
@@ -122,7 +119,6 @@ const CreateGalleryPage: React.FC = () => {
                     <span className="imgPickerLabel">
                         <p className="label tumb-label">Thumbnail</p>
 
-                        {/* Bild entfernen */}
                         {imagePreviewUrl && (
                             <IonIcon
                                 className="removeImage"

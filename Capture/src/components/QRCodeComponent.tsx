@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {IonButton, IonContent, IonIcon, IonModal} from "@ionic/react";
 import * as QRCode from "qrcode";
 import {useToast} from "../contexts/ToastContext";
-import {copySharp, download, shareOutline} from "ionicons/icons";
+import {copySharp, download} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
 
 interface QRCodeComponentProps {
@@ -10,10 +10,11 @@ interface QRCodeComponentProps {
     istShareOpen: boolean;
 }
 
+// Component to generate and display the QR-Code and Link for sharing the gallery
 const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpen}) => {
     const [qrCodeData, setQrCodeData] = useState<string | null>(null);
     const {showToast} = useToast();
-    const joinGalleryUrl = "capture-mse.netlify.app/join-gallery/";
+    const joinGalleryUrl = "https://capture-mse.netlify.app/join-gallery/";
 
     useEffect(() => {
         const generateQRCode = async () => {
@@ -22,13 +23,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
                 const qrCode = await QRCode.toDataURL(qrCodeUrl);
                 setQrCodeData(qrCode);
             } catch (err) {
-                console.error("Fehler beim Generieren des QR-Codes:", err);
+                console.error("Error generating QR-code:", err);
             }
         };
         generateQRCode();
     }, [galleryId]);
 
-    //Download the QR-Code Image
+    // Download the QR-Code as image
     const downloadFile = (url: string, fileName: string) => {
         const link = document.createElement("a");
         link.href = url;
@@ -36,7 +37,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
         link.click();
     };
 
-    //Copy the Gallerylink to Clipboard
+    // Copy the link to the clipboard
     const copyToClipboard = async (link: string) => {
         try {
             await navigator.clipboard.writeText(link);
@@ -48,10 +49,11 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
 
     return (
 
+        // Modal to display the QR-Code and the link for sharing the gallery
         <IonModal
             isOpen={istShareOpen}
-            breakpoints={[0, 0.55]}
-            initialBreakpoint={0.55}
+            breakpoints={[0, 0.60]}
+            initialBreakpoint={0.60}
             className="share-modal action-modal"
             backdropDismiss={true}
             keepContentsMounted={false}
@@ -60,6 +62,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
             onWillPresent={async () => await menuController.close()}
         >
 
+            {/*Content of the modal*/}
             <IonContent className="ion-padding">
                 <div className="ion-margin-top">
                     <div className="qr-code-container">
@@ -71,18 +74,12 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({galleryId, istShareOpe
                                 </div>
 
                                 <div className="qr-image-content">
-                                    <div>
-                                        <p>The QR code <br/>for this gallery</p>
-                                        <p>Scan to join</p>
-                                        <IonButton shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={download}/>Download</IonButton>
-                                    </div>
-                                    <div className="qr-image-wrapper">
-                                        <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
-                                    </div>
+                                    <img src={qrCodeData} alt="QR Code" className="qr-code-image"/>
+                                    <IonButton shape="round" onClick={() => downloadFile(qrCodeData!, "qrcode.png")}> <IonIcon aria-hidden="true" icon={download}/>Download QR</IonButton>
                                 </div>
                             </>
                         ) : (
-                            <p>QR-Code wird generiert...</p>
+                            <p>Generating QR-Code...</p>
                         )}
                     </div>
                 </div>

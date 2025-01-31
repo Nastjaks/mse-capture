@@ -1,4 +1,4 @@
-import {IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonModal, IonPage, IonText, IonTitle, IonToolbar, useIonViewDidEnter, useIonViewWillEnter} from '@ionic/react';
+import {IonButton, IonContent, IonHeader, IonInput, IonItem, IonModal, IonPage, IonText, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import React, {useRef, useState} from 'react';
 import {AddUserToGallery, getGalleryById} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
@@ -11,12 +11,12 @@ import {useAuth} from '../contexts/AuthContext';
 import {getRandomUserName} from '../utilitys/randomUsername';
 import {menuController} from "@ionic/core/components";
 
-
+// Page to join a gallery
 const JoinGalleryPage: React.FC = () => {
-    const [gallery, setGallery] = useState<Gallery | null>(null); // State für die Galerie
+    const [gallery, setGallery] = useState<Gallery | null>(null);
     const [anonName, setAnonName] = useState("");
     const history = useHistory();
-    const {galleryId} = useParams<{ galleryId: string }>(); // Galerie-ID aus der URL extrahieren
+    const {galleryId} = useParams<{ galleryId: string }>();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -29,35 +29,15 @@ const JoinGalleryPage: React.FC = () => {
         fetchGallery();
     });
 
-    // Galerie-Daten basierend auf der ID laden
-    /*useEffect(() => {
-        const fetchGallery = async () => {
-            if (galleryId) {
-                const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
-                if (result_galleryData) {
-                    setGallery(result_galleryData);
-                }
-                const userResponse = await getLoggedInUserId();
-                if (userResponse.success && userResponse.user) {
-                    console.log("U123123124ser:", userResponse.user);
-                    AddUserToGallery(galleryId, userResponse.user?.id);
-                    history.push(`/gallery/${galleryId}`);
-                }
-            }
-        };
-
-        fetchGallery();
-    }, [galleryId]);*/
-
     const fetchGallery = async () => {
         if (galleryId) {
-            const result_galleryData = await getGalleryById(galleryId); // Funktion zum Abrufen der Galerie
+            const result_galleryData = await getGalleryById(galleryId);
             if (result_galleryData) {
                 setGallery(result_galleryData.gallery_data);
             }
             const userResponse = await getLoggedInUser();
             if (userResponse.success && userResponse.user) {
-                AddUserToGallery(galleryId, userResponse.user?.id);
+                await AddUserToGallery(galleryId, userResponse.user?.id);
                 history.replace(`/gallery/${galleryId}`);
                 showToast("Joined gallery!");
             }
@@ -68,7 +48,7 @@ const JoinGalleryPage: React.FC = () => {
         const user = await signUp("", "", anonName || getRandomUserName());
         if (user.success && gallery && user.user) {
             const checkUserResponse = await checkUser();
-            if (checkUserResponse) {
+            if (checkUserResponse ) {
                 AddUserToGallery(gallery.id, user.user?.id);
                 history.replace(`/gallery/${gallery.id}`);
             } else {
@@ -86,6 +66,7 @@ const JoinGalleryPage: React.FC = () => {
                     AddUserToGallery(gallery.id, result.user?.id,);
                     history.replace(`/gallery/${gallery.id}`);
                     showToast("Joined gallery!");
+                    dismiss();
                 } else {
                     showToast("Failed to join gallery");
                 }
@@ -95,9 +76,12 @@ const JoinGalleryPage: React.FC = () => {
         }
     };
 
+    function dismiss() {
+        modal.current?.dismiss();
+    }
+
     return (
         <IonPage>
-
             <IonContent fullscreen={true} className="ion-padding">
 
                 <IonHeader>
@@ -108,7 +92,6 @@ const JoinGalleryPage: React.FC = () => {
 
                 {gallery ? (
                     <div>
-
                         {gallery.preview_image ? (
                             <img className="join-galerie-previeImg" src={gallery.preview_image}/>
                         ) : (
@@ -138,12 +121,10 @@ const JoinGalleryPage: React.FC = () => {
                             </IonItem>
 
                             <IonButton expand="block" onClick={handleAnonLogin} shape="round"> Join Gallery </IonButton>
-
                             <IonText className="sign-txt">Have an account? <Link to='' id="open-modal">Log in</Link></IonText>
-
                         </div>
 
-
+                        {/* Modal for login */}
                         <IonModal
                             ref={modal}
                             trigger="open-modal"
@@ -195,13 +176,11 @@ const JoinGalleryPage: React.FC = () => {
 
                         </IonModal>
 
-
                     </div>
 
                 ) : (
                     <p>No Gallery found</p>
                 )}
-
 
             </IonContent>
         </IonPage>

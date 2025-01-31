@@ -193,7 +193,6 @@ const updateGalleryPreviewImage = async (previewImageUrl: string , galleryID: st
 
 
 // ---------- Add a Image to a Gallerie
-//TODO - ownerId hinzufügen
 export const addImagesToGallery = async (galleryOwnerId: string, galleryId: string, image: File) => {
     if (!galleryOwnerId || !galleryId) {
         console.error("Owner ID oder Gallery ID fehlt");
@@ -319,7 +318,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 
             if (previewDeleteError) {
                 console.error('Fehler beim Löschen des Preview-Bildes:', previewDeleteError.message);
-                return { success: false, message: 'Fehler beim Löschen des Preview-Bildes.' };
+                return { success: false, message: 'Error when deleting the preview image.' };
             }
         }
 
@@ -331,7 +330,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 
         if (imageError) {
             console.error('Fehler beim Abrufen der Bilder:', imageError.message);
-            return { success: false, message: 'Fehler beim Abrufen der Bilder.' };
+            return { success: false, message: 'Error when retrieving the images.' };
         }
 
         if (images && images.length > 0) {
@@ -349,7 +348,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 
             if (deleteError) {
                 console.error('Fehler beim Löschen der Bilder:', deleteError.message);
-                return { success: false, message: 'Fehler beim Löschen der Bilder.' };
+                return { success: false, message: 'Error when deleting images.' };
             }
         }
 
@@ -362,7 +361,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
     
         if (deleteGalleryFolderError) {
                 console.error('Fehler beim Löschen der Bilder aus der Datenbank:', deleteGalleryFolderError.message);
-                return { success: false, message: 'Fehler beim Löschen der Bilder aus der Datenbank.' };
+                return { success: false, message: 'Error deleting images from the database.' };
         }
 
         // Galerie-Bilder aus der Datenbank löschen
@@ -373,7 +372,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 
         if (deleteImagesError) {
             console.error('Fehler beim Löschen der Bilder aus der Datenbank:', deleteImagesError.message);
-            return { success: false, message: 'Fehler beim Löschen der Bilder aus der Datenbank.' };
+            return { success: false, message: 'Error when deleting images from the database.' };
         }
 
         // Galerie-Eintrag löschen
@@ -384,13 +383,13 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 
         if (galleryError) {
             console.error('Fehler beim Löschen der Galerie:', galleryError.message);
-            return { success: false, message: 'Fehler beim Löschen der Galerie.' };
+            return { success: false, message: 'Error when deleting the gallery.' };
         }
 
-        return { success: true, message: 'Galerie und Bilder erfolgreich gelöscht.' };
+        return { success: true, message: 'Gallery and images successfully deleted.' };
     } catch (err) {
         console.error('Unerwarteter Fehler beim Löschen der Galerie:', err);
-        return { success: false, message: 'Unerwarteter Fehler beim Löschen der Galerie.' };
+        return { success: false, message: 'Unexpected error when deleting the gallery.' };
     }
 };
 
@@ -407,14 +406,14 @@ export const updateGalleryInfos = async (gallery: Gallery, newTitle: string, new
 
         if (error) {
             console.error('Fehler beim Aktualisieren der Galerie:', error);
-            return { success: false, message: 'Fehler beim Aktualisieren der Galerie.' };
+            return { success: false, message: 'Error updating the gallery.' };
         }
 
 
-        return { success: true, message: 'Galerie erfolgreich aktualisiert.' };
+        return { success: true, message: 'Gallery successfully updated.' };
     } catch (err) {
         console.error('Unerwarteter Fehler:', err);
-        return { success: false, message: 'Unerwarteter Fehler.' };
+        return { success: false, message: 'Unexpected error.' };
     }
 };
 
@@ -432,10 +431,10 @@ export const updateGalleryPreviewImg = async (gallery: Gallery, preview_image: F
             }
         }
 
-        return { success: true, message: 'Galerie erfolgreich aktualisiert.' };
+        return { success: true, message: 'Gallery successfully updated.' };
     } catch (err) {
         console.error('Unerwarteter Fehler:', err);
-        return { success: false, message: 'Unerwarteter Fehler.' };
+        return { success: false, message: 'Unexpected error.' };
     }
 };
 

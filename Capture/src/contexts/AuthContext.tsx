@@ -1,4 +1,3 @@
-// AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { getLoggedInUser } from "../services/authService";
 
@@ -17,6 +16,7 @@ interface AuthProviderProps {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// AuthProvider component to wrap the entire application and provide user authentication state
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
@@ -26,6 +26,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         checkUser();
     }, []);
 
+    // Check if a user is logged in
     const checkUser = async (): Promise<boolean> => {
         setLoading(true);
         try {
@@ -38,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 return false;
             }
         } catch (error) {
-            console.error("Fehler beim Abrufen des Benutzers:", error);
+            console.error("Error getting User:", error);
             logout();
             return false;
         } finally {
@@ -46,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    // Update the current user
     const updateCurrentUser = async () => {
         try {
             const userResponse = await getLoggedInUser();
@@ -55,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setCurrentUser(null);
             }
         } catch (error) {
-            console.error("Fehler beim Abrufen des Benutzers:", error);
+            console.error("Error getting User:", error);
             setCurrentUser(null);
         }
     }
@@ -63,13 +65,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = (userResponse: any) => {
         setIsAuthenticated(true);
         setCurrentUser(userResponse.user);
-        console.log("AUTHCONTEXT: User logged in");
     };
 
     const logout = () => {
         setIsAuthenticated(false);
         setCurrentUser(null);
-        console.log("AUTHCONTEXT: User logged out");
     };
 
     return (

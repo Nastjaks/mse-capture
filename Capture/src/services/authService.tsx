@@ -1,6 +1,5 @@
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../config/supabaseConfig';
-import { getRandomUserName } from '../utilitys/randomUsername';
 
 interface AuthResponse {
     success: boolean;
@@ -132,6 +131,7 @@ export const updateUserData = async (options: UpdateUserOptions, userId: string)
 };
 
 // ----- Anon Login -----
+/*
 export const signInAnon = async (anonName: string): Promise<AuthResponse> => {
     try {
         const { data, error } = await supabase.auth.signInAnonymously();
@@ -153,3 +153,4 @@ export const signInAnon = async (anonName: string): Promise<AuthResponse> => {
         return { success: false, message: 'Unexpected error.', user: null };
     }
 };
+*/
