@@ -144,7 +144,7 @@ const GalleryDetailPage: React.FC = () => {
             const files = event.target.files;
 
             if (files && gallery?.owner_id && gallery.id) {
-                const fileArray = Array.from(files);
+                const fileArray = Array.from(files as FileList);
                 try {
                     await Promise.all(fileArray.map(file => {
                         const renamedFile = new File([file], addTimestampToFilename(file), { type: file.type });

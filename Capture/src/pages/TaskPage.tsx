@@ -64,10 +64,10 @@ const TaskPage: React.FC = () => {
             const files = event.target.files;
 
             if (files && gallery?.owner_id && galleryId) {
-                const fileArray = Array.from(files);
+                const fileArray = Array.from(files as FileList);
                 try {
-                    await Promise.all(fileArray.map(file => {
-                        const renamedFile = new File([file], addTimestampToFilename(file as File), { type: file.type });
+                    await Promise.all(fileArray.map((file: File) => {
+                        const renamedFile = new File([file as BlobPart], addTimestampToFilename(file), { type: file.type });
                         return uploadImageToTask(gallery.owner_id, gallery.id, renamedFile, taskId);
                     }));
                     await fetchTaskImages();
