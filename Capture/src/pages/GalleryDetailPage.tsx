@@ -200,6 +200,7 @@ const GalleryDetailPage: React.FC = () => {
 
     // Set the preview image when a new file is selected and prepare the image for upload
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
 
@@ -486,11 +487,11 @@ const GalleryDetailPage: React.FC = () => {
 
                         </span>
 
-                        <input type="file" accept="image/*" id="imagePreview_id" hidden onChange={handleFileChange}/>
+                        <input type="file" accept="image/*" id="imagePreview_id-p" hidden onChange={handleFileChange}/>
 
                         <label
                             id="imagePreview_label"
-                            htmlFor="imagePreview_id"
+                            htmlFor="imagePreview_id-p"
                             className={newPreviewImageUrl ? "hasImg" : ""}
                             style={{
                                 backgroundImage: newPreviewImageUrl ? `url(${newPreviewImageUrl})` : undefined,

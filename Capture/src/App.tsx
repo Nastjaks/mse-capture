@@ -81,14 +81,6 @@ const AppContent: React.FC = () => {
         <IonTabs>
             <IonRouterOutlet animated={false}>
 
-                {/*<Route exact path="/signin" component={SignInPage}/>
-                    <Route exact path="/signup" component={SignUpPage}/>
-                    <Route exact path="/profil" component={ProfilPage} />
-                    <Route exact path="/galleries" component={GalleriesPage}/>
-                    <Route exact path="/create-gallery" component={CreateGalleryPage}/>
-                    <Route exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
-                    <Route exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>
-*/}
                 <Route exact path="/all-galleries" component={AllGalleriesPage}/>
 
                 <ProtectedRoute exact path="/" component={SignInPage} publicOnly/>
@@ -99,7 +91,6 @@ const AppContent: React.FC = () => {
                 <ProtectedRoute exact path="/create-gallery" component={CreateGalleryPage} requireNonAnonymous />
                 <ProtectedRoute exact path="/galleries" component={GalleriesPage}/>
 
-                {/*TODO Sonder fall*/}
                 <Route exact path="/join-gallery/:galleryId" component={JoinGalleryPage}/>
                 <ProtectedRoute exact path="/gallery/:galleryId" component={GalleryDetailPage}/>
                 <ProtectedRoute exact path="/gallery/:galleryId/:taskId" component={TaskPage}/>

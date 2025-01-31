@@ -121,7 +121,7 @@ const JoinGalleryPage: React.FC = () => {
                             </IonItem>
 
                             <IonButton expand="block" onClick={handleAnonLogin} shape="round"> Join Gallery </IonButton>
-                            <IonText className="sign-txt">Have an account? <Link to='' id="open-modal">Log in</Link></IonText>
+                            <IonText className="sign-txt">Have an account? <Link to='#' id="open-modal">Log in</Link></IonText>
                         </div>
 
                         {/* Modal for login */}
