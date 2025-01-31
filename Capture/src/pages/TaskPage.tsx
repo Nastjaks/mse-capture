@@ -8,6 +8,7 @@ import {add, arrowBackSharp} from "ionicons/icons";
 import {getGalleryById} from "../services/galleryService";
 import {Image} from "../models/Image";
 import ImageComponent from "../components/ImageComponent";
+import {addTimestampToFilename} from "../utilitys/timeStamp";
 
 const TaskPage: React.FC = () => {
     const {galleryId, taskId} = useParams<{ galleryId: string; taskId: string }>();
@@ -70,7 +71,10 @@ const TaskPage: React.FC = () => {
             if (files && gallery?.owner_id && galleryId) {
                 const fileArray = Array.from(files);
                 try {
-                    await Promise.all(fileArray.map(file => uploadImageToTask(gallery.owner_id, gallery.id, file as File, taskId)));
+                    await Promise.all(fileArray.map(file => {
+                        const renamedFile = new File([file], addTimestampToFilename(file), { type: file.type });
+                        return uploadImageToTask(gallery.owner_id, gallery.id, renamedFile, taskId);
+                    }));
                     await fetchTaskImages();
                 } catch (error) {
                     console.error('Error uploading the images', error);
@@ -81,6 +85,7 @@ const TaskPage: React.FC = () => {
         };
         input.click();
     };
+
 
 
     return (

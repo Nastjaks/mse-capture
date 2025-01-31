@@ -395,7 +395,7 @@ export const deleteGallery = async (id: string, ownerId: string, previewImageUrl
 };
 
 // ---- UPDATE GALLERY ----
-export const updateGallery = async (gallery: Gallery, newTitle: string, newDescr: string, preview_image: File | null) => {
+export const updateGalleryInfos = async (gallery: Gallery, newTitle: string, newDescr: string,) => {
     try {
         const { error } = await supabase
             .from('galleries')
@@ -410,6 +410,18 @@ export const updateGallery = async (gallery: Gallery, newTitle: string, newDescr
             return { success: false, message: 'Fehler beim Aktualisieren der Galerie.' };
         }
 
+
+        return { success: true, message: 'Galerie erfolgreich aktualisiert.' };
+    } catch (err) {
+        console.error('Unerwarteter Fehler:', err);
+        return { success: false, message: 'Unerwarteter Fehler.' };
+    }
+};
+
+
+// ---- Preview IMG
+export const updateGalleryPreviewImg = async (gallery: Gallery, preview_image: File | null) => {
+    try {
         if (preview_image != null) {
             const previewImageUrl = await insertPreviewImage(gallery.owner_id, gallery.id, preview_image);
             if (previewImageUrl) {
@@ -426,7 +438,6 @@ export const updateGallery = async (gallery: Gallery, newTitle: string, newDescr
         return { success: false, message: 'Unerwarteter Fehler.' };
     }
 };
-
 
 // ---- ADD GALLERY MEMBER ----
 export const AddUserToGallery = async (galleryId: string, userId: string) => {

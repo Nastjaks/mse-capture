@@ -74,7 +74,7 @@ const SignInPage: React.FC = () => {
                                 required={true}
                                 type="password"
                                 onIonInput={(e) => {
-                                    setPassword(e.detail.value!), console.log(password)
+                                    setPassword(e.detail.value!)
                                 }}
                             >
                             </IonInput>

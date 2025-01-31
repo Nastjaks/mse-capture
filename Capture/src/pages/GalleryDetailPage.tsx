@@ -1,12 +1,12 @@
 import {
-    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewDidLeave, useIonViewWillEnter
+    IonAlert, IonButton, IonContent, IonFab, IonFabButton, IonIcon, IonInput, IonItem, IonModal, IonPage, IonRefresher, IonRefresherContent, IonText, useIonViewDidLeave, useIonViewWillEnter, useIonViewWillLeave
 } from '@ionic/react';
 import {useParams} from 'react-router-dom';
 import React, {useEffect, useRef, useState} from 'react';
 import {useHistory} from "react-router";
 import {add, camera, createSharp, ellipsisVerticalSharp, imageOutline, logOut, share, trash} from "ionicons/icons";
 import {menuController} from "@ionic/core/components";
-import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery, updateGallery} from '../services/galleryService';
+import {addImagesToGallery, deleteGallery, getGalleryById, getGalleryImages, removeUserFromGallery, updateGallery, updateGalleryInfos, updateGalleryPreviewImg} from '../services/galleryService';
 import {Gallery} from "../models/Gallery";
 import '../theme/GalleryDetail.css';
 import {useToast} from "../contexts/ToastContext";
@@ -19,6 +19,7 @@ import {Image} from "../models/Image";
 import {useAuth} from "../contexts/AuthContext";
 import {StatusBar, Style} from "@capacitor/status-bar";
 import {Capacitor} from "@capacitor/core";
+import {addTimestampToFilename} from "../utilitys/timeStamp";
 
 /*
 * Gallerie Detailseite
@@ -43,7 +44,8 @@ const GalleryDetailPage: React.FC = () => {
     const [selectedSegment, setSelectedSegment] = useState("gallery-images-segment");
 
     const taskComponentRef = useRef<any>(null);
-    const modal = useRef<HTMLIonModalElement>(null);
+    const editInfosModal = useRef<HTMLIonModalElement>(null);
+    const editPreviewModal = useRef<HTMLIonModalElement>(null);
 
     const {showToast} = useToast();
     const {currentUser} = useAuth();
@@ -153,13 +155,17 @@ const GalleryDetailPage: React.FC = () => {
         input.type = 'file';
         input.accept = 'image/*';
         input.multiple = true;
+
         input.onchange = async (event: any) => {
             const files = event.target.files;
 
             if (files && gallery?.owner_id && gallery.id) {
                 const fileArray = Array.from(files);
                 try {
-                    await Promise.all(fileArray.map(file => addImagesToGallery(gallery.owner_id, gallery.id, file as File)));
+                    await Promise.all(fileArray.map(file => {
+                        const renamedFile = new File([file], addTimestampToFilename(file), { type: file.type });
+                        return addImagesToGallery(gallery.owner_id, gallery.id, renamedFile);
+                    }));
                     await fetchGalleryImages();
                 } catch (error) {
                     console.error('Error uploading the images', error);
@@ -173,16 +179,39 @@ const GalleryDetailPage: React.FC = () => {
         input.click();
     };
 
-    /* -- Edit Gallery -- */
+    /* -- Edit Gallery Infos-- */
     const handleEditGallery = async () => {
         if (gallery) {
-            const {message} = await updateGallery(gallery, newTitle, newDescription, newPreviewImage);
+            const titleToUse = newTitle || gallery.title; // Fallback auf bestehenden Titel
+
+            const { message } = await updateGalleryInfos(gallery, titleToUse, newDescription);
             showToast(message);
+            editInfosModal.current?.dismiss();
+            resetFields();
             await loadGalleryInfos();
         } else {
             showToast('Gallery not found.');
         }
-    }
+    };
+
+    /* -- Edit Gallery PreviewImage-- */
+    const handleChangePreviewImage = async () => {
+        if (gallery && newPreviewImage) {
+
+            const renamedFile = new File([newPreviewImage], addTimestampToFilename(newPreviewImage), { type: newPreviewImage.type });
+
+            try {
+                const {message} = await updateGalleryPreviewImg(gallery, renamedFile);
+                showToast(message);
+                await loadGalleryInfos();
+                editPreviewModal.current?.dismiss();
+            } catch (error) {
+                console.error('Error updating preview image', error);
+            }
+        } else {
+            showToast('Please set an image.');
+        }
+    };
 
     /* -- Bildvorschau -- */
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,200 +251,203 @@ const GalleryDetailPage: React.FC = () => {
     };
 
     const resetFields = () => {
+        setNewPreviewImage(null);
         setNewTitle("");
         setNewDescription("");
-        setNewPreviewImage(null);
-    }
-
-    function dismiss() {
-        modal.current?.dismiss();
-    }
-
-    function present() {
-        modal.current?.present();
+        setNewPreviewImageUrl(null);
     }
 
     return (
 
-            <IonPage id="gallerie-content">
+        <IonPage id="gallerie-content">
 
-                <IonContent fullscreen={true}>
+            <IonContent fullscreen={true}>
 
-                    {/* Custom Navigation*/}
-                    <IonModal
-                        isOpen={showSettings}
-                        onDidDismiss={handleCloseSettings}
-                        enterAnimation={sideEnterAnimation}
-                        leaveAnimation={sideLeaveAnimation}
-                        className='gallery-menu-modal'
-                    >
-                        <IonContent>
-                            <IonItem>Gallery Settings</IonItem>
-                            {!isParticipant && (<IonItem button onClick={() => {
-                                setShowSettings(false);
-                                present();
-                            }}> <IonIcon aria-hidden="true" icon={createSharp}/>Edit gallery</IonItem>)}
+                {/* Custom Navigation*/}
+                <IonModal
+                    isOpen={showSettings}
+                    onDidDismiss={handleCloseSettings}
+                    enterAnimation={sideEnterAnimation}
+                    leaveAnimation={sideLeaveAnimation}
+                    className='gallery-menu-modal'
+                >
+                    <IonContent>
+                        <IonItem>Gallery Settings</IonItem>
 
-                            {!isParticipant && (<IonItem button onClick={() => {
-                                setShowSettings(false);
-                                setSelectedSegment("gallery-tasks-segment")
-                                setTaskManagerModal(true);
-                            }}> <IonIcon aria-hidden="true" icon={camera}/>Manage tasks</IonItem>)}
+                        {!isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            setSelectedSegment("gallery-tasks-segment")
+                            setTaskManagerModal(true);
+                        }}> <IonIcon aria-hidden="true" icon={camera}/>Manage tasks</IonItem>)}
 
-                            {!isParticipant && (<IonItem button onClick={() => {
-                                setShowSettings(false);
-                                setShowShareModal(true);
-                            }}> <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>)}
+                        {!isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            editInfosModal.current?.present();
+                        }}> <IonIcon aria-hidden="true" icon={createSharp}/>Edit gallery info</IonItem>)}
 
-                            {!isParticipant && (<IonItem button onClick={() => {
-                                setShowSettings(false);
-                                setShowDeleteConfirm(true);
-                            }}> <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>)}
+                        {!isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            editPreviewModal.current?.present();
+                        }}> <IonIcon aria-hidden="true" icon={createSharp}/>Change thumbnail</IonItem>)}
 
-                            {isParticipant && (<IonItem button onClick={() => {
-                                setShowSettings(false);
-                                setShowLeaveConfirm(true);
-                            }}> <IonIcon aria-hidden="true" icon={logOut}/>Leave Gallery</IonItem>)}
-                        </IonContent>
-                    </IonModal>
 
-                    {/* Fontent Refresher */}
-                    <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-                        <IonRefresherContent
-                            pullingText="Pull to refresh"
-                            refreshingText="Refreshing..."
-                            refreshingSpinner="circles"
-                        />
-                    </IonRefresher>
+                        {!isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            setShowShareModal(true);
+                        }}> <IonIcon aria-hidden="true" icon={share}/>Share</IonItem>)}
 
-                    {/* Gallerie Header */}
-                    {gallery ? (
-                        <div className="galerie-header">
+                        {!isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            setShowDeleteConfirm(true);
+                        }}> <IonIcon aria-hidden="true" icon={trash}/>Delete</IonItem>)}
 
-                            <div className="galleryTopBar">
-                                <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
-                            </div>
+                        {isParticipant && (<IonItem button onClick={() => {
+                            setShowSettings(false);
+                            setShowLeaveConfirm(true);
+                        }}> <IonIcon aria-hidden="true" icon={logOut}/>Leave Gallery</IonItem>)}
+                    </IonContent>
+                </IonModal>
 
-                            <div className="gallery-header-wrapper">
-                                <p className="gallery-owner">By {gallery.profiles.display_name}</p>
-                                <h1 className="gallery-title">{gallery.title}</h1>
+                {/* Fontent Refresher */}
+                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                    <IonRefresherContent
+                        pullingText="Pull to refresh"
+                        refreshingText="Refreshing..."
+                        refreshingSpinner="circles"
+                    />
+                </IonRefresher>
 
-                                {gallery.description && (
-                                    <p className="gallery-descr">{gallery.description}</p>
-                                )}
-                            </div>
+                {/* Gallerie Header */}
+                {gallery ? (
+                    <div className="galerie-header">
 
-                            {gallery.preview_image ? (
-                                <img src={gallery.preview_image} alt={gallery.title} className="gallery-image"/>
-                            ) : (
-                                <div className="gallery-image placeholder-img"/>
-                            )}
-
+                        <div className="galleryTopBar">
+                            <IonIcon onClick={handleOpenSettings} aria-hidden="true" icon={ellipsisVerticalSharp}/>
                         </div>
-                    ) : (
-                        <p>Gallery not found</p>
-                    )}
 
-                    <div className="ion-padding">
-                        <div className="custom-segment-container ">
-                            <div className="custom-segment-background" style={{transform: `translateX(${selectedSegment === 'gallery-tasks-segment' ? '100%' : '0'})`}}></div>
-                            <div
-                                className={`custom-segment-button ${selectedSegment === "gallery-images-segment" ? "active" : ""}`}
-                                onClick={() => handleSegmentChange("gallery-images-segment")}>
-                                <IonText>Images</IonText>
-                            </div>
-                            <div
-                                className={`custom-segment-button ${selectedSegment === "gallery-tasks-segment" ? "active" : ""}`}
-                                onClick={() => handleSegmentChange("gallery-tasks-segment")}>
-                                <IonText>Tasks</IonText>
-                            </div>
+                        <div className="gallery-header-wrapper">
+                            <p className="gallery-owner">By {gallery.profiles.display_name}</p>
+                            <h1 className="gallery-title">{gallery.title}</h1>
+
+                            {gallery.description && (
+                                <p className="gallery-descr">{gallery.description}</p>
+                            )}
+                        </div>
+
+                        {gallery.preview_image ? (
+                            <img src={gallery.preview_image} alt={gallery.title} className="gallery-image"/>
+                        ) : (
+                            <div className="gallery-image placeholder-img"/>
+                        )}
+
+                    </div>
+                ) : (
+                    <p>Gallery not found</p>
+                )}
+
+                <div className="ion-padding">
+                    <div className="custom-segment-container ">
+                        <div className="custom-segment-background" style={{transform: `translateX(${selectedSegment === 'gallery-tasks-segment' ? '100%' : '0'})`}}></div>
+                        <div
+                            className={`custom-segment-button ${selectedSegment === "gallery-images-segment" ? "active" : ""}`}
+                            onClick={() => handleSegmentChange("gallery-images-segment")}>
+                            <IonText>Images</IonText>
+                        </div>
+                        <div
+                            className={`custom-segment-button ${selectedSegment === "gallery-tasks-segment" ? "active" : ""}`}
+                            onClick={() => handleSegmentChange("gallery-tasks-segment")}>
+                            <IonText>Tasks</IonText>
                         </div>
                     </div>
+                </div>
 
-                    {selectedSegment === "gallery-images-segment" && (
-                        <div>
-                            <ImageComponent images={galleryImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchGalleryImages}/>
-                        </div>
-                    )}
+                {selectedSegment === "gallery-images-segment" && (
+                    <ImageComponent images={galleryImages} galleryOwnerId={gallery?.owner_id!} onImageDelete={fetchGalleryImages}/>
+                )}
 
-                    {selectedSegment === "gallery-tasks-segment" && (
-                        <div>
-                            <TaskComponent ref={taskComponentRef} galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>
-                        </div>
-                    )}
+                {selectedSegment === "gallery-tasks-segment" && (
+                    <TaskComponent ref={taskComponentRef} galleryId={galleryId} isTaskManagerOpen={showTaskManagerModal}/>
+                )}
 
-                    {/* Share Gallery */}
-                    <QRCodeComponent galleryId={galleryId} istShareOpen={showShareModal}/>
+                {/* Share Gallery */}
+                <QRCodeComponent galleryId={galleryId} istShareOpen={showShareModal}/>
 
-                    {/* Delete-Galerie-Bestätigungsdialog */}
-                    <IonAlert
-                        isOpen={showDeleteConfirm}
-                        onDidDismiss={() => setShowDeleteConfirm(false)}
-                        header={'Delete Gallery'}
-                        message={`Do you really want to delete this gallery?
+                {/* Delete-Galerie-Bestätigungsdialog */}
+                <IonAlert
+                    isOpen={showDeleteConfirm}
+                    onDidDismiss={() => setShowDeleteConfirm(false)}
+                    header={'Delete Gallery'}
+                    message={`Do you really want to delete this gallery?
                         ${gallery?.title}`}
 
-                        buttons={[
-                            {
-                                text: 'Cancel',
-                                role: 'cancel',
-                                handler: async () => {
-                                    await menuController.close();
-                                },
+                    buttons={[
+                        {
+                            text: 'Cancel',
+                            role: 'cancel',
+                            handler: async () => {
+                                await menuController.close();
                             },
-                            {
-                                text: 'Delete',
-                                handler: handleDeleteGallery,
+                        },
+                        {
+                            text: 'Delete',
+                            handler: handleDeleteGallery,
+                        },
+                    ]}
+                />
+
+                {/* Logout-Bestätigungsdialog */}
+                <IonAlert
+                    isOpen={showLeaveConfirm}
+                    onDidDismiss={() => setShowLeaveConfirm(false)}
+                    header={'Leave Gallery'}
+                    message={'Do you really want to leave this gallery?'}
+                    buttons={[
+                        {
+                            text: 'Cancel',
+                            role: 'cancel',
+                            handler: async () => {
+                                await menuController.close();
                             },
-                        ]}
-                    />
+                        },
+                        {
+                            text: 'Leave',
+                            handler: leaveSharedGallery,
+                        },
+                    ]}
+                />
 
-                    {/* Logout-Bestätigungsdialog */}
-                    <IonAlert
-                        isOpen={showLeaveConfirm}
-                        onDidDismiss={() => setShowLeaveConfirm(false)}
-                        header={'Leave Gallery'}
-                        message={'Do you really want to leave this gallery?'}
-                        buttons={[
-                            {
-                                text: 'Cancel',
-                                role: 'cancel',
-                                handler: async () => {
-                                    await menuController.close();
-                                },
-                            },
-                            {
-                                text: 'Leave',
-                                handler: leaveSharedGallery,
-                            },
-                        ]}
-                    />
+                <IonFab
+                    slot="fixed"
+                    vertical="bottom"
+                    horizontal="end"
+                    onClick={handleAddImagesToGallery}
+                    className={selectedSegment === "gallery-images-segment" ? "" : "hide-btn"}
+                >
+                    <IonFabButton>
+                        <IonIcon icon={add}></IonIcon>
+                    </IonFabButton>
+                </IonFab>
 
 
-                    <IonFab
-                        slot="fixed"
-                        vertical="bottom"
-                        horizontal="end"
-                        onClick={handleAddImagesToGallery}
-                        className={selectedSegment === "gallery-images-segment" ? "" : "hide-btn"}
-                    >
-                        <IonFabButton>
-                            <IonIcon icon={add}></IonIcon>
-                        </IonFabButton>
-                    </IonFab>
 
-                </IonContent>
-
+                {/* Change Infos*/}
                 <IonModal
-                    className="modal-dialog"
-                    ref={modal}
+                    className="action-modal"
+                    ref={editInfosModal}
+                    breakpoints={[0, 0.55]}
+                    initialBreakpoint={0.55}
+                    handleBehavior="cycle"
                     onDidDismiss={resetFields}>
                     <div className="ion-padding form-container">
-                        <p>Set new title</p>
+
+                        <div className="action-modal-title">
+                            <p>Change the Info</p>
+                        </div>
+
                         <IonItem>
                             <IonInput
                                 placeholder="Title"
-                                label="Title"
+                                label="Title*"
                                 labelPlacement="floating"
                                 value={newTitle}
                                 required={true}
@@ -423,7 +455,7 @@ const GalleryDetailPage: React.FC = () => {
                                 onIonChange={(e) => setNewTitle(e.detail.value!)}
                             />
                         </IonItem>
-                        <p>Set new description</p>
+
                         <IonItem>
                             <IonInput
                                 placeholder="Description..."
@@ -436,8 +468,28 @@ const GalleryDetailPage: React.FC = () => {
                             />
                         </IonItem>
 
+                        <IonButton expand="block"
+                                   onClick={() => {
+                                       handleEditGallery();
+                                   }} shape="round"> Save </IonButton>
+                    </div>
+                </IonModal>
+
+
+                {/* new Preview image*/}
+                <IonModal
+                    className="action-modal"
+                    ref={editPreviewModal}
+                    breakpoints={[0, 0.8]}
+                    initialBreakpoint={0.8}
+                    handleBehavior="cycle"
+                    onDidDismiss={resetFields}>
+                    <div className="ion-padding form-container">
+                        <div className="action-modal-title">
+                            <p>Change the Thumbnail</p>
+                        </div>
+
                         <span className="imgPickerLabel">
-                                <p className="label tumb-label">Thumbnail</p>
 
                             {/* Bild entfernen */}
                             {newPreviewImage && (
@@ -452,38 +504,32 @@ const GalleryDetailPage: React.FC = () => {
                                 />
                             )}
 
-                            </span>
+                        </span>
 
-                        <input
-                            type="file"
-                            accept="image/*"
-                            id="imagePreview_id"
-                            hidden
-                            onChange={handleFileChange}
-                        />
+                        <input type="file" accept="image/*" id="imagePreview_id" hidden onChange={handleFileChange}/>
 
                         <label
                             id="imagePreview_label"
                             htmlFor="imagePreview_id"
-                            className={newPreviewImage ? "hasImg" : ""}
+                            className={newPreviewImageUrl ? "hasImg" : ""}
                             style={{
-                                backgroundImage: newPreviewImage ? `url(${newPreviewImageUrl})` : undefined,
+                                backgroundImage: newPreviewImageUrl ? `url(${newPreviewImageUrl})` : undefined,
                             }}
                         >
-                                    <span className="imagePicker">
-                                        <span>Choose Image</span>
-                                        <IonIcon aria-hidden="true" icon={imageOutline}/>
-                                    </span>
+                            <span className="imagePicker">
+                                <span>Choose Image</span>
+                                <IonIcon aria-hidden="true" icon={imageOutline}/>
+                            </span>
                         </label>
-                        <IonButton expand="block"
-                                   onClick={() => {
-                                       handleEditGallery();
-                                       resetFields();
-                                       dismiss();
-                                   }} shape="round"> Save </IonButton>
+
+                        <IonButton expand="block" onClick={() => {
+                            handleChangePreviewImage();
+                        }} shape="round"> Save </IonButton>
                     </div>
                 </IonModal>
-            </IonPage>
+
+            </IonContent>
+        </IonPage>
     );
 };
 

@@ -6,6 +6,7 @@ import {Gallery} from "../models/Gallery";
 import {useToast} from "../contexts/ToastContext";
 import {imageOutline, trash} from 'ionicons/icons';
 import {useAuth} from "../contexts/AuthContext";
+import {addTimestampToFilename} from "../utilitys/timeStamp";
 
 /*
 * Seite zur Erstellung einer neuen Galerie.
@@ -21,7 +22,7 @@ const CreateGalleryPage: React.FC = () => {
     const history = useHistory();
 
     const handleCreateGallery = async () => {
-        //Titel validieren
+        // Titel validieren
         if (!title.trim()) {
             showToast("The title is required.");
             return;
@@ -29,7 +30,13 @@ const CreateGalleryPage: React.FC = () => {
 
         try {
             const owner_id = currentUser.id;
-            const result_newGallery = await createGallery({title, description, owner_id} as Gallery, preview_image);
+
+            let renamedPreviewImage = preview_image;
+            if (preview_image) {
+                renamedPreviewImage = new File([preview_image], addTimestampToFilename(preview_image), { type: preview_image.type });
+            }
+
+            const result_newGallery = await createGallery({title, description, owner_id} as Gallery, renamedPreviewImage);
 
             if (result_newGallery.success) {
                 restFields();

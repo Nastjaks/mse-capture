@@ -155,8 +155,8 @@ ion-fab.hide-btn {
 }
 
 #imagePreview_label.hasImg .imagePicker {
-    background: rgba(0, 0, 0, 0.5);
     color: rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0.5) center center;
 }
 
 #imagePreview_label:hover {
@@ -173,6 +173,7 @@ ion-fab.hide-btn {
     width: 100%;
     background-size: 100%;
     overflow: hidden;
+    background-position: center center;
 }
 
 #imagePreview_label.hasImg:hover {
@@ -532,13 +533,7 @@ ion-tab-bar {
     width: 100%;
 }
 
-.profile-name{
 
-}
-
-.profile-mail{
-
-}
 /*-------------------------------------------------*/
 
 ion-modal.modal-dialog {
